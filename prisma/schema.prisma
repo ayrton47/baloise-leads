@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  TO_CONTACT
+  QUOTED
+  REFUSED
+  CONVERTED
+}
+
+enum RefusalReason {
+  NO_ASSET
+  PRICE_TOO_HIGH
+  ALREADY_INSURED
+  OTHER
+}
+
+enum ProductType {
+  DRIVE
+  HOME
+  PENSION_PLAN
+}
+
+enum LeadSource {
+  MANUAL
+  API_EXTERNAL
+}
+
+enum ActionType {
+  REFUSED
+  QUOTE_CREATED
+  CALLBACK_SCHEDULED
+  NOTE_ADDED
+}
+
+model Agent {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  leads     Lead[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("agents")
+}
+
+model Lead {
+  id              String       @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  productInterest ProductType
+  status          LeadStatus   @default(NEW)
+  source          LeadSource   @default(MANUAL)
+  externalId      String?      @unique
+  agentId         String
+  agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  actions         LeadAction[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([agentId])
+  @@index([status])
+  @@map("leads")
+}
+
+model LeadAction {
+  id            String         @id @default(uuid())
+  leadId        String
+  lead          Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type          ActionType
+  refusalReason RefusalReason?
+  refusalNote   String?
+  quotedProduct ProductType?
+  quoteUrl      String?
+  callbackDate  DateTime?
+  note          String?
+  createdAt     DateTime       @default(now())
+  createdBy     String
+
+  @@index([leadId])
+  @@map("lead_actions")
+}

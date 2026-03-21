@@ -1,0 +1,299 @@
+================================================================================
+                    BALOISE LEADS - FICHIERS CRÉÉS
+================================================================================
+
+📊 STATISTIQUES
+===============
+- Lignes de code TypeScript/React: ~886
+- Fichiers de documentation: 10
+- Routes API: 8
+- Composants React: 5
+- Pages: 2
+- Configuration files: 6
+
+📄 DOCUMENTATION (10 fichiers)
+==============================
+✅ README.md              - Vue d'ensemble et features
+✅ QUICKSTART.md          - Déployer en 5 minutes ⭐ COMMENCER ICI
+✅ DEPLOY_VERCEL.md       - Guide détaillé déploiement Vercel
+✅ ARCHITECTURE.md        - Explication architecture technique
+✅ SUMMARY.md             - Résumé complet du projet
+✅ API_WEBHOOK.md         - Documentation API webhooks
+✅ NEXT_STEPS.md          - Roadmap développement futur
+✅ INSTALLATION.md        - (Legacy, deprecated)
+✅ SETUP.md               - (Legacy, deprecated)
+✅ PROJECT_STRUCTURE.md   - (Legacy, deprecated)
+
+🎨 FRONTEND REACT (5 fichiers)
+===============================
+✅ components/pages/LoginPage.tsx      - Page de connexion/inscription
+✅ components/pages/LeadsPage.tsx      - Dashboard principal
+✅ components/LeadRow.tsx              - Affichage ligne lead
+✅ components/LeadActionPanel.tsx      - Panneau actions (refuse, quote, callback)
+✅ components/AddLeadModal.tsx         - Modal création lead
+
+📱 PAGES NEXT.JS (2 fichiers)
+==============================
+✅ app/page.tsx           - Routing principal (login/leads)
+✅ app/layout.tsx         - Layout HTML global
+
+🔌 API ROUTES - SERVERLESS FUNCTIONS (8 fichiers)
+===================================================
+✅ app/api/auth/login/route.ts         - POST /api/auth/login
+✅ app/api/auth/register/route.ts      - POST /api/auth/register
+✅ app/api/leads/route.ts              - GET/POST /api/leads
+✅ app/api/leads/[id]/route.ts         - GET /api/leads/:id
+✅ app/api/leads/[id]/refuse/route.ts    - POST /api/leads/:id/refuse
+✅ app/api/leads/[id]/quote/route.ts     - POST /api/leads/:id/quote
+✅ app/api/leads/[id]/callback/route.ts  - POST /api/leads/:id/callback
+✅ app/api/webhook/leads/route.ts      - POST /api/webhook/leads (HMAC)
+
+📚 LIBRAIRIES & TYPES (3 fichiers)
+===================================
+✅ lib/api.ts             - Client Axios avec JWT interceptors
+✅ lib/context.ts         - Auth Context pour React
+✅ lib/types.ts           - Types TypeScript partagés (Lead, Agent, etc)
+
+💾 BASE DE DONNÉES ORM (1 fichier)
+===================================
+✅ prisma/schema.prisma   - Schéma complet (agents, leads, lead_actions)
+
+⚙️ CONFIGURATION (6 fichiers)
+==============================
+✅ package.json           - Dépendances Node.js
+✅ tsconfig.json          - Configuration TypeScript
+✅ next.config.js         - Configuration Next.js
+✅ vercel.json            - Configuration Vercel
+✅ tailwind.config.js     - Configuration Tailwind CSS
+✅ postcss.config.js      - Configuration PostCSS
+✅ .env.local.example     - Template variables d'environnement
+✅ .gitignore             - Git ignore rules
+
+================================================================================
+                           ARCHÉTYPE DÉPLOIEMENT
+================================================================================
+
+AVANT (Supprimé) ❌
+==================
+backend/           - Express + Node.js traditionnel
+frontend/          - React + Vite
+docker-compose.yml - Configuration Docker complexe
+Dockerfile.*       - Images Docker
+Installation locale requise (30+ min)
+
+APRÈS (Créé) ✅
+===============
+app/               - Next.js (frontend + API)
+lib/               - Librairies partagées
+prisma/            - ORM Prisma
+Vercel Function    - Serverless API
+Supabase           - PostgreSQL managé
+Déploiement en 5 minutes
+
+================================================================================
+                          ENDPOINTS API CRÉÉS (8)
+================================================================================
+
+Authentication (2)
+─────────────────
+✅ POST /api/auth/login                 - Connexion agent
+✅ POST /api/auth/register              - Inscription agent
+
+Leads CRUD (2)
+───────────────
+✅ GET  /api/leads                      - Liste avec filtres
+✅ POST /api/leads                      - Créer lead
+
+Lead Details (1)
+─────────────────
+✅ GET  /api/leads/:id                  - Détail lead + historique
+
+Lead Actions (3)
+─────────────────
+✅ POST /api/leads/:id/refuse           - Refuser + motif
+✅ POST /api/leads/:id/quote            - Créer tarif
+✅ POST /api/leads/:id/callback         - Planifier rappel
+
+Webhooks (1)
+─────────────
+✅ POST /api/webhook/leads              - Import leads externes (HMAC)
+
+================================================================================
+                         MODÈLE DE DONNÉES CRÉÉ
+================================================================================
+
+TABLES PRISMA (3)
+─────────────────
+✅ agents (Utilisateurs)
+   - id, email, name, password (bcrypt)
+
+✅ leads (Opportunités commerciales)
+   - id, firstName, lastName, email, phone
+   - productInterest (DRIVE | HOME | PENSION_PLAN)
+   - status (NEW | IN_PROGRESS | TO_CONTACT | QUOTED | REFUSED | CONVERTED)
+   - source (MANUAL | API_EXTERNAL)
+   - externalId (pour webhooks)
+   - agentId (FK)
+
+✅ lead_actions (Historique)
+   - id, leadId, type
+   - type: REFUSED | QUOTE_CREATED | CALLBACK_SCHEDULED | NOTE_ADDED
+   - refusalReason, quotedProduct, callbackDate, note
+
+RELATIONS
+─────────
+agents (1) ──→ (Many) leads
+leads  (1) ──→ (Many) lead_actions
+
+================================================================================
+                         TECHNOLOGIES UTILISÉES
+================================================================================
+
+Frontend
+────────
+✅ React 18          - Composants réactifs modernes
+✅ Next.js 14        - Framework full-stack
+✅ TypeScript        - Type safety
+✅ Tailwind CSS      - Utility-first CSS framework
+✅ Axios             - HTTP client
+✅ React Hooks       - useEffect, useState, useContext
+
+Backend API
+───────────
+✅ Next.js API Routes   - Serverless functions
+✅ Vercel Functions     - Exécution on-demand, auto-scale
+✅ Express-like routing - Intégré à Next.js
+✅ TypeScript          - Type safety dans les routes
+
+Database
+────────
+✅ Prisma ORM          - Type-safe database access
+✅ PostgreSQL          - (via Supabase)
+✅ Migrations          - Gestion versionnée du schéma
+✅ Connection Pooling  - Prisma extension
+
+Authentication
+───────────────
+✅ JWT (JSON Web Tokens)  - Stateless auth
+✅ bcryptjs              - Password hashing
+✅ localStorage          - Token storage
+
+Infrastructure
+───────────────
+✅ Vercel           - Frontend + API hosting
+✅ Supabase         - PostgreSQL managé
+✅ Git + GitHub     - Version control
+
+================================================================================
+                         VARIABLES D'ENVIRONNEMENT
+================================================================================
+
+DATABASE_URL      - Connection PostgreSQL Supabase
+JWT_SECRET        - Clé secrète pour JWT
+WEBHOOK_SECRET    - Clé secrète pour validation webhooks HMAC
+EXTERNAL_API_URL  - (Optionnel) API externe
+EXTERNAL_API_KEY  - (Optionnel) Clé API externe
+
+================================================================================
+                         STRUCTURE FINALE
+================================================================================
+
+baloise-leads/
+├── 📄 Documentation
+│   ├── README.md              ← START HERE
+│   ├── QUICKSTART.md          ← DEPLOY IN 5 MIN
+│   ├── DEPLOY_VERCEL.md       ← DETAILED GUIDE
+│   ├── SUMMARY.md             ← FULL OVERVIEW
+│   ├── ARCHITECTURE.md
+│   ├── API_WEBHOOK.md
+│   └── NEXT_STEPS.md
+│
+├── 🎨 Frontend (app/)
+│   ├── page.tsx               ← Main routing
+│   ├── layout.tsx
+│   ├── globals.css
+│   ├── api/                   ← Serverless API
+│   └── components/
+│       ├── pages/
+│       └── (5 composants)
+│
+├── 🔧 Config
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── next.config.js
+│   ├── vercel.json
+│   └── (tailwind, postcss)
+│
+├── 💾 Database
+│   └── prisma/schema.prisma
+│
+└── 📦 Lib
+    ├── lib/api.ts
+    ├── lib/context.ts
+    └── lib/types.ts
+
+================================================================================
+                      DÉPLOIEMENT (5 MINUTES)
+================================================================================
+
+1️⃣ Supabase Database (2 min)
+   - Créer compte Supabase
+   - Copier DATABASE_URL
+
+2️⃣ GitHub Push (1 min)
+   - git push origin main
+
+3️⃣ Vercel Deploy (1 min)
+   - Importer repository
+   - Cliquer Deploy
+
+4️⃣ Environment Variables (1 min)
+   - DATABASE_URL
+   - JWT_SECRET
+   - WEBHOOK_SECRET
+
+5️⃣ Go Live ✅
+   - https://baloise-leads-xxx.vercel.app
+
+================================================================================
+                           RÉSUMÉ FINAL
+================================================================================
+
+✅ PLATEFORME WEB COMPLÈTE
+   - Frontend React moderne
+   - API serverless scalable
+   - Database PostgreSQL managé
+   - Prête pour production
+
+✅ DÉPLOYABLE EN 5 MINUTES
+   - Vercel + Supabase
+   - CI/CD automatique
+   - Domaine custom optionnel
+
+✅ PRODUCTION-READY
+   - TypeScript partout
+   - JWT authentication
+   - HMAC webhooks
+   - Error handling
+
+✅ BIEN DOCUMENTÉE
+   - 10 fichiers documentation
+   - Guides déploiement
+   - API complète
+   - Architecture expliquée
+
+✅ COÛTS OPTIMISÉS
+   - Gratuit en dev
+   - ~$45/mois en production
+   - Auto-scaling transparent
+
+================================================================================
+                         PROCHAINE ÉTAPE
+================================================================================
+
+👉 Lire QUICKSTART.md pour déployer en 5 minutes
+👉 Ou lire README.md pour une vue d'ensemble
+
+Amusez-vous bien ! 🚀
+
+================================================================================

@@ -1,0 +1,36 @@
+{
+  "name": "baloise-leads",
+  "version": "1.0.0",
+  "description": "Plateforme web de suivi de leads pour Baloise",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@tanstack/react-query": "^5.28.0",
+    "axios": "^1.6.5",
+    "@supabase/supabase-js": "^2.38.0",
+    "@prisma/client": "^5.9.1",
+    "jsonwebtoken": "^9.1.2",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "tailwindcss": "^3.3.6",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16",
+    "prisma": "^5.9.1",
+    "@prisma/extension-accelerate": "^0.4.0"
+  }
+}
