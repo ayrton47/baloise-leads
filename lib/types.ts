@@ -1,7 +1,7 @@
 export type LeadStatus = 'NEW' | 'IN_PROGRESS' | 'TO_CONTACT' | 'QUOTED' | 'REFUSED' | 'CONVERTED'
 export type ProductType = 'DRIVE' | 'HOME' | 'PENSION_PLAN'
 export type RefusalReason = 'NO_ASSET' | 'PRICE_TOO_HIGH' | 'ALREADY_INSURED' | 'OTHER'
-export type ActionType = 'REFUSED' | 'QUOTE_CREATED' | 'CALLBACK_SCHEDULED' | 'NOTE_ADDED'
+export type ActionType = 'REFUSED' | 'REFUSAL_CANCELLED' | 'QUOTE_CREATED' | 'CALLBACK_SCHEDULED' | 'NOTE_ADDED'
 export type LeadSource = 'MANUAL' | 'API_EXTERNAL'
 
 export interface LeadAction {

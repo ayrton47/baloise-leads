@@ -39,6 +39,7 @@ enum LeadSource {
 
 enum ActionType {
   REFUSED
+  REFUSAL_CANCELLED
   QUOTE_CREATED
   CALLBACK_SCHEDULED
   NOTE_ADDED

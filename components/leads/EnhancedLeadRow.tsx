@@ -77,6 +77,7 @@ const productConfig: Record<string, { label: string; icon: ReactNode; color: str
 
 const actionLabels: Record<string, string> = {
   REFUSED: 'Refusé',
+  REFUSAL_CANCELLED: 'Refus annulé',
   QUOTE_CREATED: 'Devis envoyé',
   CALLBACK_SCHEDULED: 'Rappel planifié',
   NOTE_ADDED: 'Note ajoutée',

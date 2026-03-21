@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { Lead, ProductType } from '@/lib/types'
+import { api } from '@/lib/api'
 import StatusBadge from './StatusBadge'
 import LeadActionPanel from '@/components/LeadActionPanel'
 
@@ -25,6 +27,7 @@ const productColors: Record<ProductType, { bg: string; text: string; darkBg: str
 
 const actionTypeLabels: Record<string, { label: string; icon: string; color: string }> = {
   REFUSED: { label: 'Lead refusé', icon: '×', color: 'text-red-500 dark:text-red-400' },
+  REFUSAL_CANCELLED: { label: 'Refus annulé', icon: '↩', color: 'text-amber-500 dark:text-amber-400' },
   QUOTE_CREATED: { label: 'Devis créé', icon: '📋', color: 'text-emerald-600 dark:text-emerald-400' },
   CALLBACK_SCHEDULED: { label: 'Rappel planifié', icon: '📅', color: 'text-blue-600 dark:text-blue-400' },
   NOTE_ADDED: { label: 'Note ajoutée', icon: '📝', color: 'text-gray-600 dark:text-gray-400' },
@@ -75,6 +78,10 @@ export default function LeadDetailPanel({
   onClose,
   onActionComplete,
 }: LeadDetailPanelProps) {
+  const [isCancelling, setIsCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState('')
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+
   if (!lead) return null
 
   const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
@@ -247,6 +254,66 @@ export default function LeadDetailPanel({
               <p className="text-sm text-gray-400 dark:text-gray-500 italic">Aucune activité</p>
             )}
           </div>
+
+          {/* Cancel Refusal — only if lead is REFUSED */}
+          {lead.status === 'REFUSED' && (
+            <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+              {!showCancelConfirm ? (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold text-sm hover:bg-amber-100 dark:hover:bg-amber-900/40 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                  </svg>
+                  Annuler le refus
+                </button>
+              ) : (
+                <div className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-600">
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    Confirmer l'annulation du refus ?
+                  </p>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    Le lead repassera en statut "En cours".
+                  </p>
+                  {cancelError && (
+                    <p className="text-xs text-red-600 dark:text-red-400 font-medium">{cancelError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        setIsCancelling(true)
+                        setCancelError('')
+                        try {
+                          await api.post(`/leads/${lead.id}/cancel-refusal`, {})
+                          setShowCancelConfirm(false)
+                          onActionComplete()
+                          onClose()
+                        } catch (err: any) {
+                          setCancelError(err.response?.data?.error || 'Erreur lors de l\'annulation')
+                        } finally {
+                          setIsCancelling(false)
+                        }
+                      }}
+                      disabled={isCancelling}
+                      className="flex-1 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold disabled:opacity-50 transition"
+                    >
+                      {isCancelling ? 'Annulation…' : 'Confirmer'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowCancelConfirm(false)
+                        setCancelError('')
+                      }}
+                      className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    >
+                      Non
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Actions Section */}
           <div className="px-6 py-4">
