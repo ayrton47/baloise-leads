@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
 import bcryptjs from 'bcryptjs'
-
-const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,9 +14,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const agent = await prisma.agent.findUnique({
-      where: { email },
-    })
+    const { data: agent } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('email', email)
+      .single()
 
     if (!agent) {
       return NextResponse.json(
