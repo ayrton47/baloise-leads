@@ -17,6 +17,7 @@ export interface LeadAction {
   note?: string
   createdAt: string
   createdBy: string
+  agent?: { name: string }
 }
 
 export interface Lead {

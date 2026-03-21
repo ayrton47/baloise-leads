@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabase
       .from('leads')
-      .select('*, lead_actions(*)')
+      .select('*, lead_actions(*, agent:agents!lead_actions_created_by_fkey(name))')
       .eq('agent_id', agentId)
       .order('created_at', { ascending: false })
 

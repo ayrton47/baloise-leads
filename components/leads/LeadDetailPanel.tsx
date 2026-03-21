@@ -439,6 +439,9 @@ export default function LeadDetailPanel({
                         )}
                         <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                           {formatDate(action.createdAt)}
+                          {action.agent?.name && (
+                            <span className="ml-1">· par {action.agent.name}</span>
+                          )}
                         </p>
                       </div>
                     </div>
