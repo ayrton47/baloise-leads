@@ -87,6 +87,7 @@ model LeadAction {
   refusalNote   String?
   quotedProduct ProductType?
   quoteUrl      String?
+  quoteAmount   Float?
   callbackDate  DateTime?
   note          String?
   createdAt     DateTime       @default(now())

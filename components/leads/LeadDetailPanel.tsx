@@ -207,6 +207,72 @@ export default function LeadDetailPanel({
             </div>
           </div>
 
+          {/* Quotes Section */}
+          {(() => {
+            const quotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
+            if (quotes.length === 0) return null
+            return (
+              <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+                  Devis ({quotes.length})
+                </h3>
+                <div className="space-y-2">
+                  {quotes.map((q) => {
+                    const qProduct = q.quotedProduct ? productLabels[q.quotedProduct as ProductType] : '—'
+                    const qColor = q.quotedProduct ? productColors[q.quotedProduct as ProductType] : null
+                    return (
+                      <div
+                        key={q.id}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                              {qProduct}
+                            </span>
+                            {qColor && (
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${qColor.bg} ${qColor.text} ${qColor.darkBg} ${qColor.darkText}`}>
+                                Devis
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <p className="text-[11px] text-gray-400 dark:text-gray-500">
+                              {formatDate(q.createdAt)}
+                            </p>
+                            {q.quoteAmount && (
+                              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                {q.quoteAmount.toFixed(2)} CHF
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {q.quoteUrl && (
+                          <a
+                            href={q.quoteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition flex-shrink-0"
+                            title="Voir le devis"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })()}
+
           {/* Action History */}
           <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
             <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">

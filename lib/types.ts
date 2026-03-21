@@ -12,6 +12,7 @@ export interface LeadAction {
   refusalNote?: string
   quotedProduct?: ProductType
   quoteUrl?: string
+  quoteAmount?: number
   callbackDate?: string
   note?: string
   createdAt: string
