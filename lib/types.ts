@@ -29,7 +29,7 @@ export interface Lead {
   source: LeadSource
   externalId?: string
   agentId: string
-  actions: LeadAction[]
+  leadActions: LeadAction[]
   createdAt: string
   updatedAt: string
 }
