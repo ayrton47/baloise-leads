@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Toast as ToastType, useToast } from '@/lib/toast'
+import { Toast as ToastType } from '@/lib/toast'
+import { useToast } from '@/components/ToastProvider'
 
 interface ToastProps {
   toast: ToastType

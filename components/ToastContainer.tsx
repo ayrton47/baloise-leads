@@ -1,6 +1,6 @@
 'use client'
 
-import { useToast } from '@/lib/toast'
+import { useToast } from '@/components/ToastProvider'
 import { Toast } from './Toast'
 
 export function ToastContainer() {

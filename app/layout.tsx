@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { ToastProvider } from '@/lib/toast'
+import ToastProvider from '@/components/ToastProvider'
 import { ToastContainer } from '@/components/ToastContainer'
 import ThemeProvider from '@/components/ThemeProvider'
 
