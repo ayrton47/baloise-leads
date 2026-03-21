@@ -199,7 +199,7 @@ export default function LeadBulkActions({
       <ConfirmDialog
         isOpen={confirmDialog.isOpen && confirmDialog.type === 'refuse'}
         title="Refuser les leads ?"
-        message={`Êtes-vous sûr de vouloir refuser ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ? Cette action est irréversible.`}
+        message={`Êtes-vous sûr de vouloir refuser ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ?`}
         confirmText="Tout refuser"
         isDangerous={true}
         isLoading={isProcessing}
@@ -210,7 +210,7 @@ export default function LeadBulkActions({
       <ConfirmDialog
         isOpen={confirmDialog.isOpen && confirmDialog.type === 'delete'}
         title="Supprimer les leads ?"
-        message={`Êtes-vous sûr de vouloir supprimer ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ? Cette action est irréversible.`}
+        message={`Êtes-vous sûr de vouloir supprimer ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ?`}
         confirmText="Supprimer"
         isDangerous={true}
         isLoading={isProcessing}
