@@ -90,6 +90,11 @@ export default function LeadDetailPanel({
   const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
   const leadProducts = lead.productInterest.split(',').map((p) => p.trim()).filter(Boolean)
 
+  // Sort actions by date, most recent first
+  const sortedActions = [...(lead.leadActions ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
+
   return (
     <>
       {/* Backdrop */}
@@ -220,7 +225,7 @@ export default function LeadDetailPanel({
 
           {/* Quotes Section — deduplicated by product type, showing only the latest */}
           {(() => {
-            const allQuotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
+            const allQuotes = sortedActions.filter((a) => a.type === 'QUOTE_CREATED')
             if (allQuotes.length === 0) return null
             // Keep only the most recent quote per product type
             const latestByProduct = new Map<string, typeof allQuotes[0]>()
@@ -291,15 +296,15 @@ export default function LeadDetailPanel({
             <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
               Historique
             </h3>
-            {lead.leadActions && lead.leadActions.length > 0 ? (
+            {sortedActions.length > 0 ? (
               <div className="space-y-3">
-                {lead.leadActions.map((action, index) => {
+                {sortedActions.map((action, index) => {
                   const config = actionTypeLabels[action.type] ?? { label: action.type, icon: '•', color: 'text-gray-500' }
                   const subtitle = getActionSubtitle(action)
                   return (
                     <div key={action.id} className="relative flex gap-3">
                       {/* Timeline line */}
-                      {index < lead.leadActions.length - 1 && (
+                      {index < sortedActions.length - 1 && (
                         <div className="absolute left-[13px] top-6 w-px h-[calc(100%+4px)] bg-gray-100 dark:bg-gray-800" />
                       )}
                       {/* Dot */}

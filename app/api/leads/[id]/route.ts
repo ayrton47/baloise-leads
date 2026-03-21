@@ -28,7 +28,7 @@ export async function GET(
 
     const { data: lead, error } = await supabase
       .from('leads')
-      .select('*, lead_actions(* order by created_at desc)')
+      .select('*, lead_actions(*)')
       .eq('id', params.id)
       .eq('agent_id', agentId)
       .single()
