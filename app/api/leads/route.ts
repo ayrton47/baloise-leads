@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
-
-const prisma = new PrismaClient()
 
 function getAgentId(req: NextRequest): string | null {
   const token = req.headers.get('authorization')?.split(' ')[1]
@@ -28,17 +26,18 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status')
     const product = searchParams.get('product')
 
-    const leads = await prisma.lead.findMany({
-      where: {
-        agentId,
-        ...(status && { status: status as any }),
-        ...(product && { productInterest: product as any }),
-      },
-      include: {
-        actions: { orderBy: { createdAt: 'desc' } },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    let query = supabase
+      .from('leads')
+      .select('*, lead_actions(*)')
+      .eq('agent_id', agentId)
+      .order('created_at', { ascending: false })
+
+    if (status) query = query.eq('status', status)
+    if (product) query = query.eq('product_interest', product)
+
+    const { data: leads, error } = await query
+
+    if (error) throw error
 
     return NextResponse.json(leads)
   } catch (error) {
@@ -67,16 +66,22 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const lead = await prisma.lead.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        productInterest,
-        agentId,
-      },
-    })
+    const { data: lead, error } = await supabase
+      .from('leads')
+      .insert([
+        {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+          product_interest: productInterest,
+          agent_id: agentId,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) throw error
 
     return NextResponse.json(lead, { status: 201 })
   } catch (error) {
