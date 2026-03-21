@@ -2,12 +2,13 @@
 
 import { Lead, ProductType } from '@/lib/types'
 import StatusBadge from './StatusBadge'
+import LeadActionPanel from '@/components/LeadActionPanel'
 
 interface LeadDetailPanelProps {
   lead: Lead | null
   isOpen: boolean
   onClose: () => void
-  onAction: (actionType: string, leadId: string) => void
+  onActionComplete: () => void
 }
 
 const productLabels: Record<ProductType, string> = {
@@ -16,11 +17,17 @@ const productLabels: Record<ProductType, string> = {
   PENSION_PLAN: 'Pension Plan',
 }
 
-const actionTypeLabels: Record<string, string> = {
-  REFUSED: 'Lead Refused',
-  QUOTE_CREATED: 'Quote Created',
-  CALLBACK_SCHEDULED: 'Callback Scheduled',
-  NOTE_ADDED: 'Note Added',
+const productColors: Record<ProductType, { bg: string; text: string; darkBg: string; darkText: string }> = {
+  DRIVE: { bg: 'bg-sky-50', text: 'text-sky-700', darkBg: 'dark:bg-sky-900/20', darkText: 'dark:text-sky-300' },
+  HOME: { bg: 'bg-violet-50', text: 'text-violet-700', darkBg: 'dark:bg-violet-900/20', darkText: 'dark:text-violet-300' },
+  PENSION_PLAN: { bg: 'bg-teal-50', text: 'text-teal-700', darkBg: 'dark:bg-teal-900/20', darkText: 'dark:text-teal-300' },
+}
+
+const actionTypeLabels: Record<string, { label: string; icon: string; color: string }> = {
+  REFUSED: { label: 'Lead Refused', icon: '×', color: 'text-red-500 dark:text-red-400' },
+  QUOTE_CREATED: { label: 'Quote Created', icon: '📋', color: 'text-emerald-600 dark:text-emerald-400' },
+  CALLBACK_SCHEDULED: { label: 'Callback Scheduled', icon: '📅', color: 'text-blue-600 dark:text-blue-400' },
+  NOTE_ADDED: { label: 'Note', icon: '📝', color: 'text-gray-600 dark:text-gray-400' },
 }
 
 const refusalReasonLabels: Record<string, string> = {
@@ -40,258 +47,220 @@ function formatDate(dateString: string): string {
   })
 }
 
-function getActionDescription(action: Record<string, any>): string {
-  const baseLabel = actionTypeLabels[action.type] || action.type
-
-  switch (action.type) {
-    case 'REFUSED':
-      return `${baseLabel} - ${refusalReasonLabels[action.refusalReason as string] || 'No reason'}`
-    case 'QUOTE_CREATED':
-      return `${baseLabel} - ${productLabels[action.quotedProduct as ProductType] || 'Unknown product'}`
-    case 'CALLBACK_SCHEDULED':
-      return `${baseLabel} - ${formatDate(action.callbackDate as string)}`
-    case 'NOTE_ADDED':
-      return `${baseLabel} - "${action.note as string}"`
-    default:
-      return baseLabel
-  }
+function getAvatarColor(name: string): string {
+  const colors = ['bg-blue-500', 'bg-purple-500', 'bg-emerald-500', 'bg-orange-500', 'bg-pink-500', 'bg-teal-500', 'bg-rose-500', 'bg-indigo-500']
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return colors[Math.abs(hash) % colors.length]
 }
 
-const CloseIcon = () => (
-  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-  </svg>
-)
-
-const MailIcon = () => (
-  <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
-)
-
-const PhoneIcon = () => (
-  <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-  </svg>
-)
-
-const CalendarIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-)
-
-const TagIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-  </svg>
-)
-
-const FileTextIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-)
-
-const ClockIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-)
+function getActionSubtitle(action: Record<string, any>): string {
+  switch (action.type) {
+    case 'REFUSED':
+      return refusalReasonLabels[action.refusalReason as string] ?? 'No reason given'
+    case 'QUOTE_CREATED':
+      return productLabels[action.quotedProduct as ProductType] ?? 'Unknown product'
+    case 'CALLBACK_SCHEDULED':
+      return formatDate(action.callbackDate as string)
+    case 'NOTE_ADDED':
+      return `"${action.note as string}"`
+    default:
+      return ''
+  }
+}
 
 export default function LeadDetailPanel({
   lead,
   isOpen,
   onClose,
-  onAction,
+  onActionComplete,
 }: LeadDetailPanelProps) {
   if (!lead) return null
+
+  const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
+  const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
+  const productStyle = productColors[lead.productInterest]
 
   return (
     <>
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 z-40 backdrop-blur-[1px] transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Side Panel */}
       <div
-        className={`fixed right-0 top-0 h-screen w-full md:w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${
+        className={`fixed right-0 top-0 h-screen w-full md:w-[420px] bg-white dark:bg-gray-900 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {lead.firstName} {lead.lastName}
-            </h2>
+        {/* Panel Header */}
+        <div className="flex-shrink-0 border-b border-gray-100 dark:border-gray-800 px-6 py-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-11 h-11 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}
+              >
+                {initials}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                  {lead.firstName} {lead.lastName}
+                </h2>
+                <div className="mt-1.5">
+                  <StatusBadge status={lead.status} size="sm" />
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              aria-label="Close panel"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="ml-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            aria-label="Close panel"
-          >
-            <CloseIcon />
-          </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1">
-          {/* Status Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
-              <StatusBadge status={lead.status} size="md" />
-            </div>
-          </div>
-
-          {/* Contact Details Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Contact Details</h3>
-            <div className="space-y-3">
-              {lead.email && (
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Contact */}
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              Contact
+            </h3>
+            <div className="space-y-2.5">
+              {lead.email ? (
                 <a
                   href={`mailto:${lead.email}`}
-                  className="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
+                  className="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition group"
                 >
-                  <MailIcon />
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                   <span className="truncate">{lead.email}</span>
                 </a>
-              )}
-              {lead.phone && (
+              ) : null}
+              {lead.phone ? (
                 <a
                   href={`tel:${lead.phone}`}
-                  className="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
+                  className="flex items-center gap-3 text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition group"
                 >
-                  <PhoneIcon />
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
                   <span>{lead.phone}</span>
                 </a>
-              )}
+              ) : null}
               {!lead.email && !lead.phone && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 italic">No contact details available</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 italic">No contact details</p>
               )}
             </div>
           </div>
 
-          {/* Lead Information Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <TagIcon />
-                  Product
-                </span>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+          {/* Lead Info */}
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              Details
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Product</p>
+                <span className={`inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full ${productStyle.bg} ${productStyle.text} ${productStyle.darkBg} ${productStyle.darkText}`}>
                   {productLabels[lead.productInterest]}
                 </span>
               </div>
-              <div className="flex items-start justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <FileTextIcon />
-                  Source
-                </span>
-                <span className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Source</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1.5">
                   {lead.source === 'API_EXTERNAL' ? 'External API' : 'Manual'}
-                </span>
+                </p>
               </div>
-              {lead.externalId && (
-                <div className="flex items-start justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">External ID</span>
-                  <span className="text-sm font-mono text-gray-900 dark:text-white truncate max-w-[150px]">
-                    {lead.externalId}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Dates Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Timeline</h3>
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <ClockIcon />
-                  Created
-                </span>
-                <span className="text-sm text-gray-900 dark:text-white">{formatDate(lead.createdAt)}</span>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Created</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
+                  {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
               </div>
-              <div className="flex items-start justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <CalendarIcon />
-                  Updated
-                </span>
-                <span className="text-sm text-gray-900 dark:text-white">{formatDate(lead.updatedAt)}</span>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Updated</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
+                  {new Date(lead.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Action History Section */}
-          {lead.leadActions && lead.leadActions.length > 0 && (
-            <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Action History</h3>
-              <div className="space-y-4">
-                {lead.leadActions.map((action, index) => (
-                  <div key={action.id} className="relative">
-                    {/* Timeline connector */}
-                    {index < lead.leadActions.length - 1 && (
-                      <div className="absolute left-4 top-8 w-0.5 h-6 bg-gray-200 dark:bg-gray-700" />
-                    )}
-
-                    {/* Timeline dot */}
-                    <div className="flex items-start gap-3">
-                      <div className="relative z-10 mt-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 ring-2 ring-blue-100 dark:ring-blue-900" />
+          {/* Action History */}
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              History
+            </h3>
+            {lead.leadActions && lead.leadActions.length > 0 ? (
+              <div className="space-y-3">
+                {lead.leadActions.map((action, index) => {
+                  const config = actionTypeLabels[action.type] ?? { label: action.type, icon: '•', color: 'text-gray-500' }
+                  const subtitle = getActionSubtitle(action)
+                  return (
+                    <div key={action.id} className="relative flex gap-3">
+                      {/* Timeline line */}
+                      {index < lead.leadActions.length - 1 && (
+                        <div className="absolute left-[13px] top-6 w-px h-[calc(100%+4px)] bg-gray-100 dark:bg-gray-800" />
+                      )}
+                      {/* Dot */}
+                      <div className="relative z-10 mt-0.5 flex-shrink-0">
+                        <div className={`w-6 h-6 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 flex items-center justify-center text-[10px] ${config.color}`}>
+                          {action.type === 'REFUSED' ? (
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          ) : (
+                            <span>{config.icon}</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {getActionDescription(action)}
+                      <div className="flex-1 min-w-0 pb-1">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                          {config.label}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {formatDate(action.createdAt)} by {action.createdBy}
+                        {subtitle && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{subtitle}</p>
+                        )}
+                        <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                          {formatDate(action.createdAt)}
                         </p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">No activity yet</p>
+            )}
+          </div>
 
-          {/* Empty State for Actions */}
-          {(!lead.leadActions || lead.leadActions.length === 0) && (
-            <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Action History</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic">No actions yet</p>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0 bg-gray-50 dark:bg-gray-800 space-y-2">
-          <button
-            onClick={() => onAction('QUOTE', lead.id)}
-            className="w-full px-4 py-2.5 bg-blue-600 dark:bg-blue-700 text-white font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
-          >
-            Create Quote
-          </button>
-          <button
-            onClick={() => onAction('CALLBACK', lead.id)}
-            className="w-full px-4 py-2.5 bg-green-600 dark:bg-green-700 text-white font-medium rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors"
-          >
-            Schedule Callback
-          </button>
-          <button
-            onClick={() => onAction('REFUSE', lead.id)}
-            className="w-full px-4 py-2.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-          >
-            Refuse Lead
-          </button>
+          {/* Actions Section */}
+          <div className="px-6 py-4">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              Actions
+            </h3>
+            <LeadActionPanel
+              leadId={lead.id}
+              onActionComplete={() => {
+                onActionComplete()
+                onClose()
+              }}
+            />
+          </div>
         </div>
       </div>
     </>

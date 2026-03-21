@@ -11,6 +11,7 @@ import EmptyState from '@/components/leads/EmptyState'
 import AddLeadModal from '@/components/AddLeadModal'
 import LeadsPagination from '@/components/leads/LeadsPagination'
 import LeadBulkActions from '@/components/leads/LeadBulkActions'
+import LeadDetailPanel from '@/components/leads/LeadDetailPanel'
 
 export default function LeadsPageV2({
   user,
@@ -27,18 +28,17 @@ export default function LeadsPageV2({
   const [showAddModal, setShowAddModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
 
-  // Fetch leads
   const fetchLeads = async () => {
     try {
       setIsLoading(true)
       const params = new URLSearchParams()
       if (status !== 'ALL') params.append('status', status)
       if (product !== 'ALL') params.append('product', product)
-
       const response = await api.get(`/leads?${params}`)
       setLeads(response.data)
     } catch (error) {
@@ -50,35 +50,38 @@ export default function LeadsPageV2({
 
   // Filter leads by search query
   useEffect(() => {
-    const filtered = leads.filter((lead) => {
-      const searchLower = searchQuery.toLowerCase()
-      return (
-        lead.firstName.toLowerCase().includes(searchLower) ||
-        lead.lastName.toLowerCase().includes(searchLower) ||
-        (lead.email?.toLowerCase().includes(searchLower) ?? false) ||
-        (lead.phone?.toLowerCase().includes(searchLower) ?? false)
-      )
-    })
+    const q = searchQuery.toLowerCase()
+    const filtered = leads.filter(
+      (lead) =>
+        lead.firstName.toLowerCase().includes(q) ||
+        lead.lastName.toLowerCase().includes(q) ||
+        (lead.email?.toLowerCase().includes(q) ?? false) ||
+        (lead.phone?.toLowerCase().includes(q) ?? false)
+    )
     setFilteredLeads(filtered)
-    // Reset to page 1 when filters change
     setCurrentPage(1)
   }, [leads, searchQuery])
 
-  // Fetch leads on filter change
   useEffect(() => {
     fetchLeads()
   }, [status, product])
 
-  // Calculate stats
-  const stats = {
+  // KPI stats from the full leads list
+  const kpiStats = {
     new: leads.filter((l) => l.status === 'NEW').length,
     inProgress: leads.filter((l) => l.status === 'IN_PROGRESS').length,
     quoted: leads.filter((l) => l.status === 'QUOTED').length,
     refused: leads.filter((l) => l.status === 'REFUSED').length,
+    converted: leads.filter((l) => l.status === 'CONVERTED').length,
+    toContact: leads.filter((l) => l.status === 'TO_CONTACT').length,
+    total: leads.length,
   }
 
-  // Count active filters
-  const activeFiltersCount = [status !== 'ALL' ? 1 : 0, product !== 'ALL' ? 1 : 0, searchQuery ? 1 : 0].reduce((a, b) => a + b, 0)
+  const activeFiltersCount = [
+    status !== 'ALL' ? 1 : 0,
+    product !== 'ALL' ? 1 : 0,
+    searchQuery ? 1 : 0,
+  ].reduce((a, b) => a + b, 0)
 
   const handleClearFilters = () => {
     setStatus('ALL')
@@ -86,16 +89,22 @@ export default function LeadsPageV2({
     setSearchQuery('')
   }
 
-  // Bulk selection handlers
+  // Detail panel
+  const openPanel = (lead: Lead) => {
+    setSelectedLead(lead)
+    setIsPanelOpen(true)
+  }
+  const closePanel = () => {
+    setIsPanelOpen(false)
+    setTimeout(() => setSelectedLead(null), 300)
+  }
+
+  // Bulk selection
   const toggleLeadSelection = (leadId: string) => {
     setSelectedLeads((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(leadId)) {
-        newSet.delete(leadId)
-      } else {
-        newSet.add(leadId)
-      }
-      return newSet
+      const next = new Set(prev)
+      next.has(leadId) ? next.delete(leadId) : next.add(leadId)
+      return next
     })
   }
 
@@ -103,27 +112,26 @@ export default function LeadsPageV2({
     if (selectedLeads.size === filteredLeads.length) {
       setSelectedLeads(new Set())
     } else {
-      setSelectedLeads(new Set(filteredLeads.map((lead) => lead.id)))
+      setSelectedLeads(new Set(filteredLeads.map((l) => l.id)))
     }
   }
 
-  const clearSelection = () => {
-    setSelectedLeads(new Set())
-  }
+  const clearSelection = () => setSelectedLeads(new Set())
 
   const paginatedLeads = filteredLeads.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
-  const allPaginatedLeadsSelected = paginatedLeads.length > 0 && paginatedLeads.every((lead) => selectedLeads.has(lead.id))
+  const allPaginatedSelected =
+    paginatedLeads.length > 0 && paginatedLeads.every((l) => selectedLeads.has(l.id))
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* Header */}
       <LeadsHeader userName={user?.name} onLogout={onLogout} />
 
-      {/* Hero Section */}
-      <LeadsHeroSection stats={stats} />
+      {/* KPI Stats Strip */}
+      <LeadsHeroSection stats={kpiStats} />
 
       {/* Filters Bar */}
       <LeadsFiltersBar
@@ -135,14 +143,15 @@ export default function LeadsPageV2({
         onSearchChange={setSearchQuery}
         onAddLead={() => setShowAddModal(true)}
         activeFiltersCount={activeFiltersCount}
+        stats={kpiStats}
       />
 
       {/* Main Content */}
-      <main className={`max-w-7xl mx-auto px-8 py-10 ${selectedLeads.size > 0 ? 'pb-32' : ''}`}>
+      <main className={`max-w-7xl mx-auto px-8 py-6 ${selectedLeads.size > 0 ? 'pb-28' : ''}`}>
         {isLoading ? (
-          <div className="text-center py-20">
-            <div className="inline-block animate-spin w-8 h-8 border-4 border-blue-900 border-t-transparent rounded-full"></div>
-            <p className="text-gray-500 mt-4">Loading leads...</p>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-8 h-8 border-[3px] border-[#00358E] border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-gray-400 dark:text-gray-500">Loading leads…</p>
           </div>
         ) : filteredLeads.length === 0 ? (
           <EmptyState
@@ -151,8 +160,8 @@ export default function LeadsPageV2({
             onClearFilters={handleClearFilters}
           />
         ) : (
-          <div className="space-y-4">
-            {/* Pagination - Top */}
+          <div className="space-y-3">
+            {/* Toolbar: pagination + select all */}
             <div className="flex items-center justify-between">
               <LeadsPagination
                 currentPage={currentPage}
@@ -161,47 +170,47 @@ export default function LeadsPageV2({
                 onPageChange={setCurrentPage}
                 onItemsPerPageChange={setItemsPerPage}
               />
-              {/* Select All Checkbox */}
               {paginatedLeads.length > 0 && (
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 hover:text-gray-900">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 select-none">
                   <input
                     type="checkbox"
-                    checked={allPaginatedLeadsSelected}
+                    checked={allPaginatedSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded accent-blue-900"
-                    aria-label="Select all leads on this page"
+                    className="w-4 h-4 rounded accent-blue-600"
+                    aria-label="Select all on this page"
                   />
-                  Select all on page
+                  Select all
                 </label>
               )}
             </div>
 
             {/* Leads List */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               {paginatedLeads.map((lead) => (
-                <div key={lead.id}>
-                  <EnhancedLeadRow
-                    lead={lead}
-                    onActionComplete={() => {
-                      fetchLeads()
-                      clearSelection()
-                    }}
-                    onClick={() => setSelectedLead(lead)}
-                    isSelected={selectedLeads.has(lead.id)}
-                    onToggleSelection={toggleLeadSelection}
-                  />
-                </div>
+                <EnhancedLeadRow
+                  key={lead.id}
+                  lead={lead}
+                  onActionComplete={() => {
+                    fetchLeads()
+                    clearSelection()
+                  }}
+                  onClick={() => openPanel(lead)}
+                  isSelected={selectedLeads.has(lead.id)}
+                  onToggleSelection={toggleLeadSelection}
+                />
               ))}
             </div>
 
-            {/* Pagination - Bottom */}
-            <LeadsPagination
-              currentPage={currentPage}
-              itemsPerPage={itemsPerPage}
-              totalItems={filteredLeads.length}
-              onPageChange={setCurrentPage}
-              onItemsPerPageChange={setItemsPerPage}
-            />
+            {/* Pagination — bottom */}
+            <div className="pt-2">
+              <LeadsPagination
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredLeads.length}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={setItemsPerPage}
+              />
+            </div>
           </div>
         )}
       </main>
@@ -218,6 +227,17 @@ export default function LeadsPageV2({
           onClearSelection={clearSelection}
         />
       )}
+
+      {/* Lead Detail Panel */}
+      <LeadDetailPanel
+        lead={selectedLead}
+        isOpen={isPanelOpen}
+        onClose={closePanel}
+        onActionComplete={() => {
+          fetchLeads()
+          clearSelection()
+        }}
+      />
 
       {/* Add Lead Modal */}
       {showAddModal && (
