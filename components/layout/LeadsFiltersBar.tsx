@@ -45,31 +45,41 @@ export default function LeadsFiltersBar({
           </div>
 
           {/* Status Filter */}
-          <select
-            value={status}
-            onChange={(e) => onStatusChange(e.target.value as LeadStatus | 'ALL')}
-            className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
-          >
-            <option value="ALL">All Status</option>
-            <option value="NEW">New</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="TO_CONTACT">To Contact</option>
-            <option value="QUOTED">Quoted</option>
-            <option value="REFUSED">Refused</option>
-            <option value="CONVERTED">Converted</option>
-          </select>
+          <div className="relative">
+            <select
+              value={status}
+              onChange={(e) => onStatusChange(e.target.value as LeadStatus | 'ALL')}
+              className="w-full appearance-none border-2 border-gray-400 dark:border-gray-500 rounded-lg px-4 py-3 pr-10 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 dark:focus:border-blue-500 hover:border-gray-500 dark:hover:border-gray-400 transition cursor-pointer"
+            >
+              <option value="ALL">📊 All Status</option>
+              <option value="NEW">🆕 New</option>
+              <option value="IN_PROGRESS">⏳ In Progress</option>
+              <option value="TO_CONTACT">📞 To Contact</option>
+              <option value="QUOTED">📋 Quoted</option>
+              <option value="REFUSED">❌ Refused</option>
+              <option value="CONVERTED">✅ Converted</option>
+            </select>
+            <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 dark:text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
 
           {/* Product Filter */}
-          <select
-            value={product}
-            onChange={(e) => onProductChange(e.target.value as ProductType | 'ALL')}
-            className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
-          >
-            <option value="ALL">All Products</option>
-            <option value="DRIVE">Drive</option>
-            <option value="HOME">Home</option>
-            <option value="PENSION_PLAN">Pension Plan</option>
-          </select>
+          <div className="relative">
+            <select
+              value={product}
+              onChange={(e) => onProductChange(e.target.value as ProductType | 'ALL')}
+              className="w-full appearance-none border-2 border-gray-400 dark:border-gray-500 rounded-lg px-4 py-3 pr-10 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 dark:focus:border-blue-500 hover:border-gray-500 dark:hover:border-gray-400 transition cursor-pointer"
+            >
+              <option value="ALL">🛍️ All Products</option>
+              <option value="DRIVE">🚗 Drive Insurance</option>
+              <option value="HOME">🏠 Home Insurance</option>
+              <option value="PENSION_PLAN">🏦 Pension Plan</option>
+            </select>
+            <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 dark:text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
 
           {/* Add Lead Button */}
           <button
