@@ -28,7 +28,7 @@ export async function GET(
 
     const { data: lead, error } = await supabase
       .from('leads')
-      .select('*, lead_actions(*, agent:agents!lead_actions_created_by_fkey(name))')
+      .select('*, lead_actions(*)')
       .eq('id', params.id)
       .eq('agent_id', agentId)
       .single()
@@ -38,6 +38,20 @@ export async function GET(
     if (!lead) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
+
+    // Enrich actions with agent names
+    const agentIds = [...new Set((lead.lead_actions ?? []).map((a: any) => a.created_by).filter(Boolean))]
+    let agentMap: Record<string, string> = {}
+    if (agentIds.length > 0) {
+      const { data: agents } = await supabase.from('agents').select('id, name').in('id', agentIds)
+      if (agents) {
+        agentMap = Object.fromEntries(agents.map((a: any) => [a.id, a.name]))
+      }
+    }
+    lead.lead_actions = (lead.lead_actions ?? []).map((a: any) => ({
+      ...a,
+      agent_name: agentMap[a.created_by] || null,
+    }))
 
     return NextResponse.json(snakeToCamel(lead))
   } catch (error) {

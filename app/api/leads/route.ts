@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabase
       .from('leads')
-      .select('*, lead_actions(*, agent:agents!lead_actions_created_by_fkey(name))')
+      .select('*, lead_actions(*)')
       .eq('agent_id', agentId)
       .order('created_at', { ascending: false })
 
@@ -40,7 +40,29 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json(snakeToCamel(leads))
+    // Enrich actions with agent names
+    const allAgentIds = new Set<string>()
+    for (const lead of (leads ?? [])) {
+      for (const a of (lead.lead_actions ?? [])) {
+        if (a.created_by) allAgentIds.add(a.created_by)
+      }
+    }
+    let agentMap: Record<string, string> = {}
+    if (allAgentIds.size > 0) {
+      const { data: agents } = await supabase.from('agents').select('id, name').in('id', [...allAgentIds])
+      if (agents) {
+        agentMap = Object.fromEntries(agents.map((a: any) => [a.id, a.name]))
+      }
+    }
+    const enrichedLeads = (leads ?? []).map((lead: any) => ({
+      ...lead,
+      lead_actions: (lead.lead_actions ?? []).map((a: any) => ({
+        ...a,
+        agent_name: agentMap[a.created_by] || null,
+      })),
+    }))
+
+    return NextResponse.json(snakeToCamel(enrichedLeads))
   } catch (error) {
     console.error('Get leads error:', error)
     return NextResponse.json(
