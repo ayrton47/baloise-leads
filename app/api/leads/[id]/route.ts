@@ -28,10 +28,9 @@ export async function GET(
 
     const { data: lead, error } = await supabase
       .from('leads')
-      .select('*, lead_actions(*)')
+      .select('*, lead_actions(* order by created_at desc)')
       .eq('id', params.id)
       .eq('agent_id', agentId)
-      .order('created_at', { ascending: false }, { foreignTable: 'lead_actions' })
       .single()
 
     if (error) throw error
