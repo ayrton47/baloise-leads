@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { supabase } from '@/lib/supabase-client'
+import { snakeToCamel } from '@/lib/transform'
 import jwt from 'jsonwebtoken'
-
-const prisma = new PrismaClient()
 
 function getAgentId(req: NextRequest): string | null {
   const token = req.headers.get('authorization')?.split(' ')[1]
@@ -27,16 +26,21 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const lead = await prisma.lead.findFirst({
-      where: { id: params.id, agentId },
-      include: { actions: { orderBy: { createdAt: 'desc' } } },
-    })
+    const { data: lead, error } = await supabase
+      .from('leads')
+      .select('*, lead_actions(*)')
+      .eq('id', params.id)
+      .eq('agent_id', agentId)
+      .order('created_at', { ascending: false }, { foreignTable: 'lead_actions' })
+      .single()
+
+    if (error) throw error
 
     if (!lead) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    return NextResponse.json(lead)
+    return NextResponse.json(snakeToCamel(lead))
   } catch (error) {
     console.error('Get lead error:', error)
     return NextResponse.json(

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { supabase } from '@/lib/supabase-client'
+import { snakeToCamel } from '@/lib/transform'
 import jwt from 'jsonwebtoken'
-
-const prisma = new PrismaClient()
 
 function getAgentId(req: NextRequest): string | null {
   const token = req.headers.get('authorization')?.split(' ')[1]
@@ -32,31 +31,41 @@ export async function POST(
       return NextResponse.json({ error: 'Product is required' }, { status: 400 })
     }
 
-    const lead = await prisma.lead.findFirst({
-      where: { id: params.id, agentId },
-    })
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('id', params.id)
+      .eq('agent_id', agentId)
+      .single()
 
     if (!lead) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    const [action] = await prisma.$transaction([
-      prisma.leadAction.create({
-        data: {
-          leadId: params.id,
+    const { data: action, error: actionError } = await supabase
+      .from('lead_actions')
+      .insert([
+        {
+          lead_id: params.id,
           type: 'QUOTE_CREATED',
-          quotedProduct: product,
-          quoteUrl,
-          createdBy: agentId,
+          quoted_product: product,
+          quote_url: quoteUrl,
+          created_by: agentId,
         },
-      }),
-      prisma.lead.update({
-        where: { id: params.id },
-        data: { status: 'QUOTED' },
-      }),
-    ])
+      ])
+      .select()
+      .single()
 
-    return NextResponse.json(action)
+    if (actionError) throw actionError
+
+    const { error: updateError } = await supabase
+      .from('leads')
+      .update({ status: 'QUOTED' })
+      .eq('id', params.id)
+
+    if (updateError) throw updateError
+
+    return NextResponse.json(snakeToCamel(action))
   } catch (error) {
     console.error('Create quote error:', error)
     return NextResponse.json(
