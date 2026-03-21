@@ -51,8 +51,8 @@ type ProductOption = {
 
 const productOptions: ProductOption[] = [
   { value: 'ALL', label: 'Tous les produits', icon: '📦' },
-  { value: 'DRIVE', label: 'Drive Insurance', icon: '🚗' },
-  { value: 'HOME', label: 'Home Insurance', icon: '🏠' },
+  { value: 'DRIVE', label: 'Drive', icon: '🚗' },
+  { value: 'HOME', label: 'Home', icon: '🏠' },
   { value: 'PENSION_PLAN', label: 'Pension Plan', icon: '🏦' },
 ]
 

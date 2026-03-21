@@ -46,7 +46,7 @@ function getRelativeTime(dateStr: string): string {
 
 const productConfig: Record<string, { label: string; icon: string; color: string; bg: string; darkBg: string; darkColor: string }> = {
   DRIVE: {
-    label: 'Auto',
+    label: 'Drive',
     icon: '🚗',
     color: 'text-sky-700',
     bg: 'bg-sky-50',
@@ -54,7 +54,7 @@ const productConfig: Record<string, { label: string; icon: string; color: string
     darkColor: 'dark:text-sky-300',
   },
   HOME: {
-    label: 'Habitation',
+    label: 'Home',
     icon: '🏠',
     color: 'text-violet-700',
     bg: 'bg-violet-50',
@@ -62,7 +62,7 @@ const productConfig: Record<string, { label: string; icon: string; color: string
     darkColor: 'dark:text-violet-300',
   },
   PENSION_PLAN: {
-    label: 'Prévoyance',
+    label: 'Pension',
     icon: '🛡️',
     color: 'text-teal-700',
     bg: 'bg-teal-50',

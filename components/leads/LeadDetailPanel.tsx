@@ -12,9 +12,9 @@ interface LeadDetailPanelProps {
 }
 
 const productLabels: Record<ProductType, string> = {
-  DRIVE: 'Assurance Auto',
-  HOME: 'Assurance Habitation',
-  PENSION_PLAN: 'Prévoyance',
+  DRIVE: 'Drive',
+  HOME: 'Home',
+  PENSION_PLAN: 'Pension Plan',
 }
 
 const productColors: Record<ProductType, { bg: string; text: string; darkBg: string; darkText: string }> = {
