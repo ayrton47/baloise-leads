@@ -89,6 +89,7 @@ const actionLabels: Record<string, string> = {
   QUOTE_CREATED: 'Devis envoyé',
   CALLBACK_SCHEDULED: 'Rappel planifié',
   NOTE_ADDED: 'Note ajoutée',
+  CONVERTED: 'Converti',
 }
 
 export default function EnhancedLeadRow({

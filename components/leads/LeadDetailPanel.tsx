@@ -33,6 +33,7 @@ const actionTypeLabels: Record<string, { label: string; icon: string; color: str
   QUOTE_CREATED: { label: 'Devis créé', icon: '📋', color: 'text-emerald-600 dark:text-emerald-400' },
   CALLBACK_SCHEDULED: { label: 'Rappel planifié', icon: '📅', color: 'text-blue-600 dark:text-blue-400' },
   NOTE_ADDED: { label: 'Note ajoutée', icon: '📝', color: 'text-gray-600 dark:text-gray-400' },
+  CONVERTED: { label: 'Lead converti', icon: '✅', color: 'text-purple-600 dark:text-purple-400' },
 }
 
 const refusalReasonLabels: Record<string, string> = {
@@ -520,6 +521,7 @@ export default function LeadDetailPanel({
             </h3>
             <LeadActionPanel
               leadId={lead.id}
+              leadStatus={lead.status}
               onActionComplete={() => {
                 onActionComplete()
                 onClose()

@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { api } from '@/lib/api'
 
-type ActionType = 'refuse' | 'quote' | 'callback' | null
+import { LeadStatus } from '@/lib/types'
+
+type ActionType = 'refuse' | 'quote' | 'callback' | 'convert' | null
 
 const REFUSAL_REASONS = [
   { value: 'NO_ASSET', label: 'Pas de bien à assurer' },
@@ -21,9 +23,11 @@ const PRODUCTS = [
 
 export default function LeadActionPanel({
   leadId,
+  leadStatus,
   onActionComplete,
 }: {
   leadId: string
+  leadStatus?: LeadStatus
   onActionComplete: () => void
 }) {
   const [activeAction, setActiveAction] = useState<ActionType>(null)
@@ -86,6 +90,10 @@ export default function LeadActionPanel({
         })
       }
 
+      } else if (activeAction === 'convert') {
+        await api.post(`/leads/${leadId}/convert`, {})
+      }
+
       onActionComplete()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Une erreur est survenue')
@@ -93,29 +101,47 @@ export default function LeadActionPanel({
     }
   }
 
+  if (leadStatus === 'CONVERTED') {
+    return (
+      <div className="border rounded-xl p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700 shadow-sm transition-colors">
+        <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm font-semibold">Ce lead est converti — aucune action disponible</p>
+        </div>
+      </div>
+    )
+  }
+
+  const actionButtons: { key: ActionType; label: string }[] = [
+    { key: 'refuse', label: '❌ Refus client' },
+    { key: 'quote', label: '📋 Créer un tarif' },
+    { key: 'callback', label: '📅 Recontacter' },
+    { key: 'convert', label: '✅ Convertir' },
+  ]
+
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 shadow-sm transition-colors">
       <h3 className="font-semibold text-gray-900 dark:text-white transition-colors">Actions possibles</h3>
 
       <div className="flex gap-2 flex-wrap">
-        {(['refuse', 'quote', 'callback'] as ActionType[]).map((action) => (
+        {actionButtons.map(({ key, label }) => (
           <button
-            key={action}
+            key={key}
             onClick={() => {
-              setActiveAction(activeAction === action ? null : action)
+              setActiveAction(activeAction === key ? null : key)
               setError('')
             }}
             className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition ${
-              activeAction === action
-                ? 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700'
+              activeAction === key
+                ? key === 'convert'
+                  ? 'bg-purple-600 dark:bg-purple-700 text-white border-purple-600 dark:border-purple-700'
+                  : 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700'
                 : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-400 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
-            {action === 'refuse'
-              ? '❌ Refus client'
-              : action === 'quote'
-              ? '📋 Créer un tarif'
-              : '📅 Recontacter'}
+            {label}
           </button>
         ))}
       </div>
@@ -184,6 +210,14 @@ export default function LeadActionPanel({
             className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
             rows={2}
           />
+        </div>
+      )}
+
+      {activeAction === 'convert' && (
+        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
+          <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+            Marquer ce lead comme converti ? Aucune action ne sera possible après cette étape.
+          </p>
         </div>
       )}
 
