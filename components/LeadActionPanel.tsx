@@ -60,7 +60,7 @@ export default function LeadActionPanel({
         const quoteUrls: Record<string, string> = {
           DRIVE: 'https://v2.bisa.lu/production/home/quote',
           HOME: 'https://v2.bisa.lu/production/home/quote',
-          PENSION_PLAN: 'https://v2.bisa.lu/production/home/quote',
+          PENSION_PLAN: 'https://v2.bisa.lu/production/pension-plan/proposition',
         }
         if (quoteUrls[product]) {
           window.open(quoteUrls[product], '_blank')
