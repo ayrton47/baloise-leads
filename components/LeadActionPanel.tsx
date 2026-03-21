@@ -72,6 +72,14 @@ export default function LeadActionPanel({
           setIsLoading(false)
           return
         }
+        const selected = new Date(callbackDate)
+        const today = new Date()
+        today.setHours(23, 59, 59, 999)
+        if (selected <= today) {
+          setError('La date doit être dans le futur (à partir de demain)')
+          setIsLoading(false)
+          return
+        }
         await api.post(`/leads/${leadId}/callback`, {
           callbackDate,
           note: callbackNote,
@@ -161,6 +169,12 @@ export default function LeadActionPanel({
             type="datetime-local"
             value={callbackDate}
             onChange={(e) => setCallbackDate(e.target.value)}
+            min={(() => {
+              const tomorrow = new Date()
+              tomorrow.setDate(tomorrow.getDate() + 1)
+              tomorrow.setHours(8, 0, 0, 0)
+              return tomorrow.toISOString().slice(0, 16)
+            })()}
             className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           />
           <textarea

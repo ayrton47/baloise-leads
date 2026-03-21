@@ -100,6 +100,10 @@ export default function EnhancedLeadRow({
   const lastAction = lead.leadActions?.[0]
   const quotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
   const quoteCount = quotes.length
+  // Find the most recent callback date for TO_CONTACT leads
+  const latestCallback = lead.status === 'TO_CONTACT'
+    ? [...(lead.leadActions ?? [])].filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    : null
   const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
   const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
   const products = lead.productInterest.split(',').map((p) => p.trim()).filter(Boolean)
@@ -180,6 +184,14 @@ export default function EnhancedLeadRow({
       {/* Status */}
       <div className="flex-shrink-0 hidden md:block w-[130px]">
         <StatusBadge status={lead.status} size="sm" />
+        {latestCallback && (
+          <p className="text-[11px] text-yellow-600 dark:text-yellow-400 font-medium mt-1 flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {new Date(latestCallback.callbackDate!).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+          </p>
+        )}
       </div>
 
       {/* Last activity */}

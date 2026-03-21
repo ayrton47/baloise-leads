@@ -34,6 +34,17 @@ export async function POST(
       )
     }
 
+    // Reject dates in the past or today
+    const selectedDate = new Date(callbackDate)
+    const today = new Date()
+    today.setHours(23, 59, 59, 999)
+    if (selectedDate <= today) {
+      return NextResponse.json(
+        { error: 'La date doit être dans le futur' },
+        { status: 400 }
+      )
+    }
+
     const { data: lead } = await supabase
       .from('leads')
       .select('id')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Lead, ProductType } from '@/lib/types'
 import { api } from '@/lib/api'
 import StatusBadge from './StatusBadge'
@@ -83,6 +83,10 @@ export default function LeadDetailPanel({
   const [isCancelling, setIsCancelling] = useState(false)
   const [cancelError, setCancelError] = useState('')
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [isEditingCallback, setIsEditingCallback] = useState(false)
+  const [newCallbackDate, setNewCallbackDate] = useState('')
+  const [callbackError, setCallbackError] = useState('')
+  const [isSavingCallback, setIsSavingCallback] = useState(false)
 
   if (!lead) return null
 
@@ -222,6 +226,110 @@ export default function LeadDetailPanel({
               </div>
             </div>
           </div>
+
+          {/* Callback Date — for TO_CONTACT leads */}
+          {lead.status === 'TO_CONTACT' && (() => {
+            const latestCb = sortedActions.find((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate)
+            if (!latestCb) return null
+            const cbDate = new Date(latestCb.callbackDate!)
+            const minDate = (() => {
+              const tomorrow = new Date()
+              tomorrow.setDate(tomorrow.getDate() + 1)
+              tomorrow.setHours(8, 0, 0, 0)
+              return tomorrow.toISOString().slice(0, 16)
+            })()
+            return (
+              <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+                  Prochain contact
+                </h3>
+                {!isEditingCallback ? (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700">
+                    <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                        {cbDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-0.5">
+                        à {cbDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setNewCallbackDate(cbDate.toISOString().slice(0, 16))
+                        setIsEditingCallback(true)
+                        setCallbackError('')
+                      }}
+                      className="p-2 rounded-lg text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition flex-shrink-0"
+                      title="Modifier la date"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700">
+                    <input
+                      type="datetime-local"
+                      value={newCallbackDate}
+                      onChange={(e) => setNewCallbackDate(e.target.value)}
+                      min={minDate}
+                      className="w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition"
+                    />
+                    {callbackError && (
+                      <p className="text-xs text-red-600 dark:text-red-400 font-medium">{callbackError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          if (!newCallbackDate) {
+                            setCallbackError('Sélectionnez une date')
+                            return
+                          }
+                          const selected = new Date(newCallbackDate)
+                          const today = new Date()
+                          today.setHours(23, 59, 59, 999)
+                          if (selected <= today) {
+                            setCallbackError('La date doit être dans le futur')
+                            return
+                          }
+                          setIsSavingCallback(true)
+                          setCallbackError('')
+                          try {
+                            await api.post(`/leads/${lead.id}/callback`, { callbackDate: newCallbackDate })
+                            setIsEditingCallback(false)
+                            onActionComplete()
+                          } catch (err: any) {
+                            setCallbackError(err.response?.data?.error || 'Erreur lors de la modification')
+                          } finally {
+                            setIsSavingCallback(false)
+                          }
+                        }}
+                        disabled={isSavingCallback}
+                        className="flex-1 px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold disabled:opacity-50 transition"
+                      >
+                        {isSavingCallback ? 'Enregistrement…' : 'Enregistrer'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditingCallback(false)
+                          setCallbackError('')
+                        }}
+                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Quotes Section — deduplicated by product type, showing only the latest */}
           {(() => {
