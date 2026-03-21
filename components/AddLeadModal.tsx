@@ -114,9 +114,9 @@ export default function AddLeadModal({
               required
             >
               <option value="">-- Sélectionner un produit --</option>
-              <option value="DRIVE">🚗 Assurance Auto</option>
-              <option value="HOME">🏠 Assurance Habitation</option>
-              <option value="PENSION_PLAN">🛡️ Prévoyance</option>
+              <option value="DRIVE">🚗 Drive Insurance</option>
+              <option value="HOME">🏠 Home Insurance</option>
+              <option value="PENSION_PLAN">🏦 Pension Plan</option>
             </select>
           </div>
 
