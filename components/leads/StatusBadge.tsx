@@ -10,7 +10,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-blue-900/20',
     darkText: 'dark:text-blue-300',
     darkBorder: 'dark:border-blue-700',
-    label: 'New',
+    label: 'Nouveau',
   },
   IN_PROGRESS: {
     bg: 'bg-orange-50',
@@ -19,7 +19,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-orange-900/20',
     darkText: 'dark:text-orange-300',
     darkBorder: 'dark:border-orange-700',
-    label: 'In Progress',
+    label: 'En cours',
   },
   TO_CONTACT: {
     bg: 'bg-yellow-50',
@@ -28,7 +28,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-yellow-900/20',
     darkText: 'dark:text-yellow-300',
     darkBorder: 'dark:border-yellow-700',
-    label: 'To Contact',
+    label: 'À contacter',
   },
   QUOTED: {
     bg: 'bg-green-50',
@@ -37,7 +37,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-green-900/20',
     darkText: 'dark:text-green-300',
     darkBorder: 'dark:border-green-700',
-    label: 'Quoted',
+    label: 'Devis créé',
   },
   REFUSED: {
     bg: 'bg-red-50',
@@ -46,7 +46,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-red-900/20',
     darkText: 'dark:text-red-300',
     darkBorder: 'dark:border-red-700',
-    label: 'Refused',
+    label: 'Refusé',
   },
   CONVERTED: {
     bg: 'bg-purple-50',
@@ -55,7 +55,7 @@ const statusConfig: Record<LeadStatus, { bg: string; text: string; border: strin
     darkBg: 'dark:bg-purple-900/20',
     darkText: 'dark:text-purple-300',
     darkBorder: 'dark:border-purple-700',
-    label: 'Converted',
+    label: 'Converti',
   },
 }
 

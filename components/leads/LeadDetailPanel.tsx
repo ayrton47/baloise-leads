@@ -12,9 +12,9 @@ interface LeadDetailPanelProps {
 }
 
 const productLabels: Record<ProductType, string> = {
-  DRIVE: 'Car Insurance',
-  HOME: 'Home Insurance',
-  PENSION_PLAN: 'Pension Plan',
+  DRIVE: 'Assurance Auto',
+  HOME: 'Assurance Habitation',
+  PENSION_PLAN: 'Prévoyance',
 }
 
 const productColors: Record<ProductType, { bg: string; text: string; darkBg: string; darkText: string }> = {
@@ -24,21 +24,21 @@ const productColors: Record<ProductType, { bg: string; text: string; darkBg: str
 }
 
 const actionTypeLabels: Record<string, { label: string; icon: string; color: string }> = {
-  REFUSED: { label: 'Lead Refused', icon: '×', color: 'text-red-500 dark:text-red-400' },
-  QUOTE_CREATED: { label: 'Quote Created', icon: '📋', color: 'text-emerald-600 dark:text-emerald-400' },
-  CALLBACK_SCHEDULED: { label: 'Callback Scheduled', icon: '📅', color: 'text-blue-600 dark:text-blue-400' },
-  NOTE_ADDED: { label: 'Note', icon: '📝', color: 'text-gray-600 dark:text-gray-400' },
+  REFUSED: { label: 'Lead refusé', icon: '×', color: 'text-red-500 dark:text-red-400' },
+  QUOTE_CREATED: { label: 'Devis créé', icon: '📋', color: 'text-emerald-600 dark:text-emerald-400' },
+  CALLBACK_SCHEDULED: { label: 'Rappel planifié', icon: '📅', color: 'text-blue-600 dark:text-blue-400' },
+  NOTE_ADDED: { label: 'Note ajoutée', icon: '📝', color: 'text-gray-600 dark:text-gray-400' },
 }
 
 const refusalReasonLabels: Record<string, string> = {
-  NO_ASSET: 'No Assets',
-  PRICE_TOO_HIGH: 'Price Too High',
-  ALREADY_INSURED: 'Already Insured',
-  OTHER: 'Other',
+  NO_ASSET: 'Pas de bien à assurer',
+  PRICE_TOO_HIGH: 'Tarif trop élevé',
+  ALREADY_INSURED: 'Déjà assuré',
+  OTHER: 'Autre',
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString('fr-FR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -57,9 +57,9 @@ function getAvatarColor(name: string): string {
 function getActionSubtitle(action: Record<string, any>): string {
   switch (action.type) {
     case 'REFUSED':
-      return refusalReasonLabels[action.refusalReason as string] ?? 'No reason given'
+      return refusalReasonLabels[action.refusalReason as string] ?? 'Aucun motif'
     case 'QUOTE_CREATED':
-      return productLabels[action.quotedProduct as ProductType] ?? 'Unknown product'
+      return productLabels[action.quotedProduct as ProductType] ?? 'Produit inconnu'
     case 'CALLBACK_SCHEDULED':
       return formatDate(action.callbackDate as string)
     case 'NOTE_ADDED':
@@ -118,7 +118,7 @@ export default function LeadDetailPanel({
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              aria-label="Close panel"
+              aria-label="Fermer le panneau"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -162,7 +162,7 @@ export default function LeadDetailPanel({
                 </a>
               ) : null}
               {!lead.email && !lead.phone && (
-                <p className="text-sm text-gray-400 dark:text-gray-500 italic">No contact details</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 italic">Aucun contact renseigné</p>
               )}
             </div>
           </div>
@@ -170,11 +170,11 @@ export default function LeadDetailPanel({
           {/* Lead Info */}
           <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
             <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
-              Details
+              Détails
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
-                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Product</p>
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Produit</p>
                 <span className={`inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full ${productStyle.bg} ${productStyle.text} ${productStyle.darkBg} ${productStyle.darkText}`}>
                   {productLabels[lead.productInterest]}
                 </span>
@@ -182,19 +182,19 @@ export default function LeadDetailPanel({
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
                 <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Source</p>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1.5">
-                  {lead.source === 'API_EXTERNAL' ? 'External API' : 'Manual'}
+                  {lead.source === 'API_EXTERNAL' ? 'API externe' : 'Manuelle'}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
-                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Created</p>
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Créé le</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
-                  {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {new Date(lead.createdAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
-                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Updated</p>
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Mis à jour</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
-                  {new Date(lead.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {new Date(lead.updatedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
             </div>
@@ -203,7 +203,7 @@ export default function LeadDetailPanel({
           {/* Action History */}
           <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
             <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
-              History
+              Historique
             </h3>
             {lead.leadActions && lead.leadActions.length > 0 ? (
               <div className="space-y-3">
@@ -244,7 +244,7 @@ export default function LeadDetailPanel({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-gray-400 dark:text-gray-500 italic">No activity yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">Aucune activité</p>
             )}
           </div>
 
