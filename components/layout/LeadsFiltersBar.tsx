@@ -28,18 +28,32 @@ type StatusOption = {
   value: LeadStatus | 'ALL'
   label: string
   dot: string
-  activeClass: string
+  activeBg: string
+  activeText: string
   countKey: keyof LeadsFiltersBarStats
 }
 
 const statusOptions: StatusOption[] = [
-  { value: 'ALL', label: 'All', dot: 'bg-gray-400', activeClass: 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-transparent', countKey: 'total' },
-  { value: 'NEW', label: 'New', dot: 'bg-blue-500', activeClass: 'bg-blue-600 text-white border-transparent', countKey: 'new' },
-  { value: 'IN_PROGRESS', label: 'In Progress', dot: 'bg-amber-500', activeClass: 'bg-amber-500 text-white border-transparent', countKey: 'inProgress' },
-  { value: 'TO_CONTACT', label: 'To Contact', dot: 'bg-yellow-500', activeClass: 'bg-yellow-500 text-white border-transparent', countKey: 'toContact' },
-  { value: 'QUOTED', label: 'Quoted', dot: 'bg-emerald-500', activeClass: 'bg-emerald-600 text-white border-transparent', countKey: 'quoted' },
-  { value: 'REFUSED', label: 'Refused', dot: 'bg-red-500', activeClass: 'bg-red-600 text-white border-transparent', countKey: 'refused' },
-  { value: 'CONVERTED', label: 'Converted', dot: 'bg-purple-500', activeClass: 'bg-purple-600 text-white border-transparent', countKey: 'converted' },
+  { value: 'ALL', label: 'Tous', dot: 'bg-gray-400', activeBg: 'bg-gray-800', activeText: 'text-white', countKey: 'total' },
+  { value: 'NEW', label: 'Nouveaux', dot: 'bg-blue-500', activeBg: 'bg-blue-600', activeText: 'text-white', countKey: 'new' },
+  { value: 'IN_PROGRESS', label: 'En cours', dot: 'bg-amber-500', activeBg: 'bg-amber-500', activeText: 'text-white', countKey: 'inProgress' },
+  { value: 'TO_CONTACT', label: 'À contacter', dot: 'bg-yellow-500', activeBg: 'bg-yellow-500', activeText: 'text-white', countKey: 'toContact' },
+  { value: 'QUOTED', label: 'Devis créé', dot: 'bg-emerald-500', activeBg: 'bg-emerald-600', activeText: 'text-white', countKey: 'quoted' },
+  { value: 'REFUSED', label: 'Refusés', dot: 'bg-red-500', activeBg: 'bg-red-500', activeText: 'text-white', countKey: 'refused' },
+  { value: 'CONVERTED', label: 'Convertis', dot: 'bg-purple-500', activeBg: 'bg-purple-600', activeText: 'text-white', countKey: 'converted' },
+]
+
+type ProductOption = {
+  value: ProductType | 'ALL'
+  label: string
+  icon: string
+}
+
+const productOptions: ProductOption[] = [
+  { value: 'ALL', label: 'Tous les produits', icon: '📦' },
+  { value: 'DRIVE', label: 'Auto', icon: '🚗' },
+  { value: 'HOME', label: 'Habitation', icon: '🏠' },
+  { value: 'PENSION_PLAN', label: 'Prévoyance', icon: '🛡️' },
 ]
 
 export default function LeadsFiltersBar({
@@ -53,15 +67,15 @@ export default function LeadsFiltersBar({
   stats,
 }: LeadsFiltersBarProps) {
   return (
-    <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-[72px] z-40 transition-colors">
-      <div className="max-w-7xl mx-auto px-8">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-40 transition-colors shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8">
 
-        {/* Top row: Search + Product + CTA */}
-        <div className="flex items-center gap-3 py-3.5 border-b border-gray-50 dark:border-gray-800/80">
+        {/* Top row: Search + Product pills + CTA */}
+        <div className="flex items-center gap-4 py-4">
           {/* Search */}
-          <div className="relative w-72">
+          <div className="relative w-80">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -70,48 +84,43 @@ export default function LeadsFiltersBar({
             </svg>
             <input
               type="text"
-              placeholder="Search by name, email, phone…"
+              placeholder="Rechercher par nom, email, téléphone…"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 pl-9 pr-8 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 pl-11 pr-9 text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => onSearchChange('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition rounded"
-                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                aria-label="Effacer la recherche"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             )}
           </div>
 
-          {/* Product filter */}
-          <div className="relative">
-            <select
-              value={product}
-              onChange={(e) => onProductChange(e.target.value as ProductType | 'ALL')}
-              className={`appearance-none border rounded-lg px-3.5 py-2 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer ${
-                product !== 'ALL'
-                  ? 'border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
-                  : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              <option value="ALL">All Products</option>
-              <option value="DRIVE">Drive Insurance</option>
-              <option value="HOME">Home Insurance</option>
-              <option value="PENSION_PLAN">Pension Plan</option>
-            </select>
-            <svg
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-            </svg>
+          {/* Product pills */}
+          <div className="flex items-center gap-2">
+            {productOptions.map((opt) => {
+              const isActive = product === opt.value
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => onProductChange(opt.value)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap border-2 ${
+                    isActive
+                      ? 'border-[#00358E] bg-[#00358E]/10 text-[#00358E] dark:border-blue-400 dark:bg-blue-900/30 dark:text-blue-300 shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <span className="text-base">{opt.icon}</span>
+                  <span>{opt.label}</span>
+                </button>
+              )
+            })}
           </div>
 
           <div className="flex-1" />
@@ -119,17 +128,20 @@ export default function LeadsFiltersBar({
           {/* Add Lead CTA */}
           <button
             onClick={onAddLead}
-            className="flex items-center gap-2 bg-[#00358E] hover:bg-[#00266b] active:bg-[#001f55] text-white px-4 py-2 rounded-lg font-semibold text-sm transition shadow-sm hover:shadow"
+            className="flex items-center gap-2 bg-[#00358E] hover:bg-[#00266b] active:bg-[#001f55] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
-            Add Lead
+            Ajouter un lead
           </button>
         </div>
 
-        {/* Bottom row: Status pill chips */}
-        <div className="flex items-center gap-1.5 py-2.5 overflow-x-auto scrollbar-none">
+        {/* Bottom row: Status filter chips */}
+        <div className="flex items-center gap-2 pb-3 overflow-x-auto scrollbar-none">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2 flex-shrink-0">
+            Statut
+          </span>
           {statusOptions.map((opt) => {
             const count = stats ? stats[opt.countKey] : undefined
             const isActive = status === opt.value
@@ -137,20 +149,22 @@ export default function LeadsFiltersBar({
               <button
                 key={opt.value}
                 onClick={() => onStatusChange(opt.value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap border ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap border-2 ${
                   isActive
-                    ? `${opt.activeClass} shadow-sm`
-                    : 'bg-transparent text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                    ? `${opt.activeBg} ${opt.activeText} border-transparent shadow-md`
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {!isActive && (
-                  <span className={`w-1.5 h-1.5 rounded-full ${opt.dot} flex-shrink-0`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${opt.dot} flex-shrink-0`} />
                 )}
                 <span>{opt.label}</span>
                 {count !== undefined && (
                   <span
-                    className={`text-xs font-semibold tabular-nums ${
-                      isActive ? 'opacity-75' : 'text-gray-400 dark:text-gray-500'
+                    className={`text-xs font-bold tabular-nums px-1.5 py-0.5 rounded-md ${
+                      isActive
+                        ? 'bg-white/25'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     {count}

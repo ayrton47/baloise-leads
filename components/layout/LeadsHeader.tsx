@@ -19,19 +19,19 @@ export default function LeadsHeader({ userName, onLogout }: LeadsHeaderProps) {
     : '?'
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
-      <div className="max-w-7xl mx-auto px-8 h-[72px] flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-[#00358E] shadow-lg transition-colors">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
         {/* Logo & Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 flex items-center justify-center bg-[#00358E] rounded-lg flex-shrink-0">
+          <div className="w-9 h-9 flex items-center justify-center bg-white/15 backdrop-blur rounded-lg flex-shrink-0">
             <BaloiseLogo />
           </div>
           <div>
-            <h1 className="text-base font-bold text-gray-900 dark:text-white leading-none transition-colors">
+            <h1 className="text-base font-bold text-white leading-none">
               Baloise Leads
             </h1>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 leading-none transition-colors">
-              Sales Pipeline
+            <p className="text-[11px] text-blue-200 mt-0.5 leading-none">
+              Gestion des prospects
             </p>
           </div>
         </div>
@@ -40,22 +40,22 @@ export default function LeadsHeader({ userName, onLogout }: LeadsHeaderProps) {
         <div className="flex items-center gap-3">
           <ThemeToggle />
 
-          <div className="h-5 w-px bg-gray-200 dark:bg-gray-700" />
+          <div className="h-5 w-px bg-white/20" />
 
           {/* User info */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00358E] to-blue-500 flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white font-semibold text-xs flex-shrink-0 ring-2 ring-white/10">
               {initials}
             </div>
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-semibold text-gray-800 dark:text-white leading-none transition-colors">
+              <p className="text-sm font-semibold text-white leading-none">
                 {userName}
               </p>
               <button
                 onClick={onLogout}
-                className="text-[11px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition mt-0.5 leading-none hover:underline"
+                className="text-[11px] text-blue-200 hover:text-white transition mt-0.5 leading-none hover:underline"
               >
-                Sign out
+                Déconnexion
               </button>
             </div>
           </div>

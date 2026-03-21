@@ -151,7 +151,7 @@ export default function LeadsPageV2({
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-8 h-8 border-[3px] border-[#00358E] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-gray-400 dark:text-gray-500">Loading leads…</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Chargement des leads…</p>
           </div>
         ) : filteredLeads.length === 0 ? (
           <EmptyState
@@ -179,7 +179,7 @@ export default function LeadsPageV2({
                     className="w-4 h-4 rounded accent-blue-600"
                     aria-label="Select all on this page"
                   />
-                  Select all
+                  Tout sélectionner
                 </label>
               )}
             </div>

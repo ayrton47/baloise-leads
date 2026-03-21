@@ -15,53 +15,57 @@ interface LeadsHeroSectionProps {
 const kpiCards = [
   {
     key: 'new' as const,
-    label: 'New',
-    dot: 'bg-blue-500',
-    numColor: 'text-blue-700 dark:text-blue-300',
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-100 dark:border-blue-800',
+    label: 'Nouveaux',
+    numColor: 'text-blue-600',
+    bg: 'from-blue-50 to-blue-100/50',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+    ring: 'ring-blue-200/50',
     icon: (
-      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
       </svg>
     ),
   },
   {
     key: 'inProgress' as const,
-    label: 'In Progress',
-    dot: 'bg-amber-500',
-    numColor: 'text-amber-700 dark:text-amber-300',
-    bg: 'bg-amber-50 dark:bg-amber-900/20',
-    border: 'border-amber-100 dark:border-amber-800',
+    label: 'En cours',
+    numColor: 'text-amber-600',
+    bg: 'from-amber-50 to-amber-100/50',
+    iconBg: 'bg-amber-100',
+    iconColor: 'text-amber-600',
+    ring: 'ring-amber-200/50',
     icon: (
-      <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
   {
     key: 'quoted' as const,
-    label: 'Quoted',
-    dot: 'bg-emerald-500',
-    numColor: 'text-emerald-700 dark:text-emerald-300',
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-    border: 'border-emerald-100 dark:border-emerald-800',
+    label: 'Devis créé',
+    numColor: 'text-emerald-600',
+    bg: 'from-emerald-50 to-emerald-100/50',
+    iconBg: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
+    ring: 'ring-emerald-200/50',
     icon: (
-      <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
   {
     key: 'refused' as const,
-    label: 'Refused',
-    dot: 'bg-red-500',
-    numColor: 'text-red-700 dark:text-red-300',
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-100 dark:border-red-800',
+    label: 'Refusés',
+    numColor: 'text-red-500',
+    bg: 'from-red-50 to-red-100/50',
+    iconBg: 'bg-red-100',
+    iconColor: 'text-red-500',
+    ring: 'ring-red-200/50',
     icon: (
-      <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
       </svg>
     ),
   },
@@ -70,21 +74,21 @@ const kpiCards = [
 export default function LeadsHeroSection({ stats }: LeadsHeroSectionProps) {
   return (
     <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-8 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {kpiCards.map((card) => (
             <div
               key={card.key}
-              className={`${card.bg} border ${card.border} rounded-xl px-4 py-3.5 flex items-center gap-3 transition-colors`}
+              className={`bg-gradient-to-br ${card.bg} rounded-2xl px-5 py-4 flex items-center gap-4 ring-1 ${card.ring} transition-all hover:shadow-md`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-white/60 dark:bg-white/10 flex-shrink-0`}>
+              <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center flex-shrink-0 ${card.iconColor}`}>
                 {card.icon}
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   {card.label}
                 </p>
-                <p className={`text-2xl font-bold ${card.numColor} leading-none mt-0.5`}>
+                <p className={`text-3xl font-extrabold ${card.numColor} leading-none mt-1`}>
                   {stats[card.key]}
                 </p>
               </div>

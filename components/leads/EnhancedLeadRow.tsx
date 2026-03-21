@@ -13,16 +13,16 @@ interface EnhancedLeadRowProps {
 
 function getAvatarColor(name: string): string {
   const colors = [
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-emerald-500',
-    'bg-orange-500',
-    'bg-pink-500',
-    'bg-teal-500',
-    'bg-rose-500',
-    'bg-indigo-500',
-    'bg-cyan-500',
-    'bg-violet-500',
+    'from-blue-500 to-blue-600',
+    'from-purple-500 to-purple-600',
+    'from-emerald-500 to-emerald-600',
+    'from-orange-500 to-orange-600',
+    'from-pink-500 to-pink-600',
+    'from-teal-500 to-teal-600',
+    'from-rose-500 to-rose-600',
+    'from-indigo-500 to-indigo-600',
+    'from-cyan-500 to-cyan-600',
+    'from-violet-500 to-violet-600',
   ]
   let hash = 0
   for (let i = 0; i < name.length; i++) {
@@ -37,30 +37,33 @@ function getRelativeTime(dateStr: string): string {
   const hours = Math.floor(diff / 3600000)
   const minutes = Math.floor(diff / 60000)
   if (days > 30)
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  if (days > 0) return `${days}d ago`
-  if (hours > 0) return `${hours}h ago`
-  if (minutes > 0) return `${minutes}m ago`
-  return 'Just now'
+    return new Date(dateStr).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })
+  if (days > 0) return `il y a ${days}j`
+  if (hours > 0) return `il y a ${hours}h`
+  if (minutes > 0) return `il y a ${minutes}min`
+  return 'À l\'instant'
 }
 
-const productConfig: Record<string, { label: string; color: string; bg: string; darkBg: string; darkColor: string }> = {
+const productConfig: Record<string, { label: string; icon: string; color: string; bg: string; darkBg: string; darkColor: string }> = {
   DRIVE: {
-    label: 'Drive',
+    label: 'Auto',
+    icon: '🚗',
     color: 'text-sky-700',
     bg: 'bg-sky-50',
     darkBg: 'dark:bg-sky-900/20',
     darkColor: 'dark:text-sky-300',
   },
   HOME: {
-    label: 'Home',
+    label: 'Habitation',
+    icon: '🏠',
     color: 'text-violet-700',
     bg: 'bg-violet-50',
     darkBg: 'dark:bg-violet-900/20',
     darkColor: 'dark:text-violet-300',
   },
   PENSION_PLAN: {
-    label: 'Pension',
+    label: 'Prévoyance',
+    icon: '🛡️',
     color: 'text-teal-700',
     bg: 'bg-teal-50',
     darkBg: 'dark:bg-teal-900/20',
@@ -69,10 +72,10 @@ const productConfig: Record<string, { label: string; color: string; bg: string; 
 }
 
 const actionLabels: Record<string, string> = {
-  REFUSED: 'Refused',
-  QUOTE_CREATED: 'Quote sent',
-  CALLBACK_SCHEDULED: 'Callback',
-  NOTE_ADDED: 'Note',
+  REFUSED: 'Refusé',
+  QUOTE_CREATED: 'Devis envoyé',
+  CALLBACK_SCHEDULED: 'Rappel planifié',
+  NOTE_ADDED: 'Note ajoutée',
 }
 
 export default function EnhancedLeadRow({
@@ -89,10 +92,10 @@ export default function EnhancedLeadRow({
   return (
     <div
       onClick={onClick}
-      className={`group flex items-center gap-3 px-4 py-3.5 bg-white dark:bg-gray-800 border rounded-xl transition-all cursor-pointer ${
+      className={`group flex items-center gap-4 px-5 py-4 bg-white dark:bg-gray-800/80 border-2 rounded-2xl transition-all cursor-pointer ${
         isSelected
-          ? 'border-blue-300 dark:border-blue-600 bg-blue-50/60 dark:bg-blue-900/20 shadow-sm'
-          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm hover:bg-gray-50/50 dark:hover:bg-gray-750'
+          ? 'border-[#00358E] dark:border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-md'
+          : 'border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg hover:bg-gray-50/50 dark:hover:bg-gray-750'
       }`}
     >
       {/* Checkbox */}
@@ -104,21 +107,21 @@ export default function EnhancedLeadRow({
             e.stopPropagation()
             onToggleSelection?.(lead.id)
           }}
-          className="w-4 h-4 rounded accent-blue-600 cursor-pointer"
-          aria-label={`Select ${lead.firstName} ${lead.lastName}`}
+          className="w-4.5 h-4.5 rounded accent-[#00358E] cursor-pointer"
+          aria-label={`Sélectionner ${lead.firstName} ${lead.lastName}`}
         />
       </div>
 
       {/* Avatar */}
       <div
-        className={`flex-shrink-0 w-9 h-9 rounded-full ${avatarColor} flex items-center justify-center text-white text-xs font-bold select-none`}
+        className={`flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center text-white text-sm font-bold select-none shadow-sm`}
       >
         {initials}
       </div>
 
-      {/* Name + Contact — flex-1 */}
+      {/* Name + Contact */}
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm text-gray-900 dark:text-white truncate">
+        <p className="font-bold text-sm text-gray-900 dark:text-white truncate">
           {lead.firstName} {lead.lastName}
         </p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
@@ -126,15 +129,16 @@ export default function EnhancedLeadRow({
             ? lead.email
             : lead.phone
             ? lead.phone
-            : <span className="italic">No contact</span>}
+            : <span className="italic">Pas de contact</span>}
         </p>
       </div>
 
       {/* Product badge */}
       <div className="flex-shrink-0 hidden sm:block">
         <span
-          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${product.bg} ${product.color} ${product.darkBg} ${product.darkColor}`}
+          className={`text-xs font-bold px-3 py-1.5 rounded-lg ${product.bg} ${product.color} ${product.darkBg} ${product.darkColor} flex items-center gap-1.5`}
         >
+          <span>{product.icon}</span>
           {product.label}
         </span>
       </div>
@@ -156,20 +160,20 @@ export default function EnhancedLeadRow({
             </p>
           </div>
         ) : (
-          <p className="text-xs text-gray-300 dark:text-gray-600 italic">No activity</p>
+          <p className="text-xs text-gray-300 dark:text-gray-600 italic">Aucune activité</p>
         )}
       </div>
 
       {/* Quick actions — visible on hover */}
       <div
-        className="flex-shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={(e) => e.stopPropagation()}
       >
         {lead.email && (
           <a
             href={`mailto:${lead.email}`}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition"
-            title={`Email ${lead.email}`}
+            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition"
+            title={`Envoyer un email à ${lead.email}`}
             onClick={(e) => e.stopPropagation()}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,8 +184,8 @@ export default function EnhancedLeadRow({
         {lead.phone && (
           <a
             href={`tel:${lead.phone}`}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition"
-            title={`Call ${lead.phone}`}
+            className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition"
+            title={`Appeler ${lead.phone}`}
             onClick={(e) => e.stopPropagation()}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,10 +193,9 @@ export default function EnhancedLeadRow({
             </svg>
           </a>
         )}
-        {/* Open detail arrow */}
         <div
-          className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition"
-          aria-label="View details"
+          className="p-2 rounded-xl text-gray-300 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition"
+          aria-label="Voir les détails"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
