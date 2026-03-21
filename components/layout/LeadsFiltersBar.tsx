@@ -51,9 +51,9 @@ type ProductOption = {
 
 const productOptions: ProductOption[] = [
   { value: 'ALL', label: 'Tous les produits', icon: '📦' },
-  { value: 'DRIVE', label: 'Auto', icon: '🚗' },
-  { value: 'HOME', label: 'Habitation', icon: '🏠' },
-  { value: 'PENSION_PLAN', label: 'Prévoyance', icon: '🛡️' },
+  { value: 'DRIVE', label: 'Drive Insurance', icon: '🚗' },
+  { value: 'HOME', label: 'Home Insurance', icon: '🏠' },
+  { value: 'PENSION_PLAN', label: 'Pension Plan', icon: '🏦' },
 ]
 
 export default function LeadsFiltersBar({
