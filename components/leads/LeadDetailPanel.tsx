@@ -40,18 +40,18 @@ function formatDate(dateString: string): string {
   })
 }
 
-function getActionDescription(action: any): string {
+function getActionDescription(action: Record<string, any>): string {
   const baseLabel = actionTypeLabels[action.type] || action.type
 
   switch (action.type) {
     case 'REFUSED':
-      return `${baseLabel} - ${refusalReasonLabels[action.refusalReason] || 'No reason'}`
+      return `${baseLabel} - ${refusalReasonLabels[action.refusalReason as string] || 'No reason'}`
     case 'QUOTE_CREATED':
-      return `${baseLabel} - ${productLabels[action.quotedProduct] || 'Unknown product'}`
+      return `${baseLabel} - ${productLabels[action.quotedProduct as ProductType] || 'Unknown product'}`
     case 'CALLBACK_SCHEDULED':
-      return `${baseLabel} - ${formatDate(action.callbackDate)}`
+      return `${baseLabel} - ${formatDate(action.callbackDate as string)}`
     case 'NOTE_ADDED':
-      return `${baseLabel} - "${action.note}"`
+      return `${baseLabel} - "${action.note as string}"`
     default:
       return baseLabel
   }
