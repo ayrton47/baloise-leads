@@ -95,7 +95,7 @@ export default function LeadsPage({
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as any)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
         >
           <option value="ALL">Tous les statuts</option>
           <option value="NEW">Nouveau</option>
@@ -108,7 +108,7 @@ export default function LeadsPage({
         <select
           value={product}
           onChange={(e) => setProduct(e.target.value as any)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
         >
           <option value="ALL">Tous les produits</option>
           <option value="DRIVE">🚗 Drive</option>
@@ -118,7 +118,7 @@ export default function LeadsPage({
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="ml-auto bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition"
+          className="ml-auto bg-blue-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-950 transition"
         >
           + Ajouter un lead
         </button>

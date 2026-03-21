@@ -55,7 +55,7 @@ export default function LoginPage({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
                 placeholder="Jean Dupont"
                 required
               />
@@ -70,7 +70,7 @@ export default function LoginPage({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               placeholder="votre@email.com"
               required
             />
@@ -84,7 +84,7 @@ export default function LoginPage({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               placeholder="••••••••"
               required
             />
@@ -99,7 +99,7 @@ export default function LoginPage({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+            className="w-full bg-blue-900 hover:bg-blue-950 text-white rounded-lg py-2.5 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
           >
             {isLoading ? '⏳ Chargement...' : isRegister ? '✅ Créer un compte' : '🔓 Se connecter'}
           </button>
@@ -114,7 +114,7 @@ export default function LoginPage({
                 setIsRegister(!isRegister)
                 setError('')
               }}
-              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition"
+              className="text-blue-900 font-semibold hover:text-blue-950 hover:underline transition"
             >
               {isRegister ? 'Se connecter' : "Créer un compte"}
             </button>

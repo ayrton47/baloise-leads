@@ -47,7 +47,7 @@ export default function LeadRow({
       <div
         onClick={() => setShowActions(!showActions)}
         className={`bg-white rounded-lg border border-gray-200 p-5 cursor-pointer transition hover:shadow-md ${
-          showActions ? 'ring-2 ring-red-500 border-red-500' : ''
+          showActions ? 'ring-2 ring-blue-900 border-blue-900' : ''
         }`}
       >
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-start">
