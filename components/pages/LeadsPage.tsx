@@ -46,17 +46,17 @@ export default function LeadsPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 sticky top-0 z-10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+      <div className="border-b border-gray-200 sticky top-0 z-10 bg-white">
+        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">🎯 Baloise Leads</h1>
-            <p className="text-red-100 text-sm mt-1">Bienvenue, <span className="font-semibold">{user?.name}</span></p>
+            <h1 className="text-2xl font-bold text-gray-900">Baloise Leads</h1>
+            <p className="text-sm text-gray-500 mt-1">Bienvenue, <span className="text-gray-700 font-medium">{user?.name}</span></p>
           </div>
           <button
             onClick={onLogout}
-            className="px-6 py-2 rounded-lg text-sm font-semibold text-red-600 bg-white hover:bg-red-50 transition duration-200"
+            className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
           >
             Déconnexion
           </button>
@@ -64,79 +64,72 @@ export default function LeadsPage({
       </div>
 
       {/* Stats */}
-      <div className="border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { key: 'NEW', label: 'Nouveaux', icon: '✨', count: statusCounts.NEW, color: 'from-blue-500 to-blue-600' },
-              { key: 'IN_PROGRESS', label: 'En cours', icon: '⏳', count: statusCounts.IN_PROGRESS, color: 'from-orange-500 to-orange-600' },
-              { key: 'QUOTED', label: 'Devis créé', icon: '📋', count: statusCounts.QUOTED, color: 'from-green-500 to-green-600' },
-              { key: 'REFUSED', label: 'Refusés', icon: '❌', count: statusCounts.REFUSED, color: 'from-red-500 to-red-600' },
-            ].map((stat) => (
-              <div
-                key={stat.key}
-                className={`bg-gradient-to-br ${stat.color} rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition transform hover:scale-105`}
-              >
-                <p className="text-4xl mb-2">{stat.icon}</p>
-                <p className="text-sm font-medium opacity-90">{stat.label}</p>
-                <p className="text-3xl font-bold mt-2">{stat.count}</p>
-              </div>
-            ))}
-          </div>
+      <div className="max-w-7xl mx-auto px-8 py-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          {[
+            { key: 'NEW', label: 'Nouveaux', count: statusCounts.NEW, color: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-200' },
+            { key: 'IN_PROGRESS', label: 'En cours', count: statusCounts.IN_PROGRESS, color: 'bg-orange-50', textColor: 'text-orange-700', borderColor: 'border-orange-200' },
+            { key: 'QUOTED', label: 'Devis créé', count: statusCounts.QUOTED, color: 'bg-green-50', textColor: 'text-green-700', borderColor: 'border-green-200' },
+            { key: 'REFUSED', label: 'Refusés', count: statusCounts.REFUSED, color: 'bg-red-50', textColor: 'text-red-700', borderColor: 'border-red-200' },
+          ].map((stat) => (
+            <div
+              key={stat.key}
+              className={`${stat.color} border ${stat.borderColor} rounded-lg p-5`}
+            >
+              <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+              <p className={`text-3xl font-bold mt-2 ${stat.textColor}`}>{stat.count}</p>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Filters & Actions */}
-      <div className="border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex gap-4 items-center flex-wrap">
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
-            className="border border-slate-600 bg-slate-800 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition"
-          >
-            <option value="ALL">Tous les statuts</option>
-            <option value="NEW">Nouveau</option>
-            <option value="IN_PROGRESS">En cours</option>
-            <option value="TO_CONTACT">À recontacter</option>
-            <option value="QUOTED">Devis créé</option>
-            <option value="REFUSED">Refusé</option>
-          </select>
+      <div className="max-w-7xl mx-auto px-8 py-6 flex gap-3 items-center flex-wrap border-b border-gray-200">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as any)}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+        >
+          <option value="ALL">Tous les statuts</option>
+          <option value="NEW">Nouveau</option>
+          <option value="IN_PROGRESS">En cours</option>
+          <option value="TO_CONTACT">À recontacter</option>
+          <option value="QUOTED">Devis créé</option>
+          <option value="REFUSED">Refusé</option>
+        </select>
 
-          <select
-            value={product}
-            onChange={(e) => setProduct(e.target.value as any)}
-            className="border border-slate-600 bg-slate-800 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition"
-          >
-            <option value="ALL">Tous les produits</option>
-            <option value="DRIVE">🚗 Drive</option>
-            <option value="HOME">🏠 Home</option>
-            <option value="PENSION_PLAN">🏦 Pension Plan</option>
-          </select>
+        <select
+          value={product}
+          onChange={(e) => setProduct(e.target.value as any)}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+        >
+          <option value="ALL">Tous les produits</option>
+          <option value="DRIVE">🚗 Drive</option>
+          <option value="HOME">🏠 Home</option>
+          <option value="PENSION_PLAN">🏦 Pension Plan</option>
+        </select>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="ml-auto bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:from-red-700 hover:to-red-800 transition shadow-lg"
-          >
-            + Ajouter un lead
-          </button>
-        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="ml-auto bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition"
+        >
+          + Ajouter un lead
+        </button>
       </div>
 
       {/* Leads List */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-8 py-10">
         {isLoading ? (
-          <div className="text-center py-16 text-slate-400">
-            <div className="inline-block">
-              <div className="animate-spin w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full"></div>
-            </div>
+          <div className="text-center py-16 text-gray-400">
+            <div className="animate-spin w-6 h-6 border-3 border-red-500 border-t-transparent rounded-full mx-auto"></div>
             <p className="mt-4">Chargement...</p>
           </div>
         ) : leads.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">
+          <div className="text-center py-16 text-gray-400">
             <p className="text-lg">Aucun lead trouvé</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="mt-6 text-red-400 font-semibold hover:text-red-300 transition"
+              className="mt-6 text-red-600 font-medium hover:text-red-700 transition"
             >
               Créer le premier lead
             </button>
