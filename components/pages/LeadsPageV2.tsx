@@ -12,13 +12,16 @@ import AddLeadModal from '@/components/AddLeadModal'
 import LeadsPagination from '@/components/leads/LeadsPagination'
 import LeadBulkActions from '@/components/leads/LeadBulkActions'
 import LeadDetailPanel from '@/components/leads/LeadDetailPanel'
+import ProfileModal from '@/components/ProfileModal'
 
 export default function LeadsPageV2({
   user,
   onLogout,
+  onUpdateUser,
 }: {
   user: any
   onLogout: () => void
+  onUpdateUser?: (token: string, user: any) => void
 }) {
   const [leads, setLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
@@ -32,6 +35,7 @@ export default function LeadsPageV2({
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
+  const [showProfileModal, setShowProfileModal] = useState(false)
 
   const fetchLeads = async () => {
     try {
@@ -133,7 +137,7 @@ export default function LeadsPageV2({
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <LeadsHeader userName={user?.name} onLogout={onLogout} />
+      <LeadsHeader userName={user?.name} onLogout={onLogout} onOpenProfile={() => setShowProfileModal(true)} />
 
       {/* KPI Stats Strip */}
       <LeadsHeroSection stats={kpiStats} />
@@ -229,6 +233,18 @@ export default function LeadsPageV2({
             setShowAddModal(false)
             fetchLeads()
           }}
+        />
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && user && (
+        <ProfileModal
+          user={user}
+          onClose={() => setShowProfileModal(false)}
+          onUpdate={(token, updatedUser) => {
+            onUpdateUser?.(token, updatedUser)
+          }}
+          onLogout={onLogout}
         />
       )}
     </div>

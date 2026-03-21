@@ -6,9 +6,10 @@ import ThemeToggle from '@/components/ThemeToggle'
 interface LeadsHeaderProps {
   userName: string
   onLogout: () => void
+  onOpenProfile?: () => void
 }
 
-export default function LeadsHeader({ userName, onLogout }: LeadsHeaderProps) {
+export default function LeadsHeader({ userName, onLogout, onOpenProfile }: LeadsHeaderProps) {
   const initials = userName
     ? userName
         .split(' ')
@@ -43,7 +44,10 @@ export default function LeadsHeader({ userName, onLogout }: LeadsHeaderProps) {
           <div className="h-5 w-px bg-white/20" />
 
           {/* User info */}
-          <div className="flex items-center gap-2.5">
+          <div
+            className="flex items-center gap-2.5 cursor-pointer hover:bg-white/10 rounded-xl px-2.5 py-1.5 -mx-2.5 transition"
+            onClick={onOpenProfile}
+          >
             <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white font-semibold text-xs flex-shrink-0 ring-2 ring-white/10">
               {initials}
             </div>
@@ -51,12 +55,9 @@ export default function LeadsHeader({ userName, onLogout }: LeadsHeaderProps) {
               <p className="text-sm font-semibold text-white leading-none">
                 {userName}
               </p>
-              <button
-                onClick={onLogout}
-                className="text-[11px] text-blue-200 hover:text-white transition mt-0.5 leading-none hover:underline"
-              >
-                Déconnexion
-              </button>
+              <p className="text-[11px] text-blue-200 mt-0.5 leading-none">
+                Mon profil
+              </p>
             </div>
           </div>
         </div>

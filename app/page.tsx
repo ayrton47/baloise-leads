@@ -47,7 +47,7 @@ export default function Home() {
   return (
     <AuthContext.Provider value={{ token, user, handleLogin, handleLogout }}>
       {token ? (
-        <LeadsPage user={user} onLogout={handleLogout} />
+        <LeadsPage user={user} onLogout={handleLogout} onUpdateUser={handleLogin} />
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}
