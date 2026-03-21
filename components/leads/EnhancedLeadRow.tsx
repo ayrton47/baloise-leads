@@ -119,7 +119,11 @@ export default function EnhancedLeadRow({
                 e.stopPropagation()
                 setShowActions(!showActions)
               }}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+              className={`p-2 rounded-lg transition ${
+                showActions
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white'
+              }`}
               aria-label="More actions"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
