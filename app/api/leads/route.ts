@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (status) query = query.eq('status', status)
-    if (product) query = query.eq('product_interest', product)
+    if (product) query = query.ilike('product_interest', `%${product}%`)
 
     const { data: leads, error } = await query
 

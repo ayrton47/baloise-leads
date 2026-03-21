@@ -88,7 +88,7 @@ export default function LeadDetailPanel({
 
   const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
   const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
-  const productStyle = productColors[lead.productInterest]
+  const leadProducts = lead.productInterest.split(',').map((p) => p.trim()).filter(Boolean)
 
   return (
     <>
@@ -183,10 +183,19 @@ export default function LeadDetailPanel({
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
-                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Produit</p>
-                <span className={`inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full ${productStyle.bg} ${productStyle.text} ${productStyle.darkBg} ${productStyle.darkText}`}>
-                  {productLabels[lead.productInterest]}
-                </span>
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  {leadProducts.length > 1 ? 'Produits' : 'Produit'}
+                </p>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {leadProducts.map((p) => {
+                    const style = productColors[p as ProductType] ?? productColors['OTHER']
+                    return (
+                      <span key={p} className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${style.bg} ${style.text} ${style.darkBg} ${style.darkText}`}>
+                        {productLabels[p as ProductType] ?? p}
+                      </span>
+                    )
+                  })}
+                </div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2.5">
                 <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Source</p>

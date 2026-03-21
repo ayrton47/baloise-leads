@@ -45,18 +45,13 @@ export default function AddLeadModal({
     setIsLoading(true)
 
     try {
-      // Create one lead per selected product
-      await Promise.all(
-        Array.from(selectedProducts).map((product) =>
-          api.post('/leads', {
-            firstName,
-            lastName,
-            email: email || undefined,
-            phone: phone || undefined,
-            productInterest: product,
-          })
-        )
-      )
+      await api.post('/leads', {
+        firstName,
+        lastName,
+        email: email || undefined,
+        phone: phone || undefined,
+        productInterest: Array.from(selectedProducts).join(','),
+      })
       onSuccess()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erreur lors de la création')
@@ -159,11 +154,6 @@ export default function AddLeadModal({
                 )
               })}
             </div>
-            {selectedProducts.size > 1 && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
-                {selectedProducts.size} produits sélectionnés — un lead sera créé par produit
-              </p>
-            )}
           </div>
 
           {error && (

@@ -25,7 +25,7 @@ export interface Lead {
   lastName: string
   email?: string
   phone?: string
-  productInterest: ProductType
+  productInterest: string
   status: LeadStatus
   source: LeadSource
   externalId?: string

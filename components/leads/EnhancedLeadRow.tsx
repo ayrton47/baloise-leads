@@ -102,7 +102,8 @@ export default function EnhancedLeadRow({
   const quoteCount = quotes.length
   const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
   const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
-  const product = productConfig[lead.productInterest]
+  const products = lead.productInterest.split(',').map((p) => p.trim()).filter(Boolean)
+  const product = productConfig[products[0]] ?? productConfig['OTHER']
 
   return (
     <div
@@ -148,14 +149,20 @@ export default function EnhancedLeadRow({
         </p>
       </div>
 
-      {/* Product badge */}
-      <div className="flex-shrink-0 hidden sm:block">
-        <span
-          className={`text-xs font-bold px-3 py-1.5 rounded-lg ${product.bg} ${product.color} ${product.darkBg} ${product.darkColor} flex items-center gap-1.5`}
-        >
-          {product.icon}
-          {product.label}
-        </span>
+      {/* Product badges */}
+      <div className="flex-shrink-0 hidden sm:flex items-center gap-1">
+        {products.map((p) => {
+          const cfg = productConfig[p] ?? productConfig['OTHER']
+          return (
+            <span
+              key={p}
+              className={`text-xs font-bold px-2.5 py-1.5 rounded-lg ${cfg.bg} ${cfg.color} ${cfg.darkBg} ${cfg.darkColor} flex items-center gap-1`}
+            >
+              {cfg.icon}
+              {cfg.label}
+            </span>
+          )
+        })}
       </div>
 
       {/* Quote count badge */}

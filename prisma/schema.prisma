@@ -64,7 +64,7 @@ model Lead {
   lastName        String
   email           String?
   phone           String?
-  productInterest ProductType
+  productInterest String       @map("product_interest")
   status          LeadStatus   @default(NEW)
   source          LeadSource   @default(MANUAL)
   externalId      String?      @unique
