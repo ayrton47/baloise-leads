@@ -31,7 +31,7 @@ export default function LeadRow({
     CONVERTED: 'Converti',
   }
 
-  const lastAction = lead.actions[0]
+  const lastAction = lead.leadActions?.[0]
   const lastActionText = lastAction
     ? `${lastAction.type === 'REFUSED' ? '❌ Refusé' : lastAction.type === 'QUOTE_CREATED' ? '📋 Devis' : lastAction.type === 'CALLBACK_SCHEDULED' ? '📅 Rappel' : '📝 Note'} • ${new Date(lastAction.createdAt).toLocaleDateString('fr-FR')}`
     : '—'
