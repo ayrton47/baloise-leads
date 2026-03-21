@@ -64,7 +64,7 @@ function getActionSubtitle(action: Record<string, any>): string {
     case 'REFUSED':
       return refusalReasonLabels[action.refusalReason as string] ?? 'Aucun motif'
     case 'QUOTE_CREATED':
-      return productLabels[action.quotedProduct as ProductType] ?? 'Produit inconnu'
+      return ''
     case 'CALLBACK_SCHEDULED':
       return formatDate(action.callbackDate as string)
     case 'NOTE_ADDED':
@@ -322,6 +322,9 @@ export default function LeadDetailPanel({
                       <div className="flex-1 min-w-0 pb-1">
                         <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                           {config.label}
+                          {action.type === 'QUOTE_CREATED' && action.quotedProduct && (
+                            <span className="text-gray-400 dark:text-gray-500 font-normal"> — {productLabels[action.quotedProduct as ProductType] ?? action.quotedProduct}</span>
+                          )}
                         </p>
                         {subtitle && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{subtitle}</p>
