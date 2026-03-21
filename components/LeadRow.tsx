@@ -46,42 +46,42 @@ export default function LeadRow({
     <>
       <div
         onClick={() => setShowActions(!showActions)}
-        className={`bg-white rounded-lg border border-gray-200 p-4 cursor-pointer transition hover:shadow-md ${
-          showActions ? 'ring-2 ring-blue-500' : ''
-        }`}
+        className={`bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg border border-slate-600 p-5 cursor-pointer transition hover:shadow-xl hover:border-red-500 ${
+          showActions ? 'ring-2 ring-red-500' : ''
+        } text-white`}
       >
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-start">
           <div>
-            <p className="font-semibold text-gray-800">
+            <p className="font-semibold text-white text-lg">
               {lead.firstName} {lead.lastName}
             </p>
-            <p className="text-sm text-gray-500">{lead.email || lead.phone || 'N/A'}</p>
+            <p className="text-sm text-slate-400">{lead.email || lead.phone || 'N/A'}</p>
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700">Produit</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm font-medium text-slate-300">Produit</p>
+            <p className="text-sm text-slate-200">
               {productEmojis[lead.productInterest]} {lead.productInterest === 'DRIVE' ? 'Drive' : lead.productInterest === 'HOME' ? 'Home' : 'Pension Plan'}
             </p>
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700">Statut</p>
-            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusColors[lead.status]}`}>
+            <p className="text-sm font-medium text-slate-300">Statut</p>
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${statusColors[lead.status]}`}>
               {statusLabels[lead.status]}
             </span>
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700">Ajouté</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm font-medium text-slate-300">Ajouté</p>
+            <p className="text-sm text-slate-200">
               {new Date(lead.createdAt).toLocaleDateString('fr-FR')}
             </p>
           </div>
 
           <div className="md:col-span-2">
-            <p className="text-sm font-medium text-gray-700">Dernière action</p>
-            <p className="text-sm text-gray-600">{lastActionText}</p>
+            <p className="text-sm font-medium text-slate-300">Dernière action</p>
+            <p className="text-sm text-slate-200">{lastActionText}</p>
           </div>
         </div>
       </div>
