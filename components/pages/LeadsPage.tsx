@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import { Lead, LeadStatus, ProductType } from '@/lib/types'
 import LeadRow from '@/components/LeadRow'
 import AddLeadModal from '@/components/AddLeadModal'
+import BaloiseLogo from '@/components/BaloiseLogo'
 
 export default function LeadsPage({
   user,
@@ -49,17 +50,23 @@ export default function LeadsPage({
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-gray-200 sticky top-0 z-10 bg-white">
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Baloise Leads</h1>
-            <p className="text-sm text-gray-500 mt-1">Bienvenue, <span className="text-gray-700 font-medium">{user?.name}</span></p>
+        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BaloiseLogo />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Baloise Leads</h1>
+              <p className="text-xs text-gray-500">Suivi de leads</p>
+            </div>
           </div>
-          <button
-            onClick={onLogout}
-            className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
-          >
-            Déconnexion
-          </button>
+          <div className="text-right">
+            <p className="text-sm text-gray-700 font-medium">{user?.name}</p>
+            <button
+              onClick={onLogout}
+              className="text-xs text-gray-500 hover:text-gray-700 transition mt-1"
+            >
+              Déconnexion
+            </button>
+          </div>
         </div>
       </div>
 
