@@ -35,28 +35,28 @@ function ConfirmDialog({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6">{message}</p>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition"
           >
-            Cancel
+            Annuler
           </button>
           <button
             onClick={onConfirm}
             disabled={isLoading}
-            className={`px-4 py-2 rounded-lg text-white font-medium ${
+            className={`px-4 py-2 rounded-xl text-white font-semibold transition ${
               isDangerous
                 ? 'bg-red-600 hover:bg-red-700 disabled:opacity-50'
-                : 'bg-blue-600 hover:bg-blue-700 disabled:opacity-50'
+                : 'bg-[#00358E] hover:bg-[#00266b] disabled:opacity-50'
             }`}
           >
-            {isLoading ? 'Processing...' : confirmText}
+            {isLoading ? 'En cours…' : confirmText}
           </button>
         </div>
       </div>
@@ -67,8 +67,8 @@ function ConfirmDialog({
 function Toast({ message, type }: { message: string; type: 'success' | 'error' }) {
   return (
     <div
-      className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg text-white font-medium shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+      className={`fixed bottom-20 right-4 px-4 py-3 rounded-xl text-white font-medium shadow-lg z-50 ${
+        type === 'success' ? 'bg-emerald-600' : 'bg-red-600'
       }`}
     >
       {message}
@@ -90,7 +90,6 @@ export default function LeadBulkActions({
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   const selectedCount = selectedLeadIds.size
-  const selectedLeadsList = leads.filter((lead) => selectedLeadIds.has(lead.id))
 
   const handleBulkRefuse = async () => {
     setIsProcessing(true)
@@ -99,13 +98,13 @@ export default function LeadBulkActions({
         Array.from(selectedLeadIds).map((leadId) =>
           api.post(`/leads/${leadId}/refuse`, {
             refusalReason: 'OTHER',
-            refusalNote: 'Bulk refused',
+            refusalNote: 'Refus groupé',
           })
         )
       )
 
       setToast({
-        message: `${selectedCount} lead${selectedCount > 1 ? 's' : ''} refused successfully`,
+        message: `${selectedCount} lead${selectedCount > 1 ? 's' : ''} refusé${selectedCount > 1 ? 's' : ''}`,
         type: 'success',
       })
       onClearSelection()
@@ -113,7 +112,7 @@ export default function LeadBulkActions({
       setTimeout(() => setToast(null), 3000)
     } catch (error) {
       setToast({
-        message: 'Failed to refuse leads. Please try again.',
+        message: 'Erreur lors du refus. Veuillez réessayer.',
         type: 'error',
       })
       setTimeout(() => setToast(null), 3000)
@@ -133,7 +132,7 @@ export default function LeadBulkActions({
       )
 
       setToast({
-        message: `${selectedCount} lead${selectedCount > 1 ? 's' : ''} deleted successfully`,
+        message: `${selectedCount} lead${selectedCount > 1 ? 's' : ''} supprimé${selectedCount > 1 ? 's' : ''}`,
         type: 'success',
       })
       onClearSelection()
@@ -141,7 +140,7 @@ export default function LeadBulkActions({
       setTimeout(() => setToast(null), 3000)
     } catch (error) {
       setToast({
-        message: 'Failed to delete leads. Please try again.',
+        message: 'Erreur lors de la suppression. Veuillez réessayer.',
         type: 'error',
       })
       setTimeout(() => setToast(null), 3000)
@@ -155,23 +154,20 @@ export default function LeadBulkActions({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-40">
-        <div className="max-w-full mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 dark:bg-gray-800 border-t border-gray-700 dark:border-gray-700 shadow-2xl z-40">
+        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1">
-            <input
-              type="checkbox"
-              checked={true}
-              disabled
-              className="w-5 h-5 rounded accent-blue-900 cursor-pointer"
-            />
-            <span className="font-semibold text-gray-900">
-              {selectedCount} lead{selectedCount > 1 ? 's' : ''} selected
+            <div className="w-8 h-8 rounded-lg bg-[#00358E] flex items-center justify-center text-white text-sm font-bold">
+              {selectedCount}
+            </div>
+            <span className="font-semibold text-white">
+              lead{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
             </span>
             <button
               onClick={onClearSelection}
-              className="text-sm text-gray-500 hover:text-gray-700 ml-2"
+              className="text-sm text-gray-400 hover:text-white ml-1 transition underline underline-offset-2"
             >
-              Clear
+              Désélectionner
             </button>
           </div>
 
@@ -179,16 +175,22 @@ export default function LeadBulkActions({
             <button
               onClick={() => setConfirmDialog({ isOpen: true, type: 'refuse' })}
               disabled={isProcessing}
-              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium disabled:opacity-50 transition"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
             >
-              Refuse All
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              Tout refuser
             </button>
             <button
               onClick={() => setConfirmDialog({ isOpen: true, type: 'delete' })}
               disabled={isProcessing}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium disabled:opacity-50 transition"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
             >
-              Delete
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Supprimer
             </button>
           </div>
         </div>
@@ -196,9 +198,9 @@ export default function LeadBulkActions({
 
       <ConfirmDialog
         isOpen={confirmDialog.isOpen && confirmDialog.type === 'refuse'}
-        title="Refuse Leads?"
-        message={`Are you sure you want to refuse ${selectedCount} lead${selectedCount > 1 ? 's' : ''}? This action cannot be undone.`}
-        confirmText="Refuse All"
+        title="Refuser les leads ?"
+        message={`Êtes-vous sûr de vouloir refuser ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ? Cette action est irréversible.`}
+        confirmText="Tout refuser"
         isDangerous={true}
         isLoading={isProcessing}
         onConfirm={handleBulkRefuse}
@@ -207,9 +209,9 @@ export default function LeadBulkActions({
 
       <ConfirmDialog
         isOpen={confirmDialog.isOpen && confirmDialog.type === 'delete'}
-        title="Delete Leads?"
-        message={`Are you sure you want to delete ${selectedCount} lead${selectedCount > 1 ? 's' : ''}? This action cannot be undone.`}
-        confirmText="Delete"
+        title="Supprimer les leads ?"
+        message={`Êtes-vous sûr de vouloir supprimer ${selectedCount} lead${selectedCount > 1 ? 's' : ''} ? Cette action est irréversible.`}
+        confirmText="Supprimer"
         isDangerous={true}
         isLoading={isProcessing}
         onConfirm={handleBulkDelete}
