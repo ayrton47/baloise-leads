@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import LoginPage from '@/components/pages/LoginPage'
-import LeadsPage from '@/components/pages/LeadsPage'
+import LeadsPage from '@/components/pages/LeadsPageV2'
 import { AuthContext } from '@/lib/context'
 
 export default function Home() {
