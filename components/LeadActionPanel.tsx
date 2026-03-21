@@ -16,6 +16,7 @@ const PRODUCTS = [
   { value: 'DRIVE', label: 'Drive' },
   { value: 'HOME', label: 'Home' },
   { value: 'PENSION_PLAN', label: 'Pension Plan' },
+  { value: 'OTHER', label: 'Autre' },
 ]
 
 export default function LeadActionPanel({

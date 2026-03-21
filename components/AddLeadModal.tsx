@@ -3,6 +3,13 @@
 import { useState } from 'react'
 import { api } from '@/lib/api'
 
+const PRODUCTS = [
+  { value: 'DRIVE', label: 'Drive' },
+  { value: 'HOME', label: 'Home' },
+  { value: 'PENSION_PLAN', label: 'Pension Plan' },
+  { value: 'OTHER', label: 'Autre' },
+]
+
 export default function AddLeadModal({
   onClose,
   onSuccess,
@@ -14,15 +21,23 @@ export default function AddLeadModal({
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [productInterest, setProductInterest] = useState('')
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  const toggleProduct = (value: string) => {
+    setSelectedProducts((prev) => {
+      const next = new Set(prev)
+      next.has(value) ? next.delete(value) : next.add(value)
+      return next
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
-    if (!firstName || !lastName || !productInterest) {
+    if (!firstName || !lastName || selectedProducts.size === 0) {
       setError('Remplissez tous les champs obligatoires')
       return
     }
@@ -30,13 +45,18 @@ export default function AddLeadModal({
     setIsLoading(true)
 
     try {
-      await api.post('/leads', {
-        firstName,
-        lastName,
-        email: email || undefined,
-        phone: phone || undefined,
-        productInterest,
-      })
+      // Create one lead per selected product
+      await Promise.all(
+        Array.from(selectedProducts).map((product) =>
+          api.post('/leads', {
+            firstName,
+            lastName,
+            email: email || undefined,
+            phone: phone || undefined,
+            productInterest: product,
+          })
+        )
+      )
       onSuccess()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erreur lors de la création')
@@ -99,25 +119,51 @@ export default function AddLeadModal({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              placeholder="+41 79 123 45 67"
+              placeholder="+352 621 123 456"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
-              Produit intéressé *
+              Produit(s) intéressé(s) *
             </label>
-            <select
-              value={productInterest}
-              onChange={(e) => setProductInterest(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              required
-            >
-              <option value="">-- Sélectionner un produit --</option>
-              <option value="DRIVE">Drive</option>
-              <option value="HOME">Home</option>
-              <option value="PENSION_PLAN">Pension Plan</option>
-            </select>
+            <div className="grid grid-cols-2 gap-2">
+              {PRODUCTS.map((p) => {
+                const isChecked = selectedProducts.has(p.value)
+                return (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => toggleProduct(p.value)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium border-2 transition ${
+                      isChecked
+                        ? 'border-[#00358E] bg-[#00358E]/10 text-[#00358E] dark:border-blue-400 dark:bg-blue-900/30 dark:text-blue-300'
+                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition ${
+                        isChecked
+                          ? 'border-[#00358E] bg-[#00358E] dark:border-blue-400 dark:bg-blue-500'
+                          : 'border-gray-300 dark:border-gray-500'
+                      }`}
+                    >
+                      {isChecked && (
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    {p.label}
+                  </button>
+                )
+              })}
+            </div>
+            {selectedProducts.size > 1 && (
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
+                {selectedProducts.size} produits sélectionnés — un lead sera créé par produit
+              </p>
+            )}
           </div>
 
           {error && (

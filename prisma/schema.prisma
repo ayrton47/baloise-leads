@@ -30,6 +30,7 @@ enum ProductType {
   DRIVE
   HOME
   PENSION_PLAN
+  OTHER
 }
 
 enum LeadSource {

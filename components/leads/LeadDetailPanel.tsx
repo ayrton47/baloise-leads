@@ -17,12 +17,14 @@ const productLabels: Record<ProductType, string> = {
   DRIVE: 'Drive',
   HOME: 'Home',
   PENSION_PLAN: 'Pension Plan',
+  OTHER: 'Autre',
 }
 
 const productColors: Record<ProductType, { bg: string; text: string; darkBg: string; darkText: string }> = {
   DRIVE: { bg: 'bg-sky-50', text: 'text-sky-700', darkBg: 'dark:bg-sky-900/20', darkText: 'dark:text-sky-300' },
   HOME: { bg: 'bg-violet-50', text: 'text-violet-700', darkBg: 'dark:bg-violet-900/20', darkText: 'dark:text-violet-300' },
   PENSION_PLAN: { bg: 'bg-teal-50', text: 'text-teal-700', darkBg: 'dark:bg-teal-900/20', darkText: 'dark:text-teal-300' },
+  OTHER: { bg: 'bg-gray-100', text: 'text-gray-600', darkBg: 'dark:bg-gray-700', darkText: 'dark:text-gray-300' },
 }
 
 const actionTypeLabels: Record<string, { label: string; icon: string; color: string }> = {

@@ -73,6 +73,14 @@ const productConfig: Record<string, { label: string; icon: ReactNode; color: str
     darkBg: 'dark:bg-teal-900/20',
     darkColor: 'dark:text-teal-300',
   },
+  OTHER: {
+    label: 'Autre',
+    icon: <span className="text-xs">📋</span>,
+    color: 'text-gray-600',
+    bg: 'bg-gray-100',
+    darkBg: 'dark:bg-gray-700',
+    darkColor: 'dark:text-gray-300',
+  },
 }
 
 const actionLabels: Record<string, string> = {

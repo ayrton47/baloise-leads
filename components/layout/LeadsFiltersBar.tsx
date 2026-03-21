@@ -58,6 +58,7 @@ const productOptions: ProductOption[] = [
   { value: 'DRIVE', label: 'Drive', icon: <DriveIcon size={18} /> },
   { value: 'HOME', label: 'Home', icon: <HomeIcon size={18} /> },
   { value: 'PENSION_PLAN', label: 'Pension Plan', icon: <PensionIcon size={18} /> },
+  { value: 'OTHER', label: 'Autre', icon: <span className="text-base">📋</span> },
 ]
 
 export default function LeadsFiltersBar({
