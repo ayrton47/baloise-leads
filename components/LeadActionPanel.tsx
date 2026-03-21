@@ -29,7 +29,6 @@ export default function LeadActionPanel({
   const [refusalReason, setRefusalReason] = useState('')
   const [refusalNote, setRefusalNote] = useState('')
   const [product, setProduct] = useState('')
-  const [quoteAmount, setQuoteAmount] = useState('')
   const [callbackDate, setCallbackDate] = useState('')
   const [callbackNote, setCallbackNote] = useState('')
   const [error, setError] = useState('')
@@ -56,10 +55,7 @@ export default function LeadActionPanel({
           setIsLoading(false)
           return
         }
-        await api.post(`/leads/${leadId}/quote`, {
-          product,
-          amount: quoteAmount ? parseFloat(quoteAmount) : undefined,
-        })
+        await api.post(`/leads/${leadId}/quote`, { product })
         // Open external quote tool in new tab
         const quoteUrls: Record<string, string> = {
           DRIVE: 'https://v2.bisa.lu/production/home/quote',
@@ -155,15 +151,6 @@ export default function LeadActionPanel({
               </option>
             ))}
           </select>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={quoteAmount}
-            onChange={(e) => setQuoteAmount(e.target.value)}
-            placeholder="Montant du devis (CHF) — optionnel"
-            className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
-          />
         </div>
       )}
 

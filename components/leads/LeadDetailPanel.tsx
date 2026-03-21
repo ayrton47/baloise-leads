@@ -207,10 +207,19 @@ export default function LeadDetailPanel({
             </div>
           </div>
 
-          {/* Quotes Section */}
+          {/* Quotes Section — deduplicated by product type, showing only the latest */}
           {(() => {
-            const quotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
-            if (quotes.length === 0) return null
+            const allQuotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
+            if (allQuotes.length === 0) return null
+            // Keep only the most recent quote per product type
+            const latestByProduct = new Map<string, typeof allQuotes[0]>()
+            for (const q of allQuotes) {
+              const key = q.quotedProduct || 'UNKNOWN'
+              if (!latestByProduct.has(key)) {
+                latestByProduct.set(key, q)
+              }
+            }
+            const quotes = Array.from(latestByProduct.values())
             return (
               <div className="px-6 py-4 border-b border-gray-50 dark:border-gray-800">
                 <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
@@ -241,16 +250,9 @@ export default function LeadDetailPanel({
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                              {formatDate(q.createdAt)}
-                            </p>
-                            {q.quoteAmount && (
-                              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                {q.quoteAmount.toFixed(2)} CHF
-                              </span>
-                            )}
-                          </div>
+                          <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+                            {formatDate(q.createdAt)}
+                          </p>
                         </div>
                         {q.quoteUrl && (
                           <a
