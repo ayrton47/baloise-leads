@@ -166,17 +166,6 @@ export default function LeadsPageV2({
           />
         ) : (
           <div className="space-y-3">
-            {/* Column header */}
-            <div className="flex items-center gap-4 px-5 py-2 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              <div className="w-4.5 flex-shrink-0" />
-              <div className="w-10 flex-shrink-0" />
-              <div className="flex-1 min-w-0">Nom</div>
-              <div className="flex-shrink-0 hidden sm:block">Produit(s)</div>
-              <div className="flex-shrink-0 hidden md:block w-[130px]">Statut</div>
-              <div className="flex-shrink-0 hidden lg:block w-[150px]">Dernière activité</div>
-              <div className="w-[100px] flex-shrink-0" />
-            </div>
-
             {/* Leads List */}
             <div className="space-y-2">
               {paginatedLeads.map((lead) => (
