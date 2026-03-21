@@ -25,7 +25,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { product, quoteUrl, amount } = await req.json()
+    const { product, quoteUrl } = await req.json()
 
     if (!product) {
       return NextResponse.json({ error: 'Product is required' }, { status: 400 })
@@ -50,7 +50,6 @@ export async function POST(
           type: 'QUOTE_CREATED',
           quoted_product: product,
           quote_url: quoteUrl,
-          quote_amount: amount || null,
           created_by: agentId,
         },
       ])
