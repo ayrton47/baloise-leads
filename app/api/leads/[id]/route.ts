@@ -48,3 +48,43 @@ export async function GET(
     )
   }
 }
+
+// DELETE /api/leads/:id
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const agentId = getAgentId(req)
+    if (!agentId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify lead belongs to agent
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('id', params.id)
+      .eq('agent_id', agentId)
+      .single()
+
+    if (!lead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', params.id)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Delete lead error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete lead' },
+      { status: 500 }
+    )
+  }
+}
