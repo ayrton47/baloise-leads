@@ -161,29 +161,6 @@ export default function LeadsPageV2({
           />
         ) : (
           <div className="space-y-3">
-            {/* Toolbar: pagination + select all */}
-            <div className="flex items-center justify-between">
-              <LeadsPagination
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredLeads.length}
-                onPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
-              />
-              {paginatedLeads.length > 0 && (
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 select-none">
-                  <input
-                    type="checkbox"
-                    checked={allPaginatedSelected}
-                    onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded accent-blue-600"
-                    aria-label="Select all on this page"
-                  />
-                  Tout sélectionner
-                </label>
-              )}
-            </div>
-
             {/* Leads List */}
             <div className="space-y-2">
               {paginatedLeads.map((lead) => (
