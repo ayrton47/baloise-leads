@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ToastProvider } from '@/lib/toast'
+import { ToastContainer } from '@/components/ToastContainer'
+import ThemeProvider from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'Baloise Leads - Suivi des Opportunités',
@@ -12,8 +15,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr">
-      <body>{children}</body>
+    <html lang="fr" suppressHydrationWarning>
+      <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+        <ThemeProvider>
+          <ToastProvider>
+            {children}
+            <ToastContainer />
+          </ToastProvider>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

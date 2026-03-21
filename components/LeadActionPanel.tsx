@@ -76,8 +76,8 @@ export default function LeadActionPanel({
   }
 
   return (
-    <div className="border rounded-xl p-4 space-y-4 bg-blue-50 border-blue-200 shadow-sm">
-      <h3 className="font-semibold text-gray-700">Actions possibles</h3>
+    <div className="border rounded-xl p-4 space-y-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 shadow-sm transition-colors">
+      <h3 className="font-semibold text-gray-700 dark:text-blue-300 transition-colors">Actions possibles</h3>
 
       <div className="flex gap-2 flex-wrap">
         {(['refuse', 'quote', 'callback'] as ActionType[]).map((action) => (
@@ -89,8 +89,8 @@ export default function LeadActionPanel({
             }}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
               activeAction === action
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                ? 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700'
+                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
             {action === 'refuse'
@@ -103,11 +103,11 @@ export default function LeadActionPanel({
       </div>
 
       {activeAction === 'refuse' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200">
+        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
           <select
             value={refusalReason}
             onChange={(e) => setRefusalReason(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           >
             <option value="">-- Motif de refus --</option>
             {REFUSAL_REASONS.map((r) => (
@@ -121,7 +121,7 @@ export default function LeadActionPanel({
               value={refusalNote}
               onChange={(e) => setRefusalNote(e.target.value)}
               placeholder="Précisez le motif..."
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               rows={2}
             />
           )}
@@ -129,11 +129,11 @@ export default function LeadActionPanel({
       )}
 
       {activeAction === 'quote' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200">
+        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
           <select
             value={product}
             onChange={(e) => setProduct(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           >
             <option value="">-- Choisir un produit --</option>
             {PRODUCTS.map((p) => (
@@ -146,30 +146,30 @@ export default function LeadActionPanel({
       )}
 
       {activeAction === 'callback' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200">
+        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
           <input
             type="datetime-local"
             value={callbackDate}
             onChange={(e) => setCallbackDate(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <textarea
             value={callbackNote}
             onChange={(e) => setCallbackNote(e.target.value)}
             placeholder="Note (optionnelle)..."
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             rows={2}
           />
         </div>
       )}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400 text-sm transition-colors">{error}</p>}
 
       {activeAction && (
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+          className="w-full bg-blue-600 dark:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 transition"
         >
           {isLoading ? 'Enregistrement...' : 'Confirmer'}
         </button>

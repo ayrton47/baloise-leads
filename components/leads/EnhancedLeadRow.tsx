@@ -9,9 +9,17 @@ interface EnhancedLeadRowProps {
   lead: Lead
   onActionComplete: () => void
   onClick?: () => void
+  isSelected?: boolean
+  onToggleSelection?: (leadId: string) => void
 }
 
-export default function EnhancedLeadRow({ lead, onActionComplete, onClick }: EnhancedLeadRowProps) {
+export default function EnhancedLeadRow({ 
+  lead, 
+  onActionComplete, 
+  onClick,
+  isSelected = false,
+  onToggleSelection 
+}: EnhancedLeadRowProps) {
   const [showActions, setShowActions] = useState(false)
 
   const productEmojis: Record<string, string> = {
@@ -27,23 +35,43 @@ export default function EnhancedLeadRow({ lead, onActionComplete, onClick }: Enh
     onClick?.()
   }
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    onToggleSelection?.(lead.id)
+  }
+
   return (
     <>
       <div
         onClick={handleRowClick}
-        className="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer transition hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+        className={`bg-white dark:bg-gray-800 border rounded-xl p-6 cursor-pointer transition ${
+          isSelected
+            ? 'border-blue-300 dark:border-blue-600 shadow-md bg-blue-50 dark:bg-blue-900/30'
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md hover:bg-blue-50/30 dark:hover:bg-gray-700/50'
+        }`}
       >
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+          {/* Checkbox */}
+          <div className="md:col-span-1 flex items-center">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={handleCheckboxChange}
+              className="w-5 h-5 rounded accent-blue-900 cursor-pointer"
+              aria-label={`Select ${lead.firstName} ${lead.lastName}`}
+            />
+          </div>
+
           {/* Name & Contact */}
-          <div className="md:col-span-4">
-            <p className="font-semibold text-gray-900 text-base">{lead.firstName} {lead.lastName}</p>
-            <p className="text-sm text-gray-500 mt-1">
+          <div className="md:col-span-3">
+            <p className="font-semibold text-gray-900 dark:text-white text-base transition-colors">{lead.firstName} {lead.lastName}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors">
               {lead.email ? (
-                <a href={`mailto:${lead.email}`} className="hover:text-blue-600 transition">
+                <a href={`mailto:${lead.email}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition">
                   {lead.email}
                 </a>
               ) : lead.phone ? (
-                <a href={`tel:${lead.phone}`} className="hover:text-blue-600 transition">
+                <a href={`tel:${lead.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition">
                   {lead.phone}
                 </a>
               ) : (
@@ -54,44 +82,44 @@ export default function EnhancedLeadRow({ lead, onActionComplete, onClick }: Enh
 
           {/* Product */}
           <div className="md:col-span-2">
-            <p className="text-xs text-gray-500 font-medium mb-1 uppercase">Product</p>
             <div className="flex items-center gap-2">
-              <span className="text-xl">{productEmojis[lead.productInterest]}</span>
-              <span className="text-sm text-gray-700 font-medium">
-                {lead.productInterest === 'DRIVE' ? 'Drive' : lead.productInterest === 'HOME' ? 'Home' : 'Pension'}
-              </span>
+              <span>{productEmojis[lead.productInterest]}</span>
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
+                  {lead.productInterest === 'DRIVE' ? 'Drive' : lead.productInterest === 'HOME' ? 'Home' : 'Pension'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Status */}
           <div className="md:col-span-2">
-            <p className="text-xs text-gray-500 font-medium mb-1 uppercase">Status</p>
-            <StatusBadge status={lead.status} size="sm" />
+            <StatusBadge status={lead.status} />
           </div>
 
           {/* Last Action */}
           <div className="md:col-span-3">
-            <p className="text-xs text-gray-500 font-medium mb-1 uppercase">Last Action</p>
             {lastAction ? (
-              <div className="text-sm">
-                <p className="text-gray-700 font-medium">
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Last update</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                   {lastAction.type === 'REFUSED' ? '❌ Refused' : lastAction.type === 'QUOTE_CREATED' ? '📋 Quote' : lastAction.type === 'CALLBACK_SCHEDULED' ? '📅 Callback' : '📝 Note'}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">{lastActionDate}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{lastActionDate}</p>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">—</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">No activity</p>
             )}
           </div>
 
-          {/* Quick Actions */}
+          {/* Actions Button */}
           <div className="md:col-span-1 flex justify-end">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 setShowActions(!showActions)
               }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-600 hover:text-gray-900"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               aria-label="More actions"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -104,7 +132,7 @@ export default function EnhancedLeadRow({ lead, onActionComplete, onClick }: Enh
 
       {/* Action Panel */}
       {showActions && (
-        <div className="bg-gray-50 border border-t-0 border-gray-200 rounded-b-xl p-4 -mt-1">
+        <div className="bg-gray-50 dark:bg-gray-800 border border-t-0 border-gray-200 dark:border-gray-700 rounded-b-xl p-4 -mt-1 transition-colors">
           <LeadActionPanel
             leadId={lead.id}
             onActionComplete={() => {
