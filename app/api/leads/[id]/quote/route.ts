@@ -60,7 +60,7 @@ export async function POST(
 
     const { error: updateError } = await supabase
       .from('leads')
-      .update({ status: 'QUOTED' })
+      .update({ status: 'IN_PROGRESS' })
       .eq('id', params.id)
 
     if (updateError) throw updateError

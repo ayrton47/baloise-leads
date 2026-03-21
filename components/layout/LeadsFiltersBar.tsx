@@ -42,7 +42,6 @@ const statusOptions: StatusOption[] = [
   { value: 'NEW', label: 'Nouveaux', dot: 'bg-blue-500', activeBg: 'bg-blue-600', activeText: 'text-white', countKey: 'new' },
   { value: 'IN_PROGRESS', label: 'En cours', dot: 'bg-amber-500', activeBg: 'bg-amber-500', activeText: 'text-white', countKey: 'inProgress' },
   { value: 'TO_CONTACT', label: 'À contacter', dot: 'bg-yellow-500', activeBg: 'bg-yellow-500', activeText: 'text-white', countKey: 'toContact' },
-  { value: 'QUOTED', label: 'Devis créé', dot: 'bg-emerald-500', activeBg: 'bg-emerald-600', activeText: 'text-white', countKey: 'quoted' },
   { value: 'REFUSED', label: 'Refusés', dot: 'bg-red-500', activeBg: 'bg-red-500', activeText: 'text-white', countKey: 'refused' },
   { value: 'CONVERTED', label: 'Convertis', dot: 'bg-purple-500', activeBg: 'bg-purple-600', activeText: 'text-white', countKey: 'converted' },
 ]

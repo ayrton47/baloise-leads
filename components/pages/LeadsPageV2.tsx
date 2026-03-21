@@ -37,7 +37,8 @@ export default function LeadsPageV2({
     try {
       setIsLoading(true)
       const params = new URLSearchParams()
-      if (status !== 'ALL') params.append('status', status)
+      // When filtering IN_PROGRESS, also include QUOTED leads
+      if (status !== 'ALL' && status !== 'IN_PROGRESS') params.append('status', status)
       if (product !== 'ALL') params.append('product', product)
       const response = await api.get(`/leads?${params}`)
       setLeads(response.data)
@@ -48,19 +49,23 @@ export default function LeadsPageV2({
     }
   }
 
-  // Filter leads by search query
+  // Filter leads by search query and status
   useEffect(() => {
     const q = searchQuery.toLowerCase()
-    const filtered = leads.filter(
+    let filtered = leads.filter(
       (lead) =>
         lead.firstName.toLowerCase().includes(q) ||
         lead.lastName.toLowerCase().includes(q) ||
         (lead.email?.toLowerCase().includes(q) ?? false) ||
         (lead.phone?.toLowerCase().includes(q) ?? false)
     )
+    // Client-side filter for IN_PROGRESS (includes QUOTED)
+    if (status === 'IN_PROGRESS') {
+      filtered = filtered.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED')
+    }
     setFilteredLeads(filtered)
     setCurrentPage(1)
-  }, [leads, searchQuery])
+  }, [leads, searchQuery, status])
 
   useEffect(() => {
     fetchLeads()
@@ -69,8 +74,8 @@ export default function LeadsPageV2({
   // KPI stats from the full leads list
   const kpiStats = {
     new: leads.filter((l) => l.status === 'NEW').length,
-    inProgress: leads.filter((l) => l.status === 'IN_PROGRESS').length,
-    quoted: leads.filter((l) => l.status === 'QUOTED').length,
+    inProgress: leads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
+    quoted: 0,
     refused: leads.filter((l) => l.status === 'REFUSED').length,
     converted: leads.filter((l) => l.status === 'CONVERTED').length,
     toContact: leads.filter((l) => l.status === 'TO_CONTACT').length,
