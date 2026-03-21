@@ -113,10 +113,12 @@ export default function EnhancedLeadRow({
   return (
     <div
       onClick={onClick}
-      className={`group flex items-center gap-4 px-5 py-4 bg-white dark:bg-gray-800/80 border-2 rounded-2xl transition-all cursor-pointer ${
+      className={`group flex items-center gap-4 px-5 py-4 border-2 rounded-2xl transition-all cursor-pointer ${
         isSelected
           ? 'border-[#00358E] dark:border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-md'
-          : 'border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg hover:bg-gray-50/50 dark:hover:bg-gray-750'
+          : lead.status === 'CONVERTED'
+          ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg'
+          : 'bg-white dark:bg-gray-800/80 border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg hover:bg-gray-50/50 dark:hover:bg-gray-750'
       }`}
     >
       {/* Checkbox */}
