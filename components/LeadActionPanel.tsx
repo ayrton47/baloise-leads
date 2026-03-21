@@ -13,9 +13,9 @@ const REFUSAL_REASONS = [
 ]
 
 const PRODUCTS = [
-  { value: 'DRIVE', label: '🚗 Drive' },
-  { value: 'HOME', label: '🏠 Home' },
-  { value: 'PENSION_PLAN', label: '🛡️ Pension Plan' },
+  { value: 'DRIVE', label: 'Drive' },
+  { value: 'HOME', label: 'Home' },
+  { value: 'PENSION_PLAN', label: 'Pension Plan' },
 ]
 
 export default function LeadActionPanel({

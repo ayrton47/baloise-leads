@@ -1,6 +1,10 @@
 'use client'
 
 import { LeadStatus, ProductType } from '@/lib/types'
+import DriveIcon from '@/components/icons/DriveIcon'
+import HomeIcon from '@/components/icons/HomeIcon'
+import PensionIcon from '@/components/icons/PensionIcon'
+import { ReactNode } from 'react'
 
 interface LeadsFiltersBarStats {
   new: number
@@ -46,14 +50,14 @@ const statusOptions: StatusOption[] = [
 type ProductOption = {
   value: ProductType | 'ALL'
   label: string
-  icon: string
+  icon: ReactNode
 }
 
 const productOptions: ProductOption[] = [
-  { value: 'ALL', label: 'Tous les produits', icon: '📦' },
-  { value: 'DRIVE', label: 'Drive', icon: '🚗' },
-  { value: 'HOME', label: 'Home', icon: '🏠' },
-  { value: 'PENSION_PLAN', label: 'Pension Plan', icon: '🏦' },
+  { value: 'ALL', label: 'Tous les produits', icon: <span className="text-base">📦</span> },
+  { value: 'DRIVE', label: 'Drive', icon: <DriveIcon size={18} /> },
+  { value: 'HOME', label: 'Home', icon: <HomeIcon size={18} /> },
+  { value: 'PENSION_PLAN', label: 'Pension Plan', icon: <PensionIcon size={18} /> },
 ]
 
 export default function LeadsFiltersBar({
@@ -116,7 +120,7 @@ export default function LeadsFiltersBar({
                       : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <span className="text-base">{opt.icon}</span>
+                  {opt.icon}
                   <span>{opt.label}</span>
                 </button>
               )

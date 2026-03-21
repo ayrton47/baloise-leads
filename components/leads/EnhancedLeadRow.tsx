@@ -2,6 +2,10 @@
 
 import { Lead } from '@/lib/types'
 import StatusBadge from './StatusBadge'
+import DriveIcon from '@/components/icons/DriveIcon'
+import HomeIcon from '@/components/icons/HomeIcon'
+import PensionIcon from '@/components/icons/PensionIcon'
+import { ReactNode } from 'react'
 
 interface EnhancedLeadRowProps {
   lead: Lead
@@ -44,10 +48,10 @@ function getRelativeTime(dateStr: string): string {
   return 'À l\'instant'
 }
 
-const productConfig: Record<string, { label: string; icon: string; color: string; bg: string; darkBg: string; darkColor: string }> = {
+const productConfig: Record<string, { label: string; icon: ReactNode; color: string; bg: string; darkBg: string; darkColor: string }> = {
   DRIVE: {
     label: 'Drive',
-    icon: '🚗',
+    icon: <DriveIcon size={16} />,
     color: 'text-sky-700',
     bg: 'bg-sky-50',
     darkBg: 'dark:bg-sky-900/20',
@@ -55,7 +59,7 @@ const productConfig: Record<string, { label: string; icon: string; color: string
   },
   HOME: {
     label: 'Home',
-    icon: '🏠',
+    icon: <HomeIcon size={16} />,
     color: 'text-violet-700',
     bg: 'bg-violet-50',
     darkBg: 'dark:bg-violet-900/20',
@@ -63,7 +67,7 @@ const productConfig: Record<string, { label: string; icon: string; color: string
   },
   PENSION_PLAN: {
     label: 'Pension',
-    icon: '🛡️',
+    icon: <PensionIcon size={16} />,
     color: 'text-teal-700',
     bg: 'bg-teal-50',
     darkBg: 'dark:bg-teal-900/20',
@@ -138,7 +142,7 @@ export default function EnhancedLeadRow({
         <span
           className={`text-xs font-bold px-3 py-1.5 rounded-lg ${product.bg} ${product.color} ${product.darkBg} ${product.darkColor} flex items-center gap-1.5`}
         >
-          <span>{product.icon}</span>
+          {product.icon}
           {product.label}
         </span>
       </div>
