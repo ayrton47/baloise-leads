@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
+import { snakeToCamel } from '@/lib/transform'
 import jwt from 'jsonwebtoken'
 
 function getAgentId(req: NextRequest): string | null {
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json(leads)
+    return NextResponse.json(snakeToCamel(leads))
   } catch (error) {
     console.error('Get leads error:', error)
     return NextResponse.json(
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json(lead, { status: 201 })
+    return NextResponse.json(snakeToCamel(lead), { status: 201 })
   } catch (error) {
     console.error('Create lead error:', error)
     return NextResponse.json(
