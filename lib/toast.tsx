@@ -25,7 +25,7 @@ const defaultContextValue: ToastContextType = {
 
 export const ToastContext = createContext<ToastContextType>(defaultContextValue)
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const removeToast = useCallback((id: string) => {
