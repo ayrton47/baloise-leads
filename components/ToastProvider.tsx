@@ -1,8 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
-import { ToastContext, Toast, ToastType } from '@/lib/toast'
-import { createContext, useContext, useState, useCallback } from 'react'
+import { ReactNode, createContext, useContext, useState, useCallback } from 'react'
+import { Toast, ToastType } from '@/lib/toast'
 
 interface ToastContextType {
   toasts: Toast[]
