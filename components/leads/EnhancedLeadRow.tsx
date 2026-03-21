@@ -48,38 +48,30 @@ function getRelativeTime(dateStr: string): string {
   return 'À l\'instant'
 }
 
-const productConfig: Record<string, { label: string; icon: ReactNode; color: string; bg: string; darkBg: string; darkColor: string }> = {
+const productConfig: Record<string, { label: string; icon: ReactNode; color: string; bg: string }> = {
   DRIVE: {
     label: 'Drive',
     icon: <DriveIcon size={16} />,
     color: 'text-sky-700',
     bg: 'bg-sky-50',
-    darkBg: 'dark:bg-sky-900/20',
-    darkColor: 'dark:text-sky-300',
   },
   HOME: {
     label: 'Home',
     icon: <HomeIcon size={16} />,
     color: 'text-violet-700',
     bg: 'bg-violet-50',
-    darkBg: 'dark:bg-violet-900/20',
-    darkColor: 'dark:text-violet-300',
   },
   PENSION_PLAN: {
     label: 'Pension',
     icon: <PensionIcon size={16} />,
     color: 'text-teal-700',
     bg: 'bg-teal-50',
-    darkBg: 'dark:bg-teal-900/20',
-    darkColor: 'dark:text-teal-300',
   },
   OTHER: {
     label: 'Autre',
     icon: <span className="text-xs">📋</span>,
     color: 'text-gray-600',
     bg: 'bg-gray-100',
-    darkBg: 'dark:bg-gray-700',
-    darkColor: 'dark:text-gray-300',
   },
 }
 
@@ -115,10 +107,10 @@ export default function EnhancedLeadRow({
       onClick={onClick}
       className={`group flex items-center gap-4 px-5 py-4 border-2 rounded-2xl transition-all cursor-pointer ${
         isSelected
-          ? 'border-[#00358E] dark:border-blue-500 bg-blue-50/60 dark:bg-blue-900/20 shadow-md'
+          ? 'border-[#00358E] bg-blue-50/60 shadow-md'
           : lead.status === 'CONVERTED'
-          ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg'
-          : 'bg-white dark:bg-gray-800/80 border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg hover:bg-gray-50/50 dark:hover:bg-gray-750'
+          ? 'border-emerald-200 bg-emerald-50/50 hover:border-emerald-300 hover:shadow-lg'
+          : 'bg-white border-gray-100 hover:border-gray-300 hover:shadow-lg hover:bg-gray-50/50'
       }`}
     >
       {/* Checkbox */}
@@ -144,10 +136,10 @@ export default function EnhancedLeadRow({
 
       {/* Name + Contact */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-gray-900 dark:text-white truncate">
+        <p className="font-bold text-sm text-gray-900 truncate">
           {lead.firstName} {lead.lastName}
         </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
+        <p className="text-xs text-gray-400 mt-0.5 truncate">
           {lead.email
             ? lead.email
             : lead.phone
@@ -163,7 +155,7 @@ export default function EnhancedLeadRow({
           return (
             <span
               key={p}
-              className={`text-xs font-bold px-2.5 py-1.5 rounded-lg ${cfg.bg} ${cfg.color} ${cfg.darkBg} ${cfg.darkColor} flex items-center gap-1`}
+              className={`text-xs font-bold px-2.5 py-1.5 rounded-lg ${cfg.bg} ${cfg.color} flex items-center gap-1`}
             >
               {cfg.icon}
               {cfg.label}
@@ -175,7 +167,7 @@ export default function EnhancedLeadRow({
       {/* Quote count badge */}
       {quoteCount > 0 && (
         <div className="flex-shrink-0 hidden sm:block">
-          <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300 flex items-center gap-1">
+          <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -188,7 +180,7 @@ export default function EnhancedLeadRow({
       <div className="flex-shrink-0 hidden md:block w-[130px]">
         <StatusBadge status={lead.status} size="sm" />
         {latestCallback && (
-          <p className="text-[11px] text-yellow-600 dark:text-yellow-400 font-medium mt-1 flex items-center gap-1">
+          <p className="text-[11px] text-yellow-600 font-medium mt-1 flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -201,15 +193,15 @@ export default function EnhancedLeadRow({
       <div className="flex-shrink-0 hidden lg:block w-[150px]">
         {lastAction ? (
           <div>
-            <p className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <p className="text-xs font-medium text-gray-600">
               {actionLabels[lastAction.type] ?? lastAction.type}
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-400 mt-0.5">
               {getRelativeTime(lastAction.createdAt)}
             </p>
           </div>
         ) : (
-          <p className="text-xs text-gray-300 dark:text-gray-600 italic">Aucune activité</p>
+          <p className="text-xs text-gray-300 italic">Aucune activité</p>
         )}
       </div>
 
@@ -221,7 +213,7 @@ export default function EnhancedLeadRow({
         {lead.email && (
           <a
             href={`mailto:${lead.email}`}
-            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition"
+            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
             title={`Envoyer un email à ${lead.email}`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -233,7 +225,7 @@ export default function EnhancedLeadRow({
         {lead.phone && (
           <a
             href={`tel:${lead.phone}`}
-            className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition"
+            className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
             title={`Appeler ${lead.phone}`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -243,7 +235,7 @@ export default function EnhancedLeadRow({
           </a>
         )}
         <div
-          className="p-2 rounded-xl text-gray-300 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition"
+          className="p-2 rounded-xl text-gray-300 group-hover:text-gray-500 transition"
           aria-label="Voir les détails"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -36,14 +36,14 @@ function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+      <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-200">
+        <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
+        <p className="text-gray-600 mb-6">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition"
+            className="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition"
           >
             Annuler
           </button>
@@ -154,7 +154,7 @@ export default function LeadBulkActions({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 dark:bg-gray-800 border-t border-gray-700 dark:border-gray-700 shadow-2xl z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 shadow-2xl z-40">
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1">
             <div className="w-8 h-8 rounded-lg bg-[#00358E] flex items-center justify-center text-white text-sm font-bold">

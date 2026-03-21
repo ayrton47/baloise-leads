@@ -77,14 +77,14 @@ export default function LeadsPagination({
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 px-4 md:px-0">
       {/* Info Text */}
-      <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-sm text-gray-600">
         {totalItems === 0 ? (
           <span>Aucun lead</span>
         ) : (
           <span>
-            Affichage <span className="font-semibold text-gray-800 dark:text-gray-200">{startItem}</span>–
-            <span className="font-semibold text-gray-800 dark:text-gray-200">{endItem}</span> sur{' '}
-            <span className="font-semibold text-gray-800 dark:text-gray-200">{totalItems}</span> leads
+            Affichage <span className="font-semibold text-gray-800">{startItem}</span>–
+            <span className="font-semibold text-gray-800">{endItem}</span> sur{' '}
+            <span className="font-semibold text-gray-800">{totalItems}</span> leads
           </span>
         )}
       </div>
@@ -93,14 +93,14 @@ export default function LeadsPagination({
       <div className="flex items-center gap-2 md:gap-6">
         {/* Items Per Page Dropdown */}
         <div className="flex items-center gap-2">
-          <label htmlFor="items-per-page" className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
+          <label htmlFor="items-per-page" className="text-sm text-gray-600 hidden sm:inline">
             Par page :
           </label>
           <select
             id="items-per-page"
             value={itemsPerPage}
             onChange={handleItemsPerPageChange}
-            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -117,8 +117,8 @@ export default function LeadsPagination({
             disabled={!hasPreviousPage}
             className={`px-3 py-2 rounded-lg border transition ${
               hasPreviousPage
-                ? 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                : 'border-gray-200 dark:border-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50'
+                ? 'border-gray-300 text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50'
+                : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
             }`}
             aria-label="Page précédente"
           >
@@ -132,7 +132,7 @@ export default function LeadsPagination({
             {pageNumbers.map((page, index) => {
               if (page === '...') {
                 return (
-                  <span key={`ellipsis-${index}`} className="px-2 py-2 text-gray-500 dark:text-gray-500">
+                  <span key={`ellipsis-${index}`} className="px-2 py-2 text-gray-500">
                     ...
                   </span>
                 )
@@ -147,8 +147,8 @@ export default function LeadsPagination({
                   onClick={() => onPageChange(pageNum)}
                   className={`px-3 py-2 rounded-lg border transition ${
                     isActive
-                      ? 'bg-[#00358E] dark:bg-blue-600 text-white border-[#00358E] dark:border-blue-600 shadow-sm'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-[#00358E] text-white border-[#00358E] shadow-sm'
+                      : 'border-gray-300 text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50'
                   }`}
                   aria-label={`Page ${pageNum}`}
                   aria-current={isActive ? 'page' : undefined}
@@ -165,8 +165,8 @@ export default function LeadsPagination({
             disabled={!hasNextPage}
             className={`px-3 py-2 rounded-lg border transition ${
               hasNextPage
-                ? 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                : 'border-gray-200 dark:border-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50'
+                ? 'border-gray-300 text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50'
+                : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
             }`}
             aria-label="Page suivante"
           >

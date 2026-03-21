@@ -135,7 +135,7 @@ export default function LeadsPageV2({
     paginatedLeads.length > 0 && paginatedLeads.every((l) => selectedLeads.has(l.id))
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+    <div className="min-h-screen bg-gray-50 transition-colors">
       {/* Header */}
       <LeadsHeader userName={user?.name} onLogout={onLogout} onOpenProfile={() => setShowProfileModal(true)} />
 
@@ -160,7 +160,7 @@ export default function LeadsPageV2({
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-8 h-8 border-[3px] border-[#00358E] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-gray-400 dark:text-gray-500">Chargement des leads…</p>
+            <p className="text-sm text-gray-400">Chargement des leads…</p>
           </div>
         ) : filteredLeads.length === 0 ? (
           <EmptyState

@@ -101,8 +101,8 @@ export default function LeadActionPanel({
 
   if (leadStatus === 'CONVERTED') {
     return (
-      <div className="border rounded-xl p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700 shadow-sm transition-colors">
-        <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+      <div className="border rounded-xl p-4 bg-purple-50 border-purple-200 shadow-sm transition-colors">
+        <div className="flex items-center gap-2 text-purple-700">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -120,8 +120,8 @@ export default function LeadActionPanel({
   ]
 
   return (
-    <div className="border rounded-xl p-4 space-y-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 shadow-sm transition-colors">
-      <h3 className="font-semibold text-gray-900 dark:text-white transition-colors">Actions possibles</h3>
+    <div className="border rounded-xl p-4 space-y-4 bg-blue-50 border-blue-200 shadow-sm transition-colors">
+      <h3 className="font-semibold text-gray-900 transition-colors">Actions possibles</h3>
 
       <div className="flex gap-2 flex-wrap">
         {actionButtons.map(({ key, label }) => (
@@ -134,9 +134,9 @@ export default function LeadActionPanel({
             className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition ${
               activeAction === key
                 ? key === 'convert'
-                  ? 'bg-purple-600 dark:bg-purple-700 text-white border-purple-600 dark:border-purple-700'
-                  : 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700'
-                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-400 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'bg-purple-600 text-white border-purple-600'
+                  : 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-900 border-gray-400 hover:border-gray-500 hover:bg-gray-50'
             }`}
           >
             {label}
@@ -145,11 +145,11 @@ export default function LeadActionPanel({
       </div>
 
       {activeAction === 'refuse' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
+        <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
           <select
             value={refusalReason}
             onChange={(e) => setRefusalReason(e.target.value)}
-            className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           >
             <option value="">-- Motif de refus --</option>
             {REFUSAL_REASONS.map((r) => (
@@ -163,7 +163,7 @@ export default function LeadActionPanel({
               value={refusalNote}
               onChange={(e) => setRefusalNote(e.target.value)}
               placeholder="Précisez le motif..."
-              className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+              className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
               rows={2}
             />
           )}
@@ -171,11 +171,11 @@ export default function LeadActionPanel({
       )}
 
       {activeAction === 'quote' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
+        <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
           <select
             value={product}
             onChange={(e) => setProduct(e.target.value)}
-            className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           >
             <option value="">-- Choisir un produit --</option>
             {PRODUCTS.map((p) => (
@@ -188,7 +188,7 @@ export default function LeadActionPanel({
       )}
 
       {activeAction === 'callback' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
+        <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
           <input
             type="datetime-local"
             value={callbackDate}
@@ -199,33 +199,33 @@ export default function LeadActionPanel({
               tomorrow.setHours(8, 0, 0, 0)
               return tomorrow.toISOString().slice(0, 16)
             })()}
-            className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           />
           <textarea
             value={callbackNote}
             onChange={(e) => setCallbackNote(e.target.value)}
             placeholder="Note (optionnelle)..."
-            className="w-full border-2 border-gray-400 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+            className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
             rows={2}
           />
         </div>
       )}
 
       {activeAction === 'convert' && (
-        <div className="space-y-2 pt-2 border-t border-blue-200 dark:border-blue-700 transition-colors">
-          <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+        <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
+          <p className="text-sm text-purple-700 font-medium">
             Marquer ce lead comme converti ? Aucune action ne sera possible après cette étape.
           </p>
         </div>
       )}
 
-      {error && <p className="text-red-700 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-700 transition-colors">{error}</p>}
+      {error && <p className="text-red-700 text-sm font-medium bg-red-50 px-3 py-2 rounded-lg border border-red-200 transition-colors">{error}</p>}
 
       {activeAction && (
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className="w-full bg-blue-600 dark:bg-blue-700 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 transition shadow-md hover:shadow-lg"
+          className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition shadow-md hover:shadow-lg"
         >
           {isLoading ? 'Enregistrement...' : 'Confirmer'}
         </button>

@@ -73,7 +73,7 @@ const kpiCards = [
 
 export default function LeadsHeroSection({ stats }: LeadsHeroSectionProps) {
   return (
-    <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors">
+    <section className="bg-white border-b border-gray-100 transition-colors">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {kpiCards.map((card) => (

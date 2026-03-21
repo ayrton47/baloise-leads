@@ -1,7 +1,6 @@
 'use client'
 
 import BaloiseLogo from '@/components/BaloiseLogo'
-import ThemeToggle from '@/components/ThemeToggle'
 
 interface LeadsHeaderProps {
   userName: string
@@ -39,10 +38,6 @@ export default function LeadsHeader({ userName, onLogout, onOpenProfile }: Leads
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
-
-          <div className="h-5 w-px bg-white/20" />
-
           {/* User info */}
           <div
             className="flex items-center gap-2.5 cursor-pointer hover:bg-white/10 rounded-xl px-2.5 py-1.5 -mx-2.5 transition"

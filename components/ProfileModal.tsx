@@ -71,13 +71,13 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Mon profil</h2>
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900">Mon profil</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-400 hover:text-gray-600"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -89,27 +89,27 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               Nom complet
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
           </div>
 
@@ -118,13 +118,13 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
             <button
               type="button"
               onClick={() => setShowPasswordSection(true)}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="text-sm text-blue-600 hover:underline font-medium"
             >
               Modifier le mot de passe
             </button>
           ) : (
-            <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <div className="space-y-3 pt-2 border-t border-gray-100">
+              <p className="text-sm font-semibold text-gray-700">
                 Changer le mot de passe
               </p>
               <input
@@ -132,21 +132,21 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Mot de passe actuel"
-                className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Nouveau mot de passe"
-                className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirmer le nouveau mot de passe"
-                className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
               <button
                 type="button"
@@ -156,7 +156,7 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
                   setNewPassword('')
                   setConfirmPassword('')
                 }}
-                className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:underline"
+                className="text-xs text-gray-400 hover:text-gray-600 hover:underline"
               >
                 Annuler le changement de mot de passe
               </button>
@@ -165,12 +165,12 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
 
           {/* Error / Success */}
           {error && (
-            <p className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-700">
+            <p className="text-sm font-medium text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
               {error}
             </p>
           )}
           {success && (
-            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-700">
+            <p className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-200">
               {success}
             </p>
           )}
@@ -187,7 +187,7 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+              className="px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition"
             >
               Annuler
             </button>
@@ -195,11 +195,11 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
 
           {/* Logout */}
           {onLogout && (
-            <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+            <div className="pt-3 border-t border-gray-100">
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium hover:underline transition"
+                className="w-full text-sm text-red-500 hover:text-red-600 font-medium hover:underline transition"
               >
                 Se déconnecter
               </button>

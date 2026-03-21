@@ -61,65 +61,65 @@ export default function AddLeadModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 transition-colors">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md transition-colors">
-        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white transition-colors">➕ Ajouter un lead</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-colors">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md transition-colors">
+        <h2 className="text-xl font-bold mb-4 text-gray-800 transition-colors">➕ Ajouter un lead</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
               Prénom *
             </label>
             <input
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
               Nom *
             </label>
             <input
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               placeholder="exemple@email.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
               Téléphone
             </label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               placeholder="+352 621 123 456"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
               Produit(s) intéressé(s) *
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -132,15 +132,15 @@ export default function AddLeadModal({
                     onClick={() => toggleProduct(p.value)}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium border-2 transition ${
                       isChecked
-                        ? 'border-[#00358E] bg-[#00358E]/10 text-[#00358E] dark:border-blue-400 dark:bg-blue-900/30 dark:text-blue-300'
-                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+                        ? 'border-[#00358E] bg-[#00358E]/10 text-[#00358E]'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition ${
                         isChecked
-                          ? 'border-[#00358E] bg-[#00358E] dark:border-blue-400 dark:bg-blue-500'
-                          : 'border-gray-300 dark:border-gray-500'
+                          ? 'border-[#00358E] bg-[#00358E]'
+                          : 'border-gray-300'
                       }`}
                     >
                       {isChecked && (
@@ -157,7 +157,7 @@ export default function AddLeadModal({
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-300 px-3 py-2 rounded-lg text-sm transition-colors">
+            <div className="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-sm transition-colors">
               {error}
             </div>
           )}
@@ -166,14 +166,14 @@ export default function AddLeadModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 transition"
+              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition"
             >
               {isLoading ? 'Création...' : 'Ajouter'}
             </button>

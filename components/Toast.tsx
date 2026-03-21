@@ -54,21 +54,21 @@ const iconMap = {
 }
 
 const colorMap = {
-  success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 text-green-800 dark:text-green-300',
-  error: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 text-red-800 dark:text-red-300',
-  info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300',
+  success: 'bg-green-50 border-green-200 text-green-800',
+  error: 'bg-red-50 border-red-200 text-red-800',
+  info: 'bg-blue-50 border-blue-200 text-blue-800',
 }
 
 const iconColorMap = {
-  success: 'text-green-600 dark:text-green-400',
-  error: 'text-red-600 dark:text-red-400',
-  info: 'text-blue-600 dark:text-blue-400',
+  success: 'text-green-600',
+  error: 'text-red-600',
+  info: 'text-blue-600',
 }
 
 const closeColorMap = {
-  success: 'hover:bg-green-100 dark:hover:bg-green-900/40 text-green-600 dark:text-green-400',
-  error: 'hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400',
-  info: 'hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400',
+  success: 'hover:bg-green-100 text-green-600',
+  error: 'hover:bg-red-100 text-red-600',
+  info: 'hover:bg-blue-100 text-blue-600',
 }
 
 export function Toast({ toast }: ToastProps) {
