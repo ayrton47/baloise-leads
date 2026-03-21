@@ -2,19 +2,6 @@
 
 import { useState } from 'react'
 import { api } from '@/lib/api'
-import {
-  BalButton,
-  BalButtonGroup,
-  BalCard,
-  BalField,
-  BalFieldGroup,
-  BalForm,
-  BalFormGroup,
-  BalHeading,
-  BalInput,
-  BalText,
-} from 'baloise-design-system'
-import 'baloise-design-system/css'
 
 export default function LoginPage({
   onLogin,
@@ -49,87 +36,91 @@ export default function LoginPage({
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
-      <BalCard>
-        <div style={{ padding: '2rem', width: '100%', maxWidth: '400px' }}>
-          <BalHeading level="1" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-            🎯 Baloise Leads
-          </BalHeading>
-          <BalText style={{ textAlign: 'center', marginBottom: '2rem', opacity: 0.7 }}>
-            Plateforme de suivi des opportunités commerciales
-          </BalText>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md border border-slate-200">
+        <h1 className="text-3xl font-bold text-center mb-2 text-slate-900">
+          🎯 Baloise Leads
+        </h1>
+        <p className="text-center text-slate-600 mb-8 text-sm">
+          Plateforme de suivi des opportunités commerciales
+        </p>
 
-          <BalForm onSubmit={handleSubmit}>
-            <BalFormGroup>
-              {isRegister && (
-                <BalField>
-                  <BalInput
-                    type="text"
-                    value={name}
-                    onChange={(e: any) => setName(e.target.value)}
-                    placeholder="Jean Dupont"
-                    label="Nom complet"
-                    required
-                  />
-                </BalField>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {isRegister && (
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Nom complet
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="Jean Dupont"
+                required
+              />
+            </div>
+          )}
 
-              <BalField>
-                <BalInput
-                  type="email"
-                  value={email}
-                  onChange={(e: any) => setEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  label="Email"
-                  required
-                />
-              </BalField>
-
-              <BalField>
-                <BalInput
-                  type="password"
-                  value={password}
-                  onChange={(e: any) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  label="Mot de passe"
-                  required
-                />
-              </BalField>
-
-              {error && (
-                <div style={{ background: '#fee', border: '1px solid #f99', color: '#c00', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
-                  {error}
-                </div>
-              )}
-
-              <BalButton
-                type="submit"
-                disabled={isLoading}
-                style={{ width: '100%' }}
-              >
-                {isLoading ? 'Chargement...' : isRegister ? 'Créer un compte' : 'Se connecter'}
-              </BalButton>
-            </BalFormGroup>
-          </BalForm>
-
-          <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem' }}>
-            <BalText>
-              {isRegister ? 'Déjà inscrit ?' : 'Pas encore inscrit ?'}{' '}
-              <BalButton
-                type="button"
-                onClick={() => {
-                  setIsRegister(!isRegister)
-                  setError('')
-                }}
-                is-text
-                style={{ padding: 0, color: '#0066cc' }}
-              >
-                {isRegister ? 'Se connecter' : "Créer un compte"}
-              </BalButton>
-            </BalText>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="votre@email.com"
+              required
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+          >
+            {isLoading ? '⏳ Chargement...' : isRegister ? '✅ Créer un compte' : '🔓 Se connecter'}
+          </button>
+        </form>
+
+        <div className="mt-7 text-center text-sm border-t border-slate-200 pt-6">
+          <p className="text-slate-600">
+            {isRegister ? 'Déjà inscrit ?' : 'Pas encore inscrit ?'}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(!isRegister)
+                setError('')
+              }}
+              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition"
+            >
+              {isRegister ? 'Se connecter' : "Créer un compte"}
+            </button>
+          </p>
         </div>
-      </BalCard>
+      </div>
     </div>
   )
 }
