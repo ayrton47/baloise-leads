@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { api } from '@/lib/api'
+import BaloiseLogo from '@/components/BaloiseLogo'
 
 export default function LoginPage({
   onLogin,
@@ -38,9 +39,14 @@ export default function LoginPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 dark:from-gray-950 to-slate-100 dark:to-gray-900 flex items-center justify-center p-4 transition-colors">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md border border-slate-200 dark:border-gray-700 transition-colors">
-        <h1 className="text-3xl font-bold text-center mb-2 text-slate-900 dark:text-white transition-colors">
-          🎯 Baloise Leads
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="w-10 h-10">
+            <BaloiseLogo />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white transition-colors">
+            Baloise Leads
+          </h1>
+        </div>
         <p className="text-center text-slate-600 dark:text-gray-400 mb-8 text-sm transition-colors">
           Plateforme de suivi des opportunités commerciales
         </p>
