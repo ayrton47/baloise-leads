@@ -88,8 +88,6 @@ export default function LeadActionPanel({
           callbackDate,
           note: callbackNote,
         })
-      }
-
       } else if (activeAction === 'convert') {
         await api.post(`/leads/${leadId}/convert`, {})
       }
