@@ -42,16 +42,16 @@ const kpiCards = [
     ),
   },
   {
-    key: 'quoted' as const,
-    label: 'Devis créé',
-    numColor: 'text-emerald-600',
-    bg: 'from-emerald-50 to-emerald-100/50',
-    iconBg: 'bg-emerald-100',
-    iconColor: 'text-emerald-600',
-    ring: 'ring-emerald-200/50',
+    key: 'toContact' as const,
+    label: 'À contacter',
+    numColor: 'text-yellow-600',
+    bg: 'from-yellow-50 to-yellow-100/50',
+    iconBg: 'bg-yellow-100',
+    iconColor: 'text-yellow-600',
+    ring: 'ring-yellow-200/50',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
   },
