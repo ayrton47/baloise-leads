@@ -56,6 +56,15 @@ export default function LeadActionPanel({
           return
         }
         await api.post(`/leads/${leadId}/quote`, { product })
+        // Open external quote tool in new tab
+        const quoteUrls: Record<string, string> = {
+          DRIVE: 'https://v2.bisa.lu/production/home/quote',
+          HOME: 'https://v2.bisa.lu/production/home/quote',
+          PENSION_PLAN: 'https://v2.bisa.lu/production/home/quote',
+        }
+        if (quoteUrls[product]) {
+          window.open(quoteUrls[product], '_blank')
+        }
       } else if (activeAction === 'callback') {
         if (!callbackDate) {
           setError('Sélectionnez une date')
