@@ -16,13 +16,17 @@ interface LeadsFiltersBarStats {
   total: number
 }
 
+export type DateRange = '7d' | '30d' | '90d' | '6m' | '1y' | 'ALL'
+
 interface LeadsFiltersBarProps {
   status: LeadStatus | 'ALL'
   product: ProductType | 'ALL'
   searchQuery: string
+  dateRange: DateRange
   onStatusChange: (status: LeadStatus | 'ALL') => void
   onProductChange: (product: ProductType | 'ALL') => void
   onSearchChange: (query: string) => void
+  onDateRangeChange: (range: DateRange) => void
   onAddLead: () => void
   activeFiltersCount: number
   stats?: LeadsFiltersBarStats
@@ -60,13 +64,24 @@ const productOptions: ProductOption[] = [
   { value: 'OTHER', label: 'Autre', icon: <span className="text-base">📋</span> },
 ]
 
+const dateRangeOptions: { value: DateRange; label: string }[] = [
+  { value: '7d', label: '7 jours' },
+  { value: '30d', label: '1 mois' },
+  { value: '90d', label: '3 mois' },
+  { value: '6m', label: '6 mois' },
+  { value: '1y', label: '1 an' },
+  { value: 'ALL', label: 'Tout' },
+]
+
 export default function LeadsFiltersBar({
   status,
   product,
   searchQuery,
+  dateRange,
   onStatusChange,
   onProductChange,
   onSearchChange,
+  onDateRangeChange,
   onAddLead,
   stats,
 }: LeadsFiltersBarProps) {
@@ -104,6 +119,26 @@ export default function LeadsFiltersBar({
                 </svg>
               </button>
             )}
+          </div>
+
+          {/* Date range filter */}
+          <div className="relative flex-shrink-0">
+            <select
+              value={dateRange}
+              onChange={(e) => onDateRangeChange(e.target.value as DateRange)}
+              className={`appearance-none border-2 rounded-xl px-3 py-2.5 pr-8 text-sm font-semibold cursor-pointer transition-all ${
+                dateRange !== '30d'
+                  ? 'border-[#00358E] bg-[#00358E]/10 text-[#00358E]'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+              }`}
+            >
+              {dateRangeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
 
           {/* Product pills */}

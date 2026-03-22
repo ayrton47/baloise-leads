@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { Lead, LeadStatus, ProductType } from '@/lib/types'
 import LeadsHeader from '@/components/layout/LeadsHeader'
 import LeadsHeroSection from '@/components/layout/LeadsHeroSection'
-import LeadsFiltersBar from '@/components/layout/LeadsFiltersBar'
+import LeadsFiltersBar, { DateRange } from '@/components/layout/LeadsFiltersBar'
 import EnhancedLeadRow from '@/components/leads/EnhancedLeadRow'
 import EmptyState from '@/components/leads/EmptyState'
 import AddLeadModal from '@/components/AddLeadModal'
@@ -28,6 +28,7 @@ export default function LeadsPageV2({
   const [status, setStatus] = useState<LeadStatus | 'ALL'>('ALL')
   const [product, setProduct] = useState<ProductType | 'ALL'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
+  const [dateRange, setDateRange] = useState<DateRange>('30d')
   const [showAddModal, setShowAddModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
@@ -50,10 +51,42 @@ export default function LeadsPageV2({
     }
   }
 
-  // Client-side filtering by status, product, and search query
+  // Compute the cutoff date from dateRange
+  const getDateCutoff = (range: DateRange): Date | null => {
+    if (range === 'ALL') return null
+    const now = new Date()
+    switch (range) {
+      case '7d': now.setDate(now.getDate() - 7); break
+      case '30d': now.setDate(now.getDate() - 30); break
+      case '90d': now.setDate(now.getDate() - 90); break
+      case '6m': now.setMonth(now.getMonth() - 6); break
+      case '1y': now.setFullYear(now.getFullYear() - 1); break
+    }
+    now.setHours(0, 0, 0, 0)
+    return now
+  }
+
+  // Client-side filtering by status, product, date range, and search query
   useEffect(() => {
     const q = searchQuery.toLowerCase()
     let filtered = allLeads
+
+    // Filter by date range (but keep TO_CONTACT leads with future callback)
+    const cutoff = getDateCutoff(dateRange)
+    if (cutoff) {
+      filtered = filtered.filter((lead) => {
+        // Always keep TO_CONTACT leads that have a future callback date
+        if (lead.status === 'TO_CONTACT') {
+          const callbacks = (lead.leadActions ?? [])
+            .filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          if (callbacks.length > 0 && new Date(callbacks[0].callbackDate!) >= new Date()) {
+            return true
+          }
+        }
+        return new Date(lead.createdAt) >= cutoff
+      })
+    }
 
     // Filter by status
     if (status === 'IN_PROGRESS') {
@@ -80,21 +113,37 @@ export default function LeadsPageV2({
 
     setFilteredLeads(filtered)
     setCurrentPage(1)
-  }, [allLeads, searchQuery, status, product])
+  }, [allLeads, searchQuery, status, product, dateRange])
 
   useEffect(() => {
     fetchLeads()
   }, [])
 
-  // KPI stats always from ALL leads (not filtered)
+  // KPI stats from date-filtered leads (but not status/product/search filtered)
+  const dateFilteredLeads = (() => {
+    const cutoff = getDateCutoff(dateRange)
+    if (!cutoff) return allLeads
+    return allLeads.filter((lead) => {
+      if (lead.status === 'TO_CONTACT') {
+        const callbacks = (lead.leadActions ?? [])
+          .filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        if (callbacks.length > 0 && new Date(callbacks[0].callbackDate!) >= new Date()) {
+          return true
+        }
+      }
+      return new Date(lead.createdAt) >= cutoff
+    })
+  })()
+
   const kpiStats = {
-    new: allLeads.filter((l) => l.status === 'NEW').length,
-    inProgress: allLeads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
+    new: dateFilteredLeads.filter((l) => l.status === 'NEW').length,
+    inProgress: dateFilteredLeads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
     quoted: 0,
-    refused: allLeads.filter((l) => l.status === 'REFUSED').length,
-    converted: allLeads.filter((l) => l.status === 'CONVERTED').length,
-    toContact: allLeads.filter((l) => l.status === 'TO_CONTACT').length,
-    total: allLeads.length,
+    refused: dateFilteredLeads.filter((l) => l.status === 'REFUSED').length,
+    converted: dateFilteredLeads.filter((l) => l.status === 'CONVERTED').length,
+    toContact: dateFilteredLeads.filter((l) => l.status === 'TO_CONTACT').length,
+    total: dateFilteredLeads.length,
   }
 
   const activeFiltersCount = [
@@ -107,6 +156,7 @@ export default function LeadsPageV2({
     setStatus('ALL')
     setProduct('ALL')
     setSearchQuery('')
+    setDateRange('30d')
   }
 
   // Detail panel
@@ -233,9 +283,11 @@ export default function LeadsPageV2({
         status={status}
         product={product}
         searchQuery={searchQuery}
+        dateRange={dateRange}
         onStatusChange={setStatus}
         onProductChange={setProduct}
         onSearchChange={setSearchQuery}
+        onDateRangeChange={setDateRange}
         onAddLead={() => setShowAddModal(true)}
         activeFiltersCount={activeFiltersCount}
         stats={kpiStats}
