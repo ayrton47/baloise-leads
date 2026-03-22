@@ -25,7 +25,7 @@ export default function LeadsHeader({ userName, agencyNumber, role, onLogout, on
       <div className="max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
         {/* Logo & Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 flex items-center justify-center bg-white/15 backdrop-blur rounded-lg flex-shrink-0">
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
             <BaloiseLogo />
           </div>
           <div>
