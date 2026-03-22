@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { api } from '@/lib/api'
 
 import { LeadStatus } from '@/lib/types'
@@ -39,6 +39,16 @@ export default function LeadActionPanel({
   const [noteText, setNoteText] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const actionFormRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to the action form when an action is selected
+  useEffect(() => {
+    if (activeAction && actionFormRef.current) {
+      setTimeout(() => {
+        actionFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+    }
+  }, [activeAction])
 
   const handleSubmit = async () => {
     setError('')
@@ -153,6 +163,7 @@ export default function LeadActionPanel({
         ))}
       </div>
 
+      <div ref={actionFormRef}>
       {activeAction === 'refuse' && (
         <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
           <select
@@ -239,6 +250,7 @@ export default function LeadActionPanel({
           </p>
         </div>
       )}
+      </div>
 
       {error && <p className="text-red-700 text-sm font-medium bg-red-50 px-3 py-2 rounded-lg border border-red-200 transition-colors">{error}</p>}
 
