@@ -138,12 +138,75 @@ export default function LeadsPageV2({
 
   const clearSelection = () => setSelectedLeads(new Set())
 
-  const paginatedLeads = filteredLeads.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  // Split filtered leads into 3 groups
+  const currentUserId = user?.id
+  const myLeads = filteredLeads.filter((l) => l.agentId === currentUserId)
+  const unassignedLeads = filteredLeads.filter((l) => !l.agentId)
+  const otherLeads = filteredLeads.filter((l) => l.agentId && l.agentId !== currentUserId)
+
+  // Collapsed state for sections
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
+  const toggleSection = (key: string) =>
+    setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }))
+
+  const renderLeadRow = (lead: Lead) => (
+    <EnhancedLeadRow
+      key={lead.id}
+      lead={lead}
+      onActionComplete={() => {
+        fetchLeads()
+        clearSelection()
+      }}
+      onClick={() => openPanel(lead)}
+      isSelected={selectedLeads.has(lead.id)}
+      onToggleSelection={toggleLeadSelection}
+    />
   )
-  const allPaginatedSelected =
-    paginatedLeads.length > 0 && paginatedLeads.every((l) => selectedLeads.has(l.id))
+
+  const sections = [
+    {
+      key: 'my',
+      label: 'Mes leads',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+      color: 'text-indigo-700',
+      bg: 'bg-indigo-50',
+      border: 'border-indigo-200',
+      badgeBg: 'bg-indigo-600',
+      leads: myLeads,
+    },
+    {
+      key: 'unassigned',
+      label: 'Non attribués',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+        </svg>
+      ),
+      color: 'text-amber-700',
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      badgeBg: 'bg-amber-600',
+      leads: unassignedLeads,
+    },
+    {
+      key: 'others',
+      label: 'Leads des autres agents',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+      color: 'text-gray-600',
+      bg: 'bg-gray-50',
+      border: 'border-gray-200',
+      badgeBg: 'bg-gray-500',
+      leads: otherLeads,
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50 transition-colors">
@@ -180,34 +243,44 @@ export default function LeadsPageV2({
             onClearFilters={handleClearFilters}
           />
         ) : (
-          <div className="space-y-3">
-            {/* Leads List */}
-            <div className="space-y-2">
-              {paginatedLeads.map((lead) => (
-                <EnhancedLeadRow
-                  key={lead.id}
-                  lead={lead}
-                  onActionComplete={() => {
-                    fetchLeads()
-                    clearSelection()
-                  }}
-                  onClick={() => openPanel(lead)}
-                  isSelected={selectedLeads.has(lead.id)}
-                  onToggleSelection={toggleLeadSelection}
-                />
-              ))}
-            </div>
+          <div className="space-y-6">
+            {sections.map((section) => {
+              const isCollapsed = collapsedSections[section.key] ?? false
+              if (section.leads.length === 0) return null
+              return (
+                <div key={section.key}>
+                  {/* Section Header */}
+                  <button
+                    onClick={() => toggleSection(section.key)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${section.bg} border ${section.border} mb-3 hover:shadow-sm transition group`}
+                  >
+                    <span className={section.color}>{section.icon}</span>
+                    <span className={`text-sm font-bold ${section.color}`}>
+                      {section.label}
+                    </span>
+                    <span className={`text-xs font-bold text-white px-2 py-0.5 rounded-full ${section.badgeBg}`}>
+                      {section.leads.length}
+                    </span>
+                    <div className="flex-1" />
+                    <svg
+                      className={`w-4 h-4 text-gray-400 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
 
-            {/* Pagination — bottom */}
-            <div className="pt-2">
-              <LeadsPagination
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredLeads.length}
-                onPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
-              />
-            </div>
+                  {/* Section Content */}
+                  {!isCollapsed && (
+                    <div className="space-y-2">
+                      {section.leads.map(renderLeadRow)}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </main>
