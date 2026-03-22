@@ -50,8 +50,8 @@ export default function LoginPage({
       {/* Left — Background image */}
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80"
-          alt="Modern office building"
+          src="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=1920&q=80"
+          alt="Modern glass office building at night"
           className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Gradient overlay */}
