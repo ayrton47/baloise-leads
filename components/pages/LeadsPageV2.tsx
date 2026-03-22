@@ -211,6 +211,7 @@ export default function LeadsPageV2({
             clearSelection()
           }}
           onClearSelection={clearSelection}
+          currentUserRole={user?.role}
         />
       )}
 

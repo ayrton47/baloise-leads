@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api } from '@/lib/api'
-import { Lead } from '@/lib/types'
+import { Lead, Agent } from '@/lib/types'
 
 interface LeadBulkActionsProps {
   selectedLeadIds: Set<string>
   leads: Lead[]
   onActionComplete: () => void
   onClearSelection: () => void
+  currentUserRole?: string
 }
 
 interface ConfirmDialogProps {
@@ -81,6 +82,7 @@ export default function LeadBulkActions({
   leads,
   onActionComplete,
   onClearSelection,
+  currentUserRole,
 }: LeadBulkActionsProps) {
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean
@@ -88,8 +90,55 @@ export default function LeadBulkActions({
   }>({ isOpen: false, type: null })
   const [isProcessing, setIsProcessing] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [showAssignMenu, setShowAssignMenu] = useState(false)
+  const [agencyAgents, setAgencyAgents] = useState<Agent[]>([])
+  const [isAssigning, setIsAssigning] = useState(false)
+  const assignMenuRef = useRef<HTMLDivElement>(null)
 
+  const isResponsable = currentUserRole === 'RESPONSABLE'
   const selectedCount = selectedLeadIds.size
+
+  // Fetch agents when assign menu is opened
+  useEffect(() => {
+    if (showAssignMenu && isResponsable && agencyAgents.length === 0) {
+      api.get('/agents/agency').then((res) => setAgencyAgents(res.data)).catch(() => {})
+    }
+  }, [showAssignMenu, isResponsable])
+
+  // Close assign menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (assignMenuRef.current && !assignMenuRef.current.contains(e.target as Node)) {
+        setShowAssignMenu(false)
+      }
+    }
+    if (showAssignMenu) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showAssignMenu])
+
+  const handleBulkAssign = async (agentId: string, agentName: string) => {
+    setIsAssigning(true)
+    try {
+      await Promise.all(
+        Array.from(selectedLeadIds).map((leadId) =>
+          api.patch(`/leads/${leadId}/assign`, { agentId })
+        )
+      )
+      setToast({
+        message: `${selectedCount} lead${selectedCount > 1 ? 's' : ''} attribué${selectedCount > 1 ? 's' : ''} à ${agentName}`,
+        type: 'success',
+      })
+      setShowAssignMenu(false)
+      onClearSelection()
+      onActionComplete()
+      setTimeout(() => setToast(null), 3000)
+    } catch {
+      setToast({ message: 'Erreur lors de l\'attribution', type: 'error' })
+      setTimeout(() => setToast(null), 3000)
+    } finally {
+      setIsAssigning(false)
+    }
+  }
 
   const handleBulkRefuse = async () => {
     setIsProcessing(true)
@@ -172,6 +221,56 @@ export default function LeadBulkActions({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Assign button — responsable only */}
+            {isResponsable && (
+              <div className="relative" ref={assignMenuRef}>
+                <button
+                  onClick={() => setShowAssignMenu(!showAssignMenu)}
+                  disabled={isProcessing || isAssigning}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {isAssigning ? 'Attribution…' : 'Attribuer'}
+                </button>
+
+                {/* Agent dropdown */}
+                {showAssignMenu && (
+                  <div className="absolute bottom-full mb-2 right-0 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                    <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
+                      <p className="text-xs font-semibold text-gray-500">Attribuer à :</p>
+                    </div>
+                    <div className="max-h-56 overflow-y-auto py-1">
+                      {agencyAgents.map((agent) => (
+                        <button
+                          key={agent.id}
+                          disabled={isAssigning}
+                          onClick={() => handleBulkAssign(agent.id, agent.name)}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50 transition text-left disabled:opacity-50"
+                        >
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
+                            agent.role === 'RESPONSABLE' ? 'bg-indigo-500' : 'bg-gray-400'
+                          }`}>
+                            {agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800 truncate">{agent.name}</p>
+                            <p className="text-[10px] text-gray-400">
+                              {agent.role === 'RESPONSABLE' ? 'Responsable' : 'Employé'}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                      {agencyAgents.length === 0 && (
+                        <p className="text-sm text-gray-400 italic px-3 py-2">Chargement…</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <button
               onClick={() => setConfirmDialog({ isOpen: true, type: 'refuse' })}
               disabled={isProcessing}
