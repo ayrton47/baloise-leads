@@ -28,22 +28,38 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get agent's agency_number from DB if not in token
-    let agencyNumber = payload.agencyNumber
-    if (!agencyNumber) {
-      const { data: agent } = await supabase.from('agents').select('agency_number').eq('id', payload.id).single()
-      agencyNumber = agent?.agency_number
-    }
+    // Get agent info from DB
+    const { data: currentAgent } = await supabase
+      .from('agents')
+      .select('id, agency_number, role')
+      .eq('id', payload.id)
+      .single()
 
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status')
     const product = searchParams.get('product')
 
+    // If agency_number column exists on leads, filter by agency; otherwise filter by agent_id
     let query = supabase
       .from('leads')
       .select('*, lead_actions(*)')
-      .eq('agency_number', agencyNumber)
       .order('created_at', { ascending: false })
+
+    // Try agency-based filter first, fallback to agent-based
+    if (currentAgent?.agency_number) {
+      // Get all agents in the same agency
+      const { data: agencyAgents } = await supabase
+        .from('agents')
+        .select('id')
+        .eq('agency_number', currentAgent.agency_number)
+      if (agencyAgents && agencyAgents.length > 0) {
+        query = query.in('agent_id', agencyAgents.map((a: any) => a.id))
+      } else {
+        query = query.eq('agent_id', payload.id)
+      }
+    } else {
+      query = query.eq('agent_id', payload.id)
+    }
 
     if (status) query = query.eq('status', status)
     if (product) query = query.ilike('product_interest', `%${product}%`)
@@ -92,13 +108,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get agent's agency_number
-    let agencyNumber = payload.agencyNumber
-    if (!agencyNumber) {
-      const { data: agent } = await supabase.from('agents').select('agency_number').eq('id', payload.id).single()
-      agencyNumber = agent?.agency_number
-    }
-
     const { firstName, lastName, email, phone, productInterest } = await req.json()
 
     if (!firstName || !lastName || !productInterest) {
@@ -117,7 +126,6 @@ export async function POST(req: NextRequest) {
           email,
           phone,
           product_interest: productInterest,
-          agency_number: agencyNumber,
           agent_id: payload.id,
         },
       ])
