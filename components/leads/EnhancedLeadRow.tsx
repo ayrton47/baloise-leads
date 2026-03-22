@@ -6,7 +6,6 @@ import DriveIcon from '@/components/icons/DriveIcon'
 import HomeIcon from '@/components/icons/HomeIcon'
 import PensionIcon from '@/components/icons/PensionIcon'
 import { ReactNode } from 'react'
-import { motion } from 'framer-motion'
 
 interface EnhancedLeadRowProps {
   lead: Lead
@@ -106,12 +105,7 @@ export default function EnhancedLeadRow({
   const product = productConfig[products[0]] ?? productConfig['OTHER']
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: Math.min(index * 0.03, 0.3), ease: 'easeOut' }}
-      whileHover={{ scale: 1.005 }}
-      whileTap={{ scale: 0.995 }}
+    <div
       onClick={onClick}
       className={`group flex items-center gap-4 px-5 py-4 border-2 rounded-2xl transition-all cursor-pointer ${
         isSelected
@@ -269,6 +263,6 @@ export default function EnhancedLeadRow({
           </svg>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

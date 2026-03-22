@@ -416,11 +416,9 @@ export default function LeadsPageV2({
               const isCollapsed = collapsedSections[section.key] ?? false
               if (section.leads.length === 0) return null
               return (
-                <motion.div
+                <div
                   key={section.key}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: sectionIndex * 0.1, ease: 'easeOut' }}
+                  className="overflow-hidden"
                 >
                   {/* Section Header */}
                   <button
@@ -435,16 +433,14 @@ export default function LeadsPageV2({
                       {section.leads.length}
                     </span>
                     <div className="flex-1" />
-                    <motion.svg
-                      animate={{ rotate: isCollapsed ? -90 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="w-4 h-4 text-gray-400"
+                    <svg
+                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </motion.svg>
+                    </svg>
                   </button>
 
                   {/* Section Content */}
@@ -464,7 +460,7 @@ export default function LeadsPageV2({
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </div>
               )
             })}
           </div>
