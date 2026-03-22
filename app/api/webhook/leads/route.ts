@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
         productInterest: product,
         source: 'API_EXTERNAL',
         agentId: agent.id,
+        agencyNumber: agent.agencyNumber,
       },
     })
 
