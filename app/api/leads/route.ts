@@ -33,13 +33,11 @@ export async function GET(req: NextRequest) {
     const product = searchParams.get('product')
 
     // Get agent info to find agency colleagues
-    const { data: currentAgent, error: agentError } = await supabase
+    const { data: currentAgent } = await supabase
       .from('agents')
       .select('*')
       .eq('id', payload.id)
       .single()
-
-    console.log('Current agent:', currentAgent, 'Error:', agentError)
 
     let query = supabase
       .from('leads')
@@ -52,8 +50,6 @@ export async function GET(req: NextRequest) {
         .from('agents')
         .select('id')
         .eq('agency_number', currentAgent.agency_number)
-
-      console.log('Agency agents:', agencyAgents)
 
       if (agencyAgents && agencyAgents.length > 0) {
         query = query.in('agent_id', agencyAgents.map((a: any) => a.id))
