@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, email, phone, productInterest } = await req.json()
+    const { firstName, lastName, email, phone, productInterest, assignedAgentId } = await req.json()
 
     if (!firstName || !lastName || !productInterest) {
       return NextResponse.json(
@@ -119,6 +119,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Use assignedAgentId if provided, otherwise leave unassigned (agent_id = creator)
+    const agentId = assignedAgentId || payload.id
 
     const { data: lead, error } = await supabase
       .from('leads')
@@ -129,7 +132,7 @@ export async function POST(req: NextRequest) {
           email,
           phone,
           product_interest: productInterest,
-          agent_id: payload.id,
+          agent_id: agentId,
         },
       ])
       .select()

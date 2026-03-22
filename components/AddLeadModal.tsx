@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
+import { Agent } from '@/lib/types'
 
 const PRODUCTS = [
   { value: 'DRIVE', label: 'Drive' },
@@ -22,8 +23,15 @@ export default function AddLeadModal({
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [assignedAgentId, setAssignedAgentId] = useState('')
+  const [agencyAgents, setAgencyAgents] = useState<Agent[]>([])
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Fetch agency agents on mount
+  useEffect(() => {
+    api.get('/agents/agency').then((res) => setAgencyAgents(res.data)).catch(() => {})
+  }, [])
 
   const toggleProduct = (value: string) => {
     setSelectedProducts((prev) => {
@@ -51,6 +59,7 @@ export default function AddLeadModal({
         email: email || undefined,
         phone: phone || undefined,
         productInterest: Array.from(selectedProducts).join(','),
+        assignedAgentId: assignedAgentId || undefined,
       })
       onSuccess()
     } catch (err: any) {
@@ -154,6 +163,24 @@ export default function AddLeadModal({
                 )
               })}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 transition-colors">
+              Attribuer à un agent
+            </label>
+            <select
+              value={assignedAgentId}
+              onChange={(e) => setAssignedAgentId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            >
+              <option value="">— Non attribué —</option>
+              {agencyAgents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.name} {agent.role === 'RESPONSABLE' ? '(Responsable)' : '(Employé)'}
+                </option>
+              ))}
+            </select>
           </div>
 
           {error && (
