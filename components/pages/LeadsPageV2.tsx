@@ -223,6 +223,7 @@ export default function LeadsPageV2({
           fetchLeads()
           clearSelection()
         }}
+        currentUserRole={user?.role}
       />
 
       {/* Add Lead Modal */}

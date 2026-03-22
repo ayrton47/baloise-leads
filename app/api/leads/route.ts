@@ -68,25 +68,28 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
 
-    // Enrich actions with agent names
+    // Collect all agent IDs (action creators + lead owners)
     const allAgentIds = new Set<string>()
     for (const lead of (leads ?? [])) {
+      if (lead.agent_id) allAgentIds.add(lead.agent_id)
       for (const a of (lead.lead_actions ?? [])) {
         if (a.created_by) allAgentIds.add(a.created_by)
       }
     }
-    let agentMap: Record<string, string> = {}
+    let agentMap: Record<string, { name: string; role: string }> = {}
     if (allAgentIds.size > 0) {
-      const { data: agents } = await supabase.from('agents').select('id, name').in('id', [...allAgentIds])
+      const { data: agents } = await supabase.from('agents').select('id, name, role').in('id', [...allAgentIds])
       if (agents) {
-        agentMap = Object.fromEntries(agents.map((a: any) => [a.id, a.name]))
+        agentMap = Object.fromEntries(agents.map((a: any) => [a.id, { name: a.name, role: a.role }]))
       }
     }
     const enrichedLeads = (leads ?? []).map((lead: any) => ({
       ...lead,
+      assigned_agent_name: agentMap[lead.agent_id]?.name || null,
+      assigned_agent_role: agentMap[lead.agent_id]?.role || null,
       lead_actions: (lead.lead_actions ?? []).map((a: any) => ({
         ...a,
-        agent_name: agentMap[a.created_by] || null,
+        agent_name: agentMap[a.created_by]?.name || null,
       })),
     }))
 

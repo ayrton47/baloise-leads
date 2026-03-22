@@ -33,6 +33,8 @@ export interface Lead {
   externalId?: string
   agencyNumber: string
   agentId: string
+  assignedAgentName?: string
+  assignedAgentRole?: AgentRole
   leadActions: LeadAction[]
   createdAt: string
   updatedAt: string

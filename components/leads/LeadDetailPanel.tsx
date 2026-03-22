@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Lead, ProductType } from '@/lib/types'
+import { useState, useEffect } from 'react'
+import { Lead, ProductType, Agent } from '@/lib/types'
 import { api } from '@/lib/api'
 import StatusBadge from './StatusBadge'
 import LeadActionPanel from '@/components/LeadActionPanel'
@@ -11,6 +11,7 @@ interface LeadDetailPanelProps {
   isOpen: boolean
   onClose: () => void
   onActionComplete: () => void
+  currentUserRole?: string
 }
 
 const productLabels: Record<ProductType, string> = {
@@ -80,6 +81,7 @@ export default function LeadDetailPanel({
   isOpen,
   onClose,
   onActionComplete,
+  currentUserRole,
 }: LeadDetailPanelProps) {
   const [isCancelling, setIsCancelling] = useState(false)
   const [cancelError, setCancelError] = useState('')
@@ -88,6 +90,25 @@ export default function LeadDetailPanel({
   const [newCallbackDate, setNewCallbackDate] = useState('')
   const [callbackError, setCallbackError] = useState('')
   const [isSavingCallback, setIsSavingCallback] = useState(false)
+  const [showAssignDropdown, setShowAssignDropdown] = useState(false)
+  const [agencyAgents, setAgencyAgents] = useState<Agent[]>([])
+  const [isAssigning, setIsAssigning] = useState(false)
+  const [assignError, setAssignError] = useState('')
+
+  const isResponsable = currentUserRole === 'RESPONSABLE'
+
+  // Fetch agency agents when responsable opens the panel
+  useEffect(() => {
+    if (isOpen && isResponsable) {
+      api.get('/agents/agency').then((res) => {
+        setAgencyAgents(res.data)
+      }).catch(() => {})
+    }
+    if (!isOpen) {
+      setShowAssignDropdown(false)
+      setAssignError('')
+    }
+  }, [isOpen, isResponsable])
 
   if (!lead) return null
 
@@ -237,6 +258,111 @@ export default function LeadDetailPanel({
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Assigned Agent + Assignment */}
+          <div className="px-6 py-4 border-b border-gray-50">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              Agent assigné
+            </h3>
+            {lead.assignedAgentName ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100">
+                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {lead.assignedAgentName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-800">{lead.assignedAgentName}</p>
+                  <p className="text-[11px] text-indigo-600 font-medium">
+                    {lead.assignedAgentRole === 'RESPONSABLE' ? 'Responsable' : 'Employé'}
+                  </p>
+                </div>
+                {isResponsable && lead.status !== 'CONVERTED' && (
+                  <button
+                    onClick={() => {
+                      setShowAssignDropdown(!showAssignDropdown)
+                      setAssignError('')
+                    }}
+                    className="p-2 rounded-lg text-indigo-500 hover:bg-indigo-100 transition flex-shrink-0"
+                    title="Réattribuer"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  ?
+                </div>
+                <p className="text-sm text-gray-400 italic flex-1">Non attribué</p>
+                {isResponsable && lead.status !== 'CONVERTED' && (
+                  <button
+                    onClick={() => {
+                      setShowAssignDropdown(!showAssignDropdown)
+                      setAssignError('')
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition"
+                  >
+                    Attribuer
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Assignment dropdown */}
+            {showAssignDropdown && isResponsable && (
+              <div className="mt-3 p-3 rounded-xl bg-white border-2 border-indigo-200 shadow-lg">
+                <p className="text-xs font-semibold text-gray-500 mb-2">Attribuer à un agent de l'agence :</p>
+                {assignError && (
+                  <p className="text-xs text-red-600 font-medium mb-2">{assignError}</p>
+                )}
+                <div className="space-y-1 max-h-48 overflow-y-auto">
+                  {agencyAgents.map((agent) => (
+                    <button
+                      key={agent.id}
+                      disabled={isAssigning || agent.id === lead.agentId}
+                      onClick={async () => {
+                        setIsAssigning(true)
+                        setAssignError('')
+                        try {
+                          await api.patch(`/leads/${lead.id}/assign`, { agentId: agent.id })
+                          setShowAssignDropdown(false)
+                          onActionComplete()
+                        } catch (err: any) {
+                          setAssignError(err.response?.data?.error || 'Erreur lors de l\'attribution')
+                        } finally {
+                          setIsAssigning(false)
+                        }
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition ${
+                        agent.id === lead.agentId
+                          ? 'bg-indigo-50 border border-indigo-200 cursor-default'
+                          : 'hover:bg-gray-50 border border-transparent'
+                      } ${isAssigning ? 'opacity-50' : ''}`}
+                    >
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
+                        agent.role === 'RESPONSABLE' ? 'bg-indigo-500' : 'bg-gray-400'
+                      }`}>
+                        {agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {agent.name}
+                          {agent.id === lead.agentId && (
+                            <span className="text-[10px] text-indigo-500 font-bold ml-1">(actuel)</span>
+                          )}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {agent.role === 'RESPONSABLE' ? 'Responsable' : 'Employé'}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Callback Date — for TO_CONTACT leads */}

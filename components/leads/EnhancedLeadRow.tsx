@@ -134,7 +134,7 @@ export default function EnhancedLeadRow({
         {initials}
       </div>
 
-      {/* Name + Contact */}
+      {/* Name + Contact + Assigned Agent */}
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm text-gray-900 truncate">
           {lead.firstName} {lead.lastName}
@@ -146,6 +146,17 @@ export default function EnhancedLeadRow({
             ? lead.phone
             : <span className="italic">Pas de contact</span>}
         </p>
+        {lead.assignedAgentName && (
+          <p className="text-[11px] text-indigo-600 mt-0.5 flex items-center gap-1 truncate">
+            <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {lead.assignedAgentName}
+            {lead.assignedAgentRole === 'RESPONSABLE' && (
+              <span className="text-[9px] font-bold bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded">R</span>
+            )}
+          </p>
+        )}
       </div>
 
       {/* Product badges */}
