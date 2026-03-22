@@ -297,7 +297,7 @@ export default function LeadsPageV2({
 
       {/* Today's Callbacks Banner */}
       {!isLoading && todayLeads.length > 0 && (
-        <div className="max-w-7xl mx-auto px-8 pt-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
           <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 overflow-hidden">
             {/* Banner Header */}
             <button
@@ -398,7 +398,7 @@ export default function LeadsPageV2({
       )}
 
       {/* Main Content */}
-      <main className={`max-w-7xl mx-auto px-8 py-6 ${selectedLeads.size > 0 ? 'pb-28' : ''}`}>
+      <main className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 ${selectedLeads.size > 0 ? 'pb-28' : ''}`}>
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-8 h-8 border-[3px] border-[#00358E] border-t-transparent rounded-full animate-spin" />

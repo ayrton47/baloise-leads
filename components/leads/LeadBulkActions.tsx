@@ -204,93 +204,177 @@ export default function LeadBulkActions({
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-[#00358E] border-t border-[#002a72] shadow-2xl z-40">
-        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#00358E] text-sm font-bold">
-              {selectedCount}
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3.5">
+          {/* Desktop layout */}
+          <div className="hidden sm:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#00358E] text-sm font-bold">
+                {selectedCount}
+              </div>
+              <span className="font-semibold text-white">
+                lead{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={onClearSelection}
+                className="text-sm text-blue-200 hover:text-white ml-1 transition underline underline-offset-2"
+              >
+                Désélectionner
+              </button>
             </div>
-            <span className="font-semibold text-white">
-              lead{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
-            </span>
-            <button
-              onClick={onClearSelection}
-              className="text-sm text-gray-400 hover:text-white ml-1 transition underline underline-offset-2"
-            >
-              Désélectionner
-            </button>
+
+            <div className="flex items-center gap-2">
+              {isResponsable && (
+                <div className="relative" ref={assignMenuRef}>
+                  <button
+                    onClick={() => setShowAssignMenu(!showAssignMenu)}
+                    disabled={isProcessing || isAssigning}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    {isAssigning ? 'Attribution…' : 'Attribuer'}
+                  </button>
+                  {showAssignMenu && (
+                    <div className="absolute bottom-full mb-2 right-0 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                      <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
+                        <p className="text-xs font-semibold text-gray-500">Attribuer à :</p>
+                      </div>
+                      <div className="max-h-56 overflow-y-auto py-1">
+                        {agencyAgents.map((agent) => (
+                          <button
+                            key={agent.id}
+                            disabled={isAssigning}
+                            onClick={() => handleBulkAssign(agent.id, agent.name)}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50 transition text-left disabled:opacity-50"
+                          >
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
+                              agent.role === 'RESPONSABLE' ? 'bg-indigo-500' : 'bg-gray-400'
+                            }`}>
+                              {agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">{agent.name}</p>
+                              <p className="text-[10px] text-gray-400">
+                                {agent.role === 'RESPONSABLE' ? 'Responsable' : 'Employé'}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                        {agencyAgents.length === 0 && (
+                          <p className="text-sm text-gray-400 italic px-3 py-2">Chargement…</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setConfirmDialog({ isOpen: true, type: 'refuse' })}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Tout refuser
+              </button>
+              <button
+                onClick={() => setConfirmDialog({ isOpen: true, type: 'delete' })}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Supprimer
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Assign button — responsable only */}
-            {isResponsable && (
-              <div className="relative" ref={assignMenuRef}>
-                <button
-                  onClick={() => setShowAssignMenu(!showAssignMenu)}
-                  disabled={isProcessing || isAssigning}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {isAssigning ? 'Attribution…' : 'Attribuer'}
-                </button>
-
-                {/* Agent dropdown */}
-                {showAssignMenu && (
-                  <div className="absolute bottom-full mb-2 right-0 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
-                    <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
-                      <p className="text-xs font-semibold text-gray-500">Attribuer à :</p>
-                    </div>
-                    <div className="max-h-56 overflow-y-auto py-1">
-                      {agencyAgents.map((agent) => (
-                        <button
-                          key={agent.id}
-                          disabled={isAssigning}
-                          onClick={() => handleBulkAssign(agent.id, agent.name)}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50 transition text-left disabled:opacity-50"
-                        >
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
-                            agent.role === 'RESPONSABLE' ? 'bg-indigo-500' : 'bg-gray-400'
-                          }`}>
-                            {agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">{agent.name}</p>
-                            <p className="text-[10px] text-gray-400">
-                              {agent.role === 'RESPONSABLE' ? 'Responsable' : 'Employé'}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                      {agencyAgents.length === 0 && (
-                        <p className="text-sm text-gray-400 italic px-3 py-2">Chargement…</p>
-                      )}
-                    </div>
-                  </div>
-                )}
+          {/* Mobile layout */}
+          <div className="flex sm:hidden flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#00358E] text-xs font-bold">
+                  {selectedCount}
+                </div>
+                <span className="text-sm font-semibold text-white">
+                  sélectionné{selectedCount > 1 ? 's' : ''}
+                </span>
               </div>
-            )}
-
-            <button
-              onClick={() => setConfirmDialog({ isOpen: true, type: 'refuse' })}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
-              Tout refuser
-            </button>
-            <button
-              onClick={() => setConfirmDialog({ isOpen: true, type: 'delete' })}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold disabled:opacity-50 transition flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Supprimer
-            </button>
+              <button
+                onClick={onClearSelection}
+                className="text-xs text-blue-200 hover:text-white transition underline underline-offset-2"
+              >
+                Annuler
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              {isResponsable && (
+                <div className="relative flex-1" ref={assignMenuRef}>
+                  <button
+                    onClick={() => setShowAssignMenu(!showAssignMenu)}
+                    disabled={isProcessing || isAssigning}
+                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Attribuer
+                  </button>
+                  {showAssignMenu && (
+                    <div className="absolute bottom-full mb-2 left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                      <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
+                        <p className="text-xs font-semibold text-gray-500">Attribuer à :</p>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto py-1">
+                        {agencyAgents.map((agent) => (
+                          <button
+                            key={agent.id}
+                            disabled={isAssigning}
+                            onClick={() => handleBulkAssign(agent.id, agent.name)}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50 transition text-left disabled:opacity-50"
+                          >
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 ${
+                              agent.role === 'RESPONSABLE' ? 'bg-indigo-500' : 'bg-gray-400'
+                            }`}>
+                              {agent.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">{agent.name}</p>
+                            </div>
+                          </button>
+                        ))}
+                        {agencyAgents.length === 0 && (
+                          <p className="text-sm text-gray-400 italic px-3 py-2">Chargement…</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => setConfirmDialog({ isOpen: true, type: 'refuse' })}
+                disabled={isProcessing}
+                className="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Refuser
+              </button>
+              <button
+                onClick={() => setConfirmDialog({ isOpen: true, type: 'delete' })}
+                disabled={isProcessing}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Supprimer
+              </button>
+            </div>
           </div>
         </div>
       </div>
