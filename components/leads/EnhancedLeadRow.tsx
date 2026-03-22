@@ -200,6 +200,13 @@ export default function EnhancedLeadRow({
         )}
       </div>
 
+      {/* Entry date */}
+      <div className="flex-shrink-0 hidden lg:block w-[90px]">
+        <p className="text-[11px] text-gray-400 font-medium">
+          {new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </p>
+      </div>
+
       {/* Last activity */}
       <div className="flex-shrink-0 hidden lg:block w-[150px]">
         {lastAction ? (
