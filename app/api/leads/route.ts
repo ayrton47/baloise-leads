@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
       .select('*, lead_actions(*)')
       .order('created_at', { ascending: false })
 
-    // Filter by agency if possible, otherwise by agent_id
+    // Filter by agency: include assigned leads + unassigned leads created by agency members
     if (currentAgent?.agency_number) {
       const { data: agencyAgents } = await supabase
         .from('agents')
@@ -52,13 +52,16 @@ export async function GET(req: NextRequest) {
         .eq('agency_number', currentAgent.agency_number)
 
       if (agencyAgents && agencyAgents.length > 0) {
-        query = query.in('agent_id', agencyAgents.map((a: any) => a.id))
+        const agentIds = agencyAgents.map((a: any) => a.id)
+        // Show leads assigned to agency agents OR unassigned leads created by agency agents
+        query = query.or(
+          `agent_id.in.(${agentIds.join(',')}),and(agent_id.is.null,created_by.in.(${agentIds.join(',')}))`
+        )
       } else {
-        query = query.eq('agent_id', payload.id)
+        query = query.or(`agent_id.eq.${payload.id},and(agent_id.is.null,created_by.eq.${payload.id})`)
       }
     } else {
-      // No agency_number — just show this agent's leads
-      query = query.eq('agent_id', payload.id)
+      query = query.or(`agent_id.eq.${payload.id},and(agent_id.is.null,created_by.eq.${payload.id})`)
     }
 
     if (status) query = query.eq('status', status)
@@ -120,8 +123,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Use assignedAgentId if provided, otherwise leave unassigned (agent_id = creator)
-    const agentId = assignedAgentId || payload.id
+    // Use assignedAgentId if provided, otherwise null (unassigned)
+    const agentId = assignedAgentId || null
 
     const { data: lead, error } = await supabase
       .from('leads')
@@ -133,6 +136,7 @@ export async function POST(req: NextRequest) {
           phone,
           product_interest: productInterest,
           agent_id: agentId,
+          created_by: payload.id,
         },
       ])
       .select()
