@@ -93,7 +93,8 @@ export default function LeadBulkActions({
   const [showAssignMenu, setShowAssignMenu] = useState(false)
   const [agencyAgents, setAgencyAgents] = useState<Agent[]>([])
   const [isAssigning, setIsAssigning] = useState(false)
-  const assignMenuRef = useRef<HTMLDivElement>(null)
+  const assignMenuDesktopRef = useRef<HTMLDivElement>(null)
+  const assignMenuMobileRef = useRef<HTMLDivElement>(null)
 
   const isResponsable = currentUserRole === 'RESPONSABLE'
   const selectedCount = selectedLeadIds.size
@@ -108,7 +109,10 @@ export default function LeadBulkActions({
   // Close assign menu on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (assignMenuRef.current && !assignMenuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      const inDesktop = assignMenuDesktopRef.current?.contains(target)
+      const inMobile = assignMenuMobileRef.current?.contains(target)
+      if (!inDesktop && !inMobile) {
         setShowAssignMenu(false)
       }
     }
@@ -224,7 +228,7 @@ export default function LeadBulkActions({
 
             <div className="flex items-center gap-2">
               {isResponsable && (
-                <div className="relative" ref={assignMenuRef}>
+                <div className="relative" ref={assignMenuDesktopRef}>
                   <button
                     onClick={() => setShowAssignMenu(!showAssignMenu)}
                     disabled={isProcessing || isAssigning}
@@ -312,7 +316,7 @@ export default function LeadBulkActions({
             </div>
             <div className="flex items-center gap-2">
               {isResponsable && (
-                <div className="relative flex-1" ref={assignMenuRef}>
+                <div className="relative flex-1" ref={assignMenuMobileRef}>
                   <button
                     onClick={() => setShowAssignMenu(!showAssignMenu)}
                     disabled={isProcessing || isAssigning}
