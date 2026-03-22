@@ -28,36 +28,40 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get agent info from DB
-    const { data: currentAgent } = await supabase
-      .from('agents')
-      .select('id, agency_number, role')
-      .eq('id', payload.id)
-      .single()
-
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status')
     const product = searchParams.get('product')
 
-    // If agency_number column exists on leads, filter by agency; otherwise filter by agent_id
+    // Get agent info to find agency colleagues
+    const { data: currentAgent, error: agentError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('id', payload.id)
+      .single()
+
+    console.log('Current agent:', currentAgent, 'Error:', agentError)
+
     let query = supabase
       .from('leads')
       .select('*, lead_actions(*)')
       .order('created_at', { ascending: false })
 
-    // Try agency-based filter first, fallback to agent-based
+    // Filter by agency if possible, otherwise by agent_id
     if (currentAgent?.agency_number) {
-      // Get all agents in the same agency
       const { data: agencyAgents } = await supabase
         .from('agents')
         .select('id')
         .eq('agency_number', currentAgent.agency_number)
+
+      console.log('Agency agents:', agencyAgents)
+
       if (agencyAgents && agencyAgents.length > 0) {
         query = query.in('agent_id', agencyAgents.map((a: any) => a.id))
       } else {
         query = query.eq('agent_id', payload.id)
       }
     } else {
+      // No agency_number — just show this agent's leads
       query = query.eq('agent_id', payload.id)
     }
 
