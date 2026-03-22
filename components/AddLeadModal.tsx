@@ -14,9 +14,11 @@ const PRODUCTS = [
 export default function AddLeadModal({
   onClose,
   onSuccess,
+  currentUser,
 }: {
   onClose: () => void
   onSuccess: () => void
+  currentUser?: { id: string; role: string; name: string }
 }) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -28,10 +30,14 @@ export default function AddLeadModal({
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  // Fetch agency agents on mount
+  const isResponsable = currentUser?.role === 'RESPONSABLE'
+
+  // Fetch agency agents on mount (only for responsable)
   useEffect(() => {
-    api.get('/agents/agency').then((res) => setAgencyAgents(res.data)).catch(() => {})
-  }, [])
+    if (isResponsable) {
+      api.get('/agents/agency').then((res) => setAgencyAgents(res.data)).catch(() => {})
+    }
+  }, [isResponsable])
 
   const toggleProduct = (value: string) => {
     setSelectedProducts((prev) => {
@@ -175,11 +181,19 @@ export default function AddLeadModal({
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             >
               <option value="">— Non attribué —</option>
-              {agencyAgents.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name} {agent.role === 'RESPONSABLE' ? '(Responsable)' : '(Employé)'}
-                </option>
-              ))}
+              {isResponsable ? (
+                agencyAgents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name} {agent.role === 'RESPONSABLE' ? '(Responsable)' : '(Employé)'}
+                  </option>
+                ))
+              ) : (
+                currentUser && (
+                  <option value={currentUser.id}>
+                    {currentUser.name} (Moi)
+                  </option>
+                )
+              )}
             </select>
           </div>
 

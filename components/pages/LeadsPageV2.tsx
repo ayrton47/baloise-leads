@@ -433,6 +433,7 @@ export default function LeadsPageV2({
             setShowAddModal(false)
             fetchLeads()
           }}
+          currentUser={user}
         />
       )}
 
