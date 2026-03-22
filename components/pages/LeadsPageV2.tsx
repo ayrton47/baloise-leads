@@ -23,7 +23,7 @@ export default function LeadsPageV2({
   onLogout: () => void
   onUpdateUser?: (token: string, user: any) => void
 }) {
-  const [leads, setLeads] = useState<Lead[]>([])
+  const [allLeads, setAllLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
   const [status, setStatus] = useState<LeadStatus | 'ALL'>('ALL')
   const [product, setProduct] = useState<ProductType | 'ALL'>('ALL')
@@ -40,12 +40,9 @@ export default function LeadsPageV2({
   const fetchLeads = async () => {
     try {
       setIsLoading(true)
-      const params = new URLSearchParams()
-      // When filtering IN_PROGRESS, also include QUOTED leads
-      if (status !== 'ALL' && status !== 'IN_PROGRESS') params.append('status', status)
-      if (product !== 'ALL') params.append('product', product)
-      const response = await api.get(`/leads?${params}`)
-      setLeads(response.data)
+      // Always fetch ALL leads — filtering is done client-side
+      const response = await api.get('/leads')
+      setAllLeads(response.data)
     } catch (error) {
       console.error('Failed to fetch leads:', error)
     } finally {
@@ -53,37 +50,51 @@ export default function LeadsPageV2({
     }
   }
 
-  // Filter leads by search query and status
+  // Client-side filtering by status, product, and search query
   useEffect(() => {
     const q = searchQuery.toLowerCase()
-    let filtered = leads.filter(
-      (lead) =>
-        lead.firstName.toLowerCase().includes(q) ||
-        lead.lastName.toLowerCase().includes(q) ||
-        (lead.email?.toLowerCase().includes(q) ?? false) ||
-        (lead.phone?.toLowerCase().includes(q) ?? false)
-    )
-    // Client-side filter for IN_PROGRESS (includes QUOTED)
+    let filtered = allLeads
+
+    // Filter by status
     if (status === 'IN_PROGRESS') {
       filtered = filtered.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED')
+    } else if (status !== 'ALL') {
+      filtered = filtered.filter((l) => l.status === status)
     }
+
+    // Filter by product
+    if (product !== 'ALL') {
+      filtered = filtered.filter((l) => l.productInterest.includes(product))
+    }
+
+    // Filter by search
+    if (q) {
+      filtered = filtered.filter(
+        (lead) =>
+          lead.firstName.toLowerCase().includes(q) ||
+          lead.lastName.toLowerCase().includes(q) ||
+          (lead.email?.toLowerCase().includes(q) ?? false) ||
+          (lead.phone?.toLowerCase().includes(q) ?? false)
+      )
+    }
+
     setFilteredLeads(filtered)
     setCurrentPage(1)
-  }, [leads, searchQuery, status])
+  }, [allLeads, searchQuery, status, product])
 
   useEffect(() => {
     fetchLeads()
-  }, [status, product])
+  }, [])
 
-  // KPI stats from the full leads list
+  // KPI stats always from ALL leads (not filtered)
   const kpiStats = {
-    new: leads.filter((l) => l.status === 'NEW').length,
-    inProgress: leads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
+    new: allLeads.filter((l) => l.status === 'NEW').length,
+    inProgress: allLeads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
     quoted: 0,
-    refused: leads.filter((l) => l.status === 'REFUSED').length,
-    converted: leads.filter((l) => l.status === 'CONVERTED').length,
-    toContact: leads.filter((l) => l.status === 'TO_CONTACT').length,
-    total: leads.length,
+    refused: allLeads.filter((l) => l.status === 'REFUSED').length,
+    converted: allLeads.filter((l) => l.status === 'CONVERTED').length,
+    toContact: allLeads.filter((l) => l.status === 'TO_CONTACT').length,
+    total: allLeads.length,
   }
 
   const activeFiltersCount = [
@@ -164,7 +175,7 @@ export default function LeadsPageV2({
           </div>
         ) : filteredLeads.length === 0 ? (
           <EmptyState
-            type={leads.length === 0 ? 'no-leads' : 'no-results'}
+            type={allLeads.length === 0 ? 'no-leads' : 'no-results'}
             onAddLead={() => setShowAddModal(true)}
             onClearFilters={handleClearFilters}
           />
