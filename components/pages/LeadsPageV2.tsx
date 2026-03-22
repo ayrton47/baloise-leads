@@ -138,6 +138,18 @@ export default function LeadsPageV2({
 
   const clearSelection = () => setSelectedLeads(new Set())
 
+  // Leads to contact today (from ALL leads, regardless of filters)
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const todayLeads = allLeads.filter((lead) => {
+    if (lead.status !== 'TO_CONTACT') return false
+    const callbacks = (lead.leadActions ?? [])
+      .filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    if (callbacks.length === 0) return false
+    const latestDate = callbacks[0].callbackDate!
+    return latestDate.slice(0, 10) === todayStr
+  })
+
   // Split filtered leads into 3 groups
   const currentUserId = user?.id
   const myLeads = filteredLeads.filter((l) => l.agentId === currentUserId)
@@ -228,6 +240,108 @@ export default function LeadsPageV2({
         activeFiltersCount={activeFiltersCount}
         stats={kpiStats}
       />
+
+      {/* Today's Callbacks Banner */}
+      {!isLoading && todayLeads.length > 0 && (
+        <div className="max-w-7xl mx-auto px-8 pt-6">
+          <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 overflow-hidden">
+            {/* Banner Header */}
+            <button
+              onClick={() => toggleSection('today')}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-orange-100/40 transition"
+            >
+              <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </div>
+              <div className="flex-1 text-left">
+                <span className="text-sm font-bold text-orange-800">
+                  À contacter aujourd'hui
+                </span>
+                <span className="ml-2 text-xs font-bold text-white bg-orange-500 px-2 py-0.5 rounded-full">
+                  {todayLeads.length}
+                </span>
+              </div>
+              <svg
+                className={`w-4 h-4 text-orange-400 transition-transform ${collapsedSections['today'] ? '-rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Banner Content */}
+            {!collapsedSections['today'] && (
+              <div className="px-5 pb-4 space-y-2">
+                {todayLeads.map((lead) => {
+                  const latestCb = [...(lead.leadActions ?? [])]
+                    .filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate)
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+                  const cbTime = latestCb ? new Date(latestCb.callbackDate!).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null
+
+                  return (
+                    <div
+                      key={lead.id}
+                      onClick={() => openPanel(lead)}
+                      className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white border border-orange-200 hover:border-orange-400 hover:shadow-md cursor-pointer transition group"
+                    >
+                      {/* Time badge */}
+                      {cbTime && (
+                        <div className="flex-shrink-0 w-14 text-center">
+                          <span className="text-sm font-bold text-orange-700">{cbTime}</span>
+                        </div>
+                      )}
+                      {/* Name */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">
+                          {lead.firstName} {lead.lastName}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {lead.email || lead.phone || 'Pas de contact'}
+                        </p>
+                      </div>
+                      {/* Product */}
+                      <div className="flex-shrink-0 hidden sm:block">
+                        <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                          {lead.productInterest.split(',')[0]}
+                        </span>
+                      </div>
+                      {/* Agent */}
+                      {lead.assignedAgentName && (
+                        <div className="flex-shrink-0 hidden md:flex items-center gap-1.5">
+                          <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-xs text-gray-500">{lead.assignedAgentName}</span>
+                        </div>
+                      )}
+                      {/* Phone quick action */}
+                      {lead.phone && (
+                        <a
+                          href={`tel:${lead.phone}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-shrink-0 p-2 rounded-lg text-orange-400 hover:text-orange-600 hover:bg-orange-50 transition"
+                          title={`Appeler ${lead.phone}`}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </a>
+                      )}
+                      <svg className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className={`max-w-7xl mx-auto px-8 py-6 ${selectedLeads.size > 0 ? 'pb-28' : ''}`}>
