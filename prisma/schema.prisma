@@ -46,15 +46,23 @@ enum ActionType {
   NOTE_ADDED
 }
 
-model Agent {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
-  leads     Lead[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum AgentRole {
+  RESPONSABLE
+  EMPLOYE
+}
 
+model Agent {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  password     String
+  agencyNumber String    @map("agency_number")
+  role         AgentRole @default(EMPLOYE)
+  leads        Lead[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([agencyNumber])
   @@map("agents")
 }
 
@@ -68,6 +76,7 @@ model Lead {
   status          LeadStatus   @default(NEW)
   source          LeadSource   @default(MANUAL)
   externalId      String?      @unique
+  agencyNumber    String       @map("agency_number")
   agentId         String
   agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
   actions         LeadAction[]
@@ -75,6 +84,7 @@ model Lead {
   updatedAt       DateTime     @updatedAt
 
   @@index([agentId])
+  @@index([agencyNumber])
   @@index([status])
   @@map("leads")
 }

@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { name, email, currentPassword, newPassword } = await req.json()
+    const { name, email, currentPassword, newPassword, role } = await req.json()
 
     if (!name || !email) {
       return NextResponse.json({ error: 'Nom et email requis' }, { status: 400 })
@@ -41,6 +41,9 @@ export async function PUT(req: NextRequest) {
 
     // If changing password, verify current password
     const updates: Record<string, any> = { name, email }
+    if (role && (role === 'RESPONSABLE' || role === 'EMPLOYE')) {
+      updates.role = role
+    }
     if (newPassword) {
       if (!currentPassword) {
         return NextResponse.json({ error: 'Mot de passe actuel requis' }, { status: 400 })
@@ -72,14 +75,24 @@ export async function PUT(req: NextRequest) {
 
     if (updateError) throw updateError
 
+    // Fetch updated agent to get current role and agency
+    const { data: updatedAgent } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('id', agentId)
+      .single()
+
+    const finalRole = updatedAgent?.role ?? agent.role
+    const agencyNumber = updatedAgent?.agency_number ?? agent.agency_number
+
     // Return updated agent info and new token
     const token = jwt.sign(
-      { id: agentId, email, name },
+      { id: agentId, email, name, agencyNumber, role: finalRole },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '24h' }
     )
 
-    return NextResponse.json({ token, agent: { id: agentId, email, name } })
+    return NextResponse.json({ token, agent: { id: agentId, email, name, agencyNumber, role: finalRole } })
   } catch (error) {
     console.error('Profile update error:', error)
     return NextResponse.json({ error: 'Échec de la mise à jour' }, { status: 500 })

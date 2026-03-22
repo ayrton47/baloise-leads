@@ -36,12 +36,12 @@ export async function POST(req: NextRequest) {
     }
 
     const token = jwt.sign(
-      { id: agent.id, email: agent.email, name: agent.name },
+      { id: agent.id, email: agent.email, name: agent.name, agencyNumber: agent.agency_number, role: agent.role },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '24h' }
     )
 
-    return NextResponse.json({ token, agent: { id: agent.id, email: agent.email, name: agent.name } })
+    return NextResponse.json({ token, agent: { id: agent.id, email: agent.email, name: agent.name, agencyNumber: agent.agency_number, role: agent.role } })
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(

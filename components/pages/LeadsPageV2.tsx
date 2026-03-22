@@ -137,7 +137,7 @@ export default function LeadsPageV2({
   return (
     <div className="min-h-screen bg-gray-50 transition-colors">
       {/* Header */}
-      <LeadsHeader userName={user?.name} onLogout={onLogout} onOpenProfile={() => setShowProfileModal(true)} />
+      <LeadsHeader userName={user?.name} agencyNumber={user?.agencyNumber} role={user?.role} onLogout={onLogout} onOpenProfile={() => setShowProfileModal(true)} />
 
       {/* KPI Stats Strip */}
       <LeadsHeroSection stats={kpiStats} />

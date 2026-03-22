@@ -3,13 +3,18 @@ import { supabase } from '@/lib/supabase-client'
 import { snakeToCamel } from '@/lib/transform'
 import jwt from 'jsonwebtoken'
 
-function getAgentId(req: NextRequest): string | null {
+interface TokenPayload {
+  id: string
+  agencyNumber?: string
+}
+
+function getTokenPayload(req: NextRequest): TokenPayload | null {
   const token = req.headers.get('authorization')?.split(' ')[1]
   if (!token) return null
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string }
-    return decoded.id
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as TokenPayload
+    return decoded
   } catch {
     return null
   }
@@ -18,9 +23,16 @@ function getAgentId(req: NextRequest): string | null {
 // GET /api/leads
 export async function GET(req: NextRequest) {
   try {
-    const agentId = getAgentId(req)
-    if (!agentId) {
+    const payload = getTokenPayload(req)
+    if (!payload) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get agent's agency_number from DB if not in token
+    let agencyNumber = payload.agencyNumber
+    if (!agencyNumber) {
+      const { data: agent } = await supabase.from('agents').select('agency_number').eq('id', payload.id).single()
+      agencyNumber = agent?.agency_number
     }
 
     const { searchParams } = new URL(req.url)
@@ -30,7 +42,7 @@ export async function GET(req: NextRequest) {
     let query = supabase
       .from('leads')
       .select('*, lead_actions(*)')
-      .eq('agent_id', agentId)
+      .eq('agency_number', agencyNumber)
       .order('created_at', { ascending: false })
 
     if (status) query = query.eq('status', status)
@@ -75,9 +87,16 @@ export async function GET(req: NextRequest) {
 // POST /api/leads
 export async function POST(req: NextRequest) {
   try {
-    const agentId = getAgentId(req)
-    if (!agentId) {
+    const payload = getTokenPayload(req)
+    if (!payload) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get agent's agency_number
+    let agencyNumber = payload.agencyNumber
+    if (!agencyNumber) {
+      const { data: agent } = await supabase.from('agents').select('agency_number').eq('id', payload.id).single()
+      agencyNumber = agent?.agency_number
     }
 
     const { firstName, lastName, email, phone, productInterest } = await req.json()
@@ -98,7 +117,8 @@ export async function POST(req: NextRequest) {
           email,
           phone,
           product_interest: productInterest,
-          agent_id: agentId,
+          agency_number: agencyNumber,
+          agent_id: payload.id,
         },
       ])
       .select()

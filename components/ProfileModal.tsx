@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { api } from '@/lib/api'
 
 interface ProfileModalProps {
-  user: { id: string; email: string; name: string }
+  user: { id: string; email: string; name: string; agencyNumber?: string; role?: string }
   onClose: () => void
   onUpdate: (token: string, user: any) => void
   onLogout?: () => void
@@ -13,6 +13,7 @@ interface ProfileModalProps {
 export default function ProfileModal({ user, onClose, onUpdate, onLogout }: ProfileModalProps) {
   const [name, setName] = useState(user.name)
   const [email, setEmail] = useState(user.email)
+  const [role, setRole] = useState(user.role || 'EMPLOYE')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -48,7 +49,7 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
 
     setIsLoading(true)
     try {
-      const payload: Record<string, string> = { name: name.trim(), email: email.trim() }
+      const payload: Record<string, string> = { name: name.trim(), email: email.trim(), role }
       if (showPasswordSection && newPassword) {
         payload.currentPassword = currentPassword
         payload.newPassword = newPassword
@@ -111,6 +112,49 @@ export default function ProfileModal({ user, onClose, onUpdate, onLogout }: Prof
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
+          </div>
+
+          {/* Agency Number (read-only) */}
+          {user.agencyNumber && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Numéro d'agence
+              </label>
+              <div className="w-full border-2 border-gray-100 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-500 font-medium">
+                {user.agencyNumber}
+              </div>
+            </div>
+          )}
+
+          {/* Role selector */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Rôle
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRole('RESPONSABLE')}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border-2 transition ${
+                  role === 'RESPONSABLE'
+                    ? 'border-[#00358E] bg-blue-50 text-[#00358E]'
+                    : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                }`}
+              >
+                Responsable
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('EMPLOYE')}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border-2 transition ${
+                  role === 'EMPLOYE'
+                    ? 'border-[#00358E] bg-blue-50 text-[#00358E]'
+                    : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                }`}
+              >
+                Employé
+              </button>
+            </div>
           </div>
 
           {/* Password section toggle */}
