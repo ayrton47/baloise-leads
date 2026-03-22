@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 
 import { LeadStatus } from '@/lib/types'
 
-type ActionType = 'refuse' | 'quote' | 'callback' | 'convert' | null
+type ActionType = 'refuse' | 'quote' | 'callback' | 'convert' | 'note' | null
 
 const REFUSAL_REASONS = [
   { value: 'NO_ASSET', label: 'Pas de bien à assurer' },
@@ -36,6 +36,7 @@ export default function LeadActionPanel({
   const [product, setProduct] = useState('')
   const [callbackDate, setCallbackDate] = useState('')
   const [callbackNote, setCallbackNote] = useState('')
+  const [noteText, setNoteText] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -88,6 +89,13 @@ export default function LeadActionPanel({
           callbackDate,
           note: callbackNote,
         })
+      } else if (activeAction === 'note') {
+        if (!noteText.trim()) {
+          setError('Écrivez une remarque')
+          setIsLoading(false)
+          return
+        }
+        await api.post(`/leads/${leadId}/note`, { note: noteText })
       } else if (activeAction === 'convert') {
         await api.post(`/leads/${leadId}/convert`, {})
       }
@@ -116,6 +124,7 @@ export default function LeadActionPanel({
     { key: 'refuse', label: '❌ Refus client' },
     { key: 'quote', label: '📋 Créer un tarif' },
     { key: 'callback', label: '📅 Recontacter' },
+    { key: 'note', label: '💬 Remarque' },
     { key: 'convert', label: '✅ Convertir' },
   ]
 
@@ -207,6 +216,18 @@ export default function LeadActionPanel({
             placeholder="Note (optionnelle)..."
             className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
             rows={2}
+          />
+        </div>
+      )}
+
+      {activeAction === 'note' && (
+        <div className="space-y-2 pt-2 border-t border-blue-200 transition-colors">
+          <textarea
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder="Écrire une remarque sur ce lead..."
+            className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+            rows={3}
           />
         </div>
       )}
