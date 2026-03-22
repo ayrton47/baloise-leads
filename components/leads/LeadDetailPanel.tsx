@@ -5,6 +5,7 @@ import { Lead, ProductType, Agent } from '@/lib/types'
 import { api } from '@/lib/api'
 import StatusBadge from './StatusBadge'
 import LeadActionPanel from '@/components/LeadActionPanel'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface LeadDetailPanelProps {
   lead: Lead | null
@@ -124,19 +125,31 @@ export default function LeadDetailPanel({
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 z-40 backdrop-blur-[1px] transition-opacity"
-          onClick={onClose}
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/20 z-40 backdrop-blur-[1px]"
+            onClick={onClose}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Side Panel */}
-      <div
-        className={`fixed right-0 top-0 h-screen w-full md:w-[420px] bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="panel"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+            className="fixed right-0 top-0 h-screen w-full md:w-[420px] bg-white shadow-2xl z-50 flex flex-col"
+          >
         {/* Panel Header */}
         <div className="flex-shrink-0 border-b border-gray-100 px-6 py-5">
           <div className="flex items-start justify-between gap-4">
@@ -666,7 +679,9 @@ export default function LeadDetailPanel({
             />
           </div>
         </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

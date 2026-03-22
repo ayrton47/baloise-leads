@@ -1,5 +1,7 @@
 'use client'
 
+import { motion } from 'framer-motion'
+
 interface LeadsHeroSectionProps {
   stats: {
     new: number
@@ -76,10 +78,14 @@ export default function LeadsHeroSection({ stats }: LeadsHeroSectionProps) {
     <section className="bg-white border-b border-gray-100 transition-colors">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {kpiCards.map((card) => (
-            <div
+          {kpiCards.map((card, i) => (
+            <motion.div
               key={card.key}
-              className={`bg-gradient-to-br ${card.bg} rounded-2xl px-5 py-4 flex items-center gap-4 ring-1 ${card.ring} transition-all hover:shadow-md`}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.35, delay: i * 0.08, ease: 'easeOut' }}
+              whileHover={{ y: -2, boxShadow: '0 8px 25px -5px rgba(0,0,0,0.1)' }}
+              className={`bg-gradient-to-br ${card.bg} rounded-2xl px-5 py-4 flex items-center gap-4 ring-1 ${card.ring} transition-all`}
             >
               <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center flex-shrink-0 ${card.iconColor}`}>
                 {card.icon}
@@ -88,11 +94,17 @@ export default function LeadsHeroSection({ stats }: LeadsHeroSectionProps) {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   {card.label}
                 </p>
-                <p className={`text-3xl font-extrabold ${card.numColor} leading-none mt-1`}>
+                <motion.p
+                  key={stats[card.key]}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className={`text-3xl font-extrabold ${card.numColor} leading-none mt-1`}
+                >
                   {stats[card.key]}
-                </p>
+                </motion.p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

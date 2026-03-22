@@ -13,6 +13,7 @@ import LeadsPagination from '@/components/leads/LeadsPagination'
 import LeadBulkActions from '@/components/leads/LeadBulkActions'
 import LeadDetailPanel from '@/components/leads/LeadDetailPanel'
 import ProfileModal from '@/components/ProfileModal'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function LeadsPageV2({
   user,
@@ -211,10 +212,11 @@ export default function LeadsPageV2({
   const toggleSection = (key: string) =>
     setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }))
 
-  const renderLeadRow = (lead: Lead) => (
+  const renderLeadRow = (lead: Lead, index: number) => (
     <EnhancedLeadRow
       key={lead.id}
       lead={lead}
+      index={index}
       onActionComplete={() => {
         fetchLeads()
         clearSelection()
@@ -410,11 +412,16 @@ export default function LeadsPageV2({
           />
         ) : (
           <div className="space-y-6">
-            {sections.map((section) => {
+            {sections.map((section, sectionIndex) => {
               const isCollapsed = collapsedSections[section.key] ?? false
               if (section.leads.length === 0) return null
               return (
-                <div key={section.key}>
+                <motion.div
+                  key={section.key}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: sectionIndex * 0.1, ease: 'easeOut' }}
+                >
                   {/* Section Header */}
                   <button
                     onClick={() => toggleSection(section.key)}
@@ -428,23 +435,36 @@ export default function LeadsPageV2({
                       {section.leads.length}
                     </span>
                     <div className="flex-1" />
-                    <svg
-                      className={`w-4 h-4 text-gray-400 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                    <motion.svg
+                      animate={{ rotate: isCollapsed ? -90 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-4 h-4 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    </motion.svg>
                   </button>
 
                   {/* Section Content */}
-                  {!isCollapsed && (
-                    <div className="space-y-2">
-                      {section.leads.map(renderLeadRow)}
-                    </div>
-                  )}
-                </div>
+                  <AnimatePresence initial={false}>
+                    {!isCollapsed && (
+                      <motion.div
+                        key={`content-${section.key}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <div className="space-y-2">
+                          {section.leads.map(renderLeadRow)}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               )
             })}
           </div>
@@ -478,16 +498,18 @@ export default function LeadsPageV2({
       />
 
       {/* Add Lead Modal */}
-      {showAddModal && (
-        <AddLeadModal
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => {
-            setShowAddModal(false)
-            fetchLeads()
-          }}
-          currentUser={user}
-        />
-      )}
+      <AnimatePresence>
+        {showAddModal && (
+          <AddLeadModal
+            onClose={() => setShowAddModal(false)}
+            onSuccess={() => {
+              setShowAddModal(false)
+              fetchLeads()
+            }}
+            currentUser={user}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Profile Modal */}
       {showProfileModal && user && (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Agent } from '@/lib/types'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const PRODUCTS = [
   { value: 'DRIVE', label: 'Drive' },
@@ -76,8 +77,20 @@ export default function AddLeadModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-colors">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md transition-colors">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+        className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
+      >
         <h2 className="text-xl font-bold mb-4 text-gray-800 transition-colors">➕ Ajouter un lead</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -220,7 +233,7 @@ export default function AddLeadModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
