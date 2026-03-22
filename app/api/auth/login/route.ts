@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
 import bcryptjs from 'bcryptjs'
+import { getJwtSecret } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     const token = jwt.sign(
       { id: agent.id, email: agent.email, name: agent.name, agencyNumber: agent.agency_number, role: agent.role },
-      process.env.JWT_SECRET || 'secret',
+      getJwtSecret(),
       { expiresIn: '24h' }
     )
 

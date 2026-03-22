@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import { snakeToCamel } from '@/lib/transform'
-import jwt from 'jsonwebtoken'
+import { getTokenPayload } from '@/lib/auth'
 
-interface TokenPayload {
-  id: string
-  agencyNumber?: string
-}
-
-function getTokenPayload(req: NextRequest): TokenPayload | null {
-  const token = req.headers.get('authorization')?.split(' ')[1]
-  if (!token) return null
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as TokenPayload
-    return decoded
-  } catch {
-    return null
-  }
-}
+const VALID_PRODUCTS = ['DRIVE', 'HOME', 'PENSION_PLAN', 'OTHER']
 
 // GET /api/leads
 export async function GET(req: NextRequest) {
@@ -65,7 +50,14 @@ export async function GET(req: NextRequest) {
     }
 
     if (status) query = query.eq('status', status)
-    if (product) query = query.ilike('product_interest', `%${product}%`)
+    if (product) {
+      const upperProduct = product.toUpperCase()
+      if (VALID_PRODUCTS.includes(upperProduct)) {
+        query = query.ilike('product_interest', `%${upperProduct}%`)
+      } else {
+        return NextResponse.json({ error: 'Invalid product filter' }, { status: 400 })
+      }
+    }
 
     const { data: leads, error } = await query
 

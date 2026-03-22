@@ -16,8 +16,14 @@ export default function Home() {
     const savedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null
 
     if (savedToken && savedUser) {
-      setToken(savedToken)
-      setUser(JSON.parse(savedUser))
+      try {
+        setToken(savedToken)
+        setUser(JSON.parse(savedUser))
+      } catch {
+        // Invalid JSON in localStorage, clear it
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
     }
     setIsLoading(false)
   }, [])

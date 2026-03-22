@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
-import jwt from 'jsonwebtoken'
-
-function getTokenPayload(req: NextRequest): { id: string; agencyNumber?: string } | null {
-  const token = req.headers.get('authorization')?.split(' ')[1]
-  if (!token) return null
-
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string; agencyNumber?: string }
-  } catch {
-    return null
-  }
-}
+import { getTokenPayload } from '@/lib/auth'
 
 // GET /api/agents — list agents of the same agency
 export async function GET(req: NextRequest) {

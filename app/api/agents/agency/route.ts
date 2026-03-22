@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
+import { getJwtSecret } from '@/lib/auth'
 
 // GET /api/agents/agency — returns all agents in the same agency as the current user
 export async function GET(req: NextRequest) {
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     let decoded: any
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+      decoded = jwt.verify(token, getJwtSecret())
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

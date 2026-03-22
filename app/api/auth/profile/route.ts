@@ -2,27 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
 import bcryptjs from 'bcryptjs'
-
-function getAgentId(req: NextRequest): string | null {
-  const token = req.headers.get('authorization')?.split(' ')[1]
-  if (!token) return null
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string }
-    return decoded.id
-  } catch {
-    return null
-  }
-}
+import { getJwtSecret, getAgentIdFromRequest } from '@/lib/auth'
 
 export async function PUT(req: NextRequest) {
   try {
-    const agentId = getAgentId(req)
+    const agentId = getAgentIdFromRequest(req)
     if (!agentId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { name, email, currentPassword, newPassword, role } = await req.json()
+    const { name, email, currentPassword, newPassword } = await req.json()
 
     if (!name || !email) {
       return NextResponse.json({ error: 'Nom et email requis' }, { status: 400 })
@@ -39,11 +28,8 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Agent non trouvé' }, { status: 404 })
     }
 
-    // If changing password, verify current password
+    // Only name, email, and password are updatable (role is NOT allowed)
     const updates: Record<string, any> = { name, email }
-    if (role && (role === 'RESPONSABLE' || role === 'EMPLOYE')) {
-      updates.role = role
-    }
     if (newPassword) {
       if (!currentPassword) {
         return NextResponse.json({ error: 'Mot de passe actuel requis' }, { status: 400 })
@@ -88,7 +74,7 @@ export async function PUT(req: NextRequest) {
     // Return updated agent info and new token
     const token = jwt.sign(
       { id: agentId, email, name, agencyNumber, role: finalRole },
-      process.env.JWT_SECRET || 'secret',
+      getJwtSecret(),
       { expiresIn: '24h' }
     )
 

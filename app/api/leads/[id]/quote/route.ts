@@ -1,34 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import { snakeToCamel } from '@/lib/transform'
-import jwt from 'jsonwebtoken'
-
-function getAgentId(req: NextRequest): string | null {
-  const token = req.headers.get('authorization')?.split(' ')[1]
-  if (!token) return null
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string }
-    return decoded.id
-  } catch {
-    return null
-  }
-}
+import { getAgentIdFromRequest, verifyAgentCanAccessLead } from '@/lib/auth'
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = getAgentId(req)
+    const agentId = getAgentIdFromRequest(req)
     if (!agentId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const canAccess = await verifyAgentCanAccessLead(agentId, params.id)
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     const { product, quoteUrl } = await req.json()
 
     if (!product) {
       return NextResponse.json({ error: 'Product is required' }, { status: 400 })
+    }
+
+    // Validate quoteUrl protocol if provided
+    if (quoteUrl) {
+      try {
+        const url = new URL(quoteUrl)
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+          return NextResponse.json({ error: 'Invalid quote URL protocol. Only http and https are allowed.' }, { status: 400 })
+        }
+      } catch {
+        return NextResponse.json({ error: 'Invalid quote URL format' }, { status: 400 })
+      }
     }
 
     // Verify lead exists (any agent in the agency can act)

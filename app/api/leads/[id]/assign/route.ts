@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 import jwt from 'jsonwebtoken'
+import { getJwtSecret, verifyAgentCanAccessLead } from '@/lib/auth'
 
 // PATCH /api/leads/[id]/assign — assign a lead to an agent (responsable only)
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -12,7 +13,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     let decoded: any
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret')
+      decoded = jwt.verify(token, getJwtSecret())
     } catch {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -35,6 +36,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     if (currentAgent.role !== 'RESPONSABLE') {
       return NextResponse.json({ error: 'Seul un responsable peut attribuer un lead' }, { status: 403 })
+    }
+
+    const canAccess = await verifyAgentCanAccessLead(decoded.id, params.id)
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     // Get target agent — must be in same agency

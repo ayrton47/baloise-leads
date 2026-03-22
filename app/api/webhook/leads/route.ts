@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
+import { getWebhookSecret } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 function validateWebhookSignature(req: NextRequest, body: any): boolean {
   const signature = req.headers.get('x-webhook-signature')
-  const webhookSecret = process.env.WEBHOOK_SECRET || 'secret'
+  const webhookSecret = getWebhookSecret()
 
   if (!signature) return false
 
@@ -15,7 +16,15 @@ function validateWebhookSignature(req: NextRequest, body: any): boolean {
     .update(JSON.stringify(body))
     .digest('hex')
 
-  return hash === signature
+  // Use timing-safe comparison to prevent timing attacks
+  try {
+    const sigBuffer = Buffer.from(signature, 'hex')
+    const hashBuffer = Buffer.from(hash, 'hex')
+    if (sigBuffer.length !== hashBuffer.length) return false
+    return crypto.timingSafeEqual(sigBuffer, hashBuffer)
+  } catch {
+    return false
+  }
 }
 
 export async function POST(req: NextRequest) {
