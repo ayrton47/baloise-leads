@@ -31,11 +31,11 @@ export async function POST(
       return NextResponse.json({ error: 'Reason is required' }, { status: 400 })
     }
 
+    // Verify lead exists (any agent in the agency can act)
     const { data: lead } = await supabase
       .from('leads')
       .select('id')
       .eq('id', params.id)
-      .eq('agent_id', agentId)
       .single()
 
     if (!lead) {

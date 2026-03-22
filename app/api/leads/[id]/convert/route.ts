@@ -25,11 +25,11 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Verify lead exists (any agent in the agency can act)
     const { data: lead } = await supabase
       .from('leads')
       .select('id, status')
       .eq('id', params.id)
-      .eq('agent_id', agentId)
       .single()
 
     if (!lead) {
