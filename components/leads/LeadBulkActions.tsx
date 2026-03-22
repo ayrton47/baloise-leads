@@ -203,10 +203,10 @@ export default function LeadBulkActions({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 shadow-2xl z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#00358E] border-t border-[#002a72] shadow-2xl z-40">
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-8 h-8 rounded-lg bg-[#00358E] flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#00358E] text-sm font-bold">
               {selectedCount}
             </div>
             <span className="font-semibold text-white">
