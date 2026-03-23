@@ -51,7 +51,7 @@ export default function LoginPage({
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
         <img
           src="/baloise-building.jpg"
-          alt="Siège Bâloise Assurances Luxembourg"
+          alt="Siège Baloise Assurances Luxembourg"
           className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Gradient overlay */}
@@ -64,7 +64,7 @@ export default function LoginPage({
             <svg viewBox="0 0 1511 1506" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
               <path fillRule="evenodd" fill="#ffffff" d="m780.3 5.8c-7.8-3.4-16.1-4.8-24.8-4.8-8.3 0-17 1.4-24.8 4.8-7.8 3.4-15 7.8-20.9 14.1l-690.4 687.9c-12.1 12.2-18.9 28.2-18.9 45.7 0 17 6.8 33.5 18.9 45.7l690.4 687.9c5.9 5.8 13.1 10.6 20.9 14 8.3 3 16.5 4.9 24.8 4.9 8.7 0 17-1.9 25.3-4.9 7.7-3.4 15-8.2 20.9-14l382.8-381.9-233.2-232.2-195.8 194.8-315.8-314.3 315.8-314.8 549 547 187.6-186.5c5.8-5.9 10.6-13.2 14-20.9 3.4-7.8 4.9-16.6 4.9-24.8 0-8.8-1.5-17-4.9-24.8-3.4-7.8-8.2-15.1-14-20.9l-690.4-687.9c-6.4-6.3-13.2-10.7-21.4-14.1z"/>
             </svg>
-            <span className="text-white font-bold text-xl tracking-tight">Bâloise Assurances</span>
+            <span className="text-white font-bold text-xl tracking-tight">Baloise Assurances</span>
           </div>
 
           {/* Bottom — Tagline */}
@@ -85,7 +85,7 @@ export default function LoginPage({
               transition={{ duration: 0.6, delay: 0.4 }}
               className="text-blue-100/80 mt-4 text-lg max-w-md"
             >
-              Plateforme de suivi des opportunités commerciales pour les agents Bâloise Luxembourg.
+              Plateforme de suivi des opportunités commerciales pour les agents Baloise Luxembourg.
             </motion.p>
           </div>
         </div>
