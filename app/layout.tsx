@@ -7,6 +7,9 @@ import ThemeProvider from '@/components/ThemeProvider'
 export const metadata: Metadata = {
   title: 'Baloise Leads - Suivi des Opportunités',
   description: 'Plateforme de gestion des leads pour les agents Baloise',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
