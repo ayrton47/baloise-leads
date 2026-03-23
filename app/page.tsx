@@ -13,7 +13,7 @@ export default function Home() {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<AppTab>('leads')
+  const [activeTab, setActiveTab] = useState<AppTab>('tasks')
   const [showProfileModal, setShowProfileModal] = useState(false)
 
   useEffect(() => {
