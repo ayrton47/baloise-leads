@@ -3,12 +3,18 @@
 import { useEffect, useState } from 'react'
 import LoginPage from '@/components/pages/LoginPage'
 import LeadsPage from '@/components/pages/LeadsPageV2'
+import TasksPage from '@/components/pages/TasksPage'
+import ClientsPage from '@/components/pages/ClientsPage'
+import LeadsHeader, { AppTab } from '@/components/layout/LeadsHeader'
+import ProfileModal from '@/components/ProfileModal'
 import { AuthContext } from '@/lib/context'
 
 export default function Home() {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<AppTab>('leads')
+  const [showProfileModal, setShowProfileModal] = useState(false)
 
   useEffect(() => {
     // Load from localStorage
@@ -40,6 +46,7 @@ export default function Home() {
   const handleLogout = () => {
     setToken(null)
     setUser(null)
+    setActiveTab('leads')
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
@@ -53,7 +60,39 @@ export default function Home() {
   return (
     <AuthContext.Provider value={{ token, user, handleLogin, handleLogout }}>
       {token ? (
-        <LeadsPage user={user} onLogout={handleLogout} onUpdateUser={handleLogin} />
+        <div className="min-h-screen bg-gray-50">
+          <LeadsHeader
+            userName={user?.name}
+            agencyNumber={user?.agencyNumber}
+            role={user?.role}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onLogout={handleLogout}
+            onOpenProfile={() => setShowProfileModal(true)}
+          />
+
+          {activeTab === 'leads' && (
+            <LeadsPage user={user} onLogout={handleLogout} onUpdateUser={handleLogin} />
+          )}
+          {activeTab === 'tasks' && (
+            <TasksPage user={user} />
+          )}
+          {activeTab === 'clients' && (
+            <ClientsPage user={user} />
+          )}
+
+          {/* Profile Modal */}
+          {showProfileModal && user && (
+            <ProfileModal
+              user={user}
+              onClose={() => setShowProfileModal(false)}
+              onUpdate={(token, updatedUser) => {
+                handleLogin(token, updatedUser)
+              }}
+              onLogout={handleLogout}
+            />
+          )}
+        </div>
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}

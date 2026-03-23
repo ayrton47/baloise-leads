@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Lead, LeadStatus, ProductType } from '@/lib/types'
-import LeadsHeader from '@/components/layout/LeadsHeader'
 import LeadsHeroSection from '@/components/layout/LeadsHeroSection'
 import LeadsFiltersBar, { DateRange } from '@/components/layout/LeadsFiltersBar'
 import EnhancedLeadRow from '@/components/leads/EnhancedLeadRow'
@@ -12,7 +11,6 @@ import AddLeadModal from '@/components/AddLeadModal'
 import LeadsPagination from '@/components/leads/LeadsPagination'
 import LeadBulkActions from '@/components/leads/LeadBulkActions'
 import LeadDetailPanel from '@/components/leads/LeadDetailPanel'
-import ProfileModal from '@/components/ProfileModal'
 import { AnimatePresence, motion } from 'framer-motion'
 
 export default function LeadsPageV2({
@@ -37,7 +35,6 @@ export default function LeadsPageV2({
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
-  const [showProfileModal, setShowProfileModal] = useState(false)
 
   const fetchLeads = async () => {
     try {
@@ -273,10 +270,7 @@ export default function LeadsPageV2({
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-colors">
-      {/* Header */}
-      <LeadsHeader userName={user?.name} agencyNumber={user?.agencyNumber} role={user?.role} onLogout={onLogout} onOpenProfile={() => setShowProfileModal(true)} />
-
+    <div className="bg-gray-50 transition-colors">
       {/* KPI Stats Strip */}
       <LeadsHeroSection stats={kpiStats} />
 
@@ -507,17 +501,6 @@ export default function LeadsPageV2({
         )}
       </AnimatePresence>
 
-      {/* Profile Modal */}
-      {showProfileModal && user && (
-        <ProfileModal
-          user={user}
-          onClose={() => setShowProfileModal(false)}
-          onUpdate={(token, updatedUser) => {
-            onUpdateUser?.(token, updatedUser)
-          }}
-          onLogout={onLogout}
-        />
-      )}
     </div>
   )
 }

@@ -5,8 +5,8 @@ import { ToastContainer } from '@/components/ToastContainer'
 import ThemeProvider from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
-  title: 'Baloise Leads - Suivi des Opportunités',
-  description: 'Plateforme de gestion des leads pour les agents Baloise',
+  title: 'Baloise Hub - Gestion d\'agence',
+  description: 'Plateforme de gestion pour les agences Baloise',
   icons: {
     icon: '/icon.svg',
   },
