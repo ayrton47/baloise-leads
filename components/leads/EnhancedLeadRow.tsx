@@ -256,14 +256,6 @@ export default function EnhancedLeadRow({
               </svg>
             </a>
           )}
-          <div
-            className="p-2 rounded-xl text-gray-300 group-hover:text-gray-500 transition"
-            aria-label="Voir les détails"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
         </div>
       </div>
 
@@ -386,12 +378,6 @@ export default function EnhancedLeadRow({
           </div>
         </div>
 
-        {/* Chevron */}
-        <div className="flex-shrink-0 self-center">
-          <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
       </div>
     </div>
   )
