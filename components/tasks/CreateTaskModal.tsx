@@ -143,6 +143,7 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
               type="datetime-local"
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
+              min={new Date().toISOString().slice(0, 16)}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00358E]/20 focus:border-[#00358E]"
             />
           </div>
