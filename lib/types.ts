@@ -47,3 +47,39 @@ export interface Agent {
   agencyNumber: string
   role: AgentRole
 }
+
+// Tasks module
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
+export type TaskPriority = 'URGENT' | 'HIGH' | 'NORMAL' | 'LOW'
+export type TaskCategory = 'ADMIN' | 'COMMERCIAL' | 'SINISTRE' | 'RENEWAL' | 'OTHER'
+
+export interface TaskComment {
+  id: string
+  taskId: string
+  agentId: string
+  agentName?: string
+  content: string
+  createdAt: string
+}
+
+export interface Task {
+  id: string
+  agencyNumber: string
+  title: string
+  description?: string
+  category: TaskCategory
+  priority: TaskPriority
+  status: TaskStatus
+  dueDate?: string
+  leadId?: string
+  leadName?: string
+  assignedTo?: string
+  assignedToName?: string
+  assignedToRole?: AgentRole
+  createdBy: string
+  createdByName?: string
+  completedAt?: string
+  comments: TaskComment[]
+  createdAt: string
+  updatedAt: string
+}
