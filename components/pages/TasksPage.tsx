@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { api } from '@/lib/api'
 import { Task, TaskStatus, TaskPriority, TaskCategory } from '@/lib/types'
 import CreateTaskModal from '@/components/tasks/CreateTaskModal'
@@ -165,6 +165,9 @@ export default function TasksPage({ user }: { user: any }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const selectedTaskRef = useRef<Task | null>(null)
+  // Keep ref in sync with state
+  useEffect(() => { selectedTaskRef.current = selectedTask }, [selectedTask])
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
@@ -173,9 +176,9 @@ export default function TasksPage({ user }: { user: any }) {
       setIsLoading(true)
       const response = await api.get('/tasks')
       setTasks(response.data)
-      // Refresh selected task if panel is open
-      if (selectedTask) {
-        const updated = response.data.find((t: Task) => t.id === selectedTask.id)
+      // Refresh selected task if panel is open (use ref to avoid stale closure)
+      if (selectedTaskRef.current) {
+        const updated = response.data.find((t: Task) => t.id === selectedTaskRef.current!.id)
         if (updated) setSelectedTask(updated)
       }
     } catch (error) {
