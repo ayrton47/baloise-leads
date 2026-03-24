@@ -204,6 +204,15 @@ export default function LeadsPageV2({
   const unassignedLeads = filteredLeads.filter((l) => !l.agentId)
   const otherLeads = filteredLeads.filter((l) => l.agentId && l.agentId !== currentUserId)
 
+  // Group other agents' leads by agent
+  const otherAgentIds = [...new Set(otherLeads.map(l => l.agentId))]
+  const otherAgentSections = otherAgentIds.map(agentId => {
+    const agentLeads = otherLeads.filter(l => l.agentId === agentId)
+    const agentName = agentLeads[0]?.assignedAgentName || 'Inconnu'
+    const agentRole = agentLeads[0]?.assignedAgentRole
+    return { agentId: agentId!, agentName, agentRole, leads: agentLeads }
+  })
+
   // Collapsed state for sections
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
   const toggleSection = (key: string) =>
@@ -253,20 +262,21 @@ export default function LeadsPageV2({
       badgeBg: 'bg-amber-600',
       leads: unassignedLeads,
     },
-    {
-      key: 'others',
-      label: 'Leads des autres agents',
+    ...otherAgentSections.map(section => ({
+      key: `agent-${section.agentId}`,
+      label: section.agentName,
+      badge: section.agentRole === 'RESPONSABLE' ? 'R' : 'E',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
       color: 'text-purple-700',
       bg: 'bg-[#f9f3ff]',
       border: 'border-purple-200',
       badgeBg: 'bg-purple-500',
-      leads: otherLeads,
-    },
+      leads: section.leads,
+    })),
   ]
 
   return (
@@ -423,6 +433,11 @@ export default function LeadsPageV2({
                     <span className={`text-sm font-bold ${section.color}`}>
                       {section.label}
                     </span>
+                    {'badge' in section && (section as any).badge && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-200 text-purple-700">
+                        {(section as any).badge}
+                      </span>
+                    )}
                     <span className={`text-xs font-bold text-white px-2 py-0.5 rounded-full ${section.badgeBg}`}>
                       {section.leads.length}
                     </span>
