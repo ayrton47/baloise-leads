@@ -55,6 +55,15 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
     )
   })
 
+  const statusLabels: Record<string, string> = {
+    NEW: 'Nouveau',
+    IN_PROGRESS: 'En cours',
+    TO_CONTACT: 'À contacter',
+    QUOTED: 'Devis créé',
+    REFUSED: 'Refusé',
+    CONVERTED: 'Converti',
+  }
+
   const selectedLead = leads.find(l => l.id === leadId)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -203,7 +212,7 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
               <div className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl border border-[#00358E]/30 bg-blue-50 text-sm">
                 <span className="font-medium text-gray-900">
                   {selectedLead.firstName} {selectedLead.lastName}
-                  <span className="text-gray-500 font-normal ml-2">— {selectedLead.status}</span>
+                  <span className="text-gray-500 font-normal ml-2">— {statusLabels[selectedLead.status] || selectedLead.status}</span>
                 </span>
                 <button
                   type="button"
@@ -253,7 +262,7 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
                         <span className="font-medium text-gray-900">{lead.firstName} {lead.lastName}</span>
                         {lead.email && <span className="text-gray-400 ml-2 text-xs">{lead.email}</span>}
                       </span>
-                      <span className="text-xs text-gray-500">{lead.status}</span>
+                      <span className="text-xs text-gray-500">{statusLabels[lead.status] || lead.status}</span>
                     </button>
                   ))
                 )}
