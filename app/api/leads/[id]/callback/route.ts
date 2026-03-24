@@ -75,20 +75,19 @@ export async function POST(
     // Auto-create a task for this callback
     const { data: fullLead } = await supabase
       .from('leads')
-      .select('first_name, last_name, agent_id, agency_number')
+      .select('first_name, last_name, agent_id')
       .eq('id', params.id)
       .single()
 
-    if (fullLead) {
-      // Get agent's agency_number for the task
-      const { data: agent } = await supabase
-        .from('agents')
-        .select('agency_number')
-        .eq('id', agentId)
-        .single()
+    const { data: currentAgent } = await supabase
+      .from('agents')
+      .select('agency_number')
+      .eq('id', agentId)
+      .single()
 
-      await supabase.from('tasks').insert({
-        agency_number: agent?.agency_number || fullLead.agency_number,
+    if (fullLead && currentAgent) {
+      const { error: taskError } = await supabase.from('tasks').insert({
+        agency_number: currentAgent.agency_number,
         title: `Recontacter ${fullLead.first_name} ${fullLead.last_name}`,
         description: note || null,
         category: 'COMMERCIAL',
@@ -99,6 +98,7 @@ export async function POST(
         assigned_to: fullLead.agent_id || null,
         created_by: agentId,
       })
+      if (taskError) console.error('Auto-create task error:', taskError)
     }
 
     return NextResponse.json(snakeToCamel(action))
