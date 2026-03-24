@@ -16,7 +16,7 @@ const priorityConfig: Record<TaskPriority, { label: string; color: string; bg: s
 const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
   TODO: { label: 'À faire', color: 'text-blue-700', bg: 'bg-blue-100' },
   IN_PROGRESS: { label: 'En cours', color: 'text-orange-700', bg: 'bg-orange-100' },
-  DONE: { label: 'Terminée', color: 'text-green-700', bg: 'bg-green-100' },
+  DONE: { label: 'Clôturée', color: 'text-green-700', bg: 'bg-green-100' },
   CANCELLED: { label: 'Annulée', color: 'text-gray-500', bg: 'bg-gray-100' },
 }
 
@@ -365,7 +365,7 @@ export default function TasksPage({ user }: { user: any }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="text-[11px] font-semibold text-green-700 uppercase">Terminées</span>
+            <span className="text-[11px] font-semibold text-green-700 uppercase">Clôturées</span>
           </div>
           <p className="text-2xl font-bold text-green-900">{kpiStats.done}</p>
         </button>

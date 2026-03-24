@@ -14,7 +14,7 @@ const priorityConfig: Record<TaskPriority, { label: string; dot: string }> = {
 const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
   TODO: { label: 'À faire', color: 'text-blue-700', bg: 'bg-blue-100' },
   IN_PROGRESS: { label: 'En cours', color: 'text-orange-700', bg: 'bg-orange-100' },
-  DONE: { label: 'Terminée', color: 'text-green-700', bg: 'bg-green-100' },
+  DONE: { label: 'Clôturée', color: 'text-green-700', bg: 'bg-green-100' },
   CANCELLED: { label: 'Annulée', color: 'text-gray-500', bg: 'bg-gray-100' },
 }
 
@@ -209,7 +209,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
                 >
                   <option value="TODO">À faire</option>
                   <option value="IN_PROGRESS">En cours</option>
-                  <option value="DONE">Terminée</option>
+                  <option value="DONE">Clôturée</option>
                   <option value="CANCELLED">Annulée</option>
                 </select>
               </div>
@@ -344,7 +344,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Terminer
+              Clôturer
             </button>
           )}
           {task.status === 'TODO' && (
