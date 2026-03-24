@@ -173,6 +173,11 @@ export default function TasksPage({ user }: { user: any }) {
       setIsLoading(true)
       const response = await api.get('/tasks')
       setTasks(response.data)
+      // Refresh selected task if panel is open
+      if (selectedTask) {
+        const updated = response.data.find((t: Task) => t.id === selectedTask.id)
+        if (updated) setSelectedTask(updated)
+      }
     } catch (error) {
       console.error('Failed to fetch tasks:', error)
     } finally {

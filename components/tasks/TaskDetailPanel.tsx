@@ -79,11 +79,12 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
     return formatDate(dateStr)
   }
 
-  const handleStatusChange = async (newStatus: TaskStatus) => {
+  const handleStatusChange = async (newStatus: TaskStatus, closeAfter = false) => {
     setIsUpdating(true)
     try {
       await api.patch(`/tasks/${task.id}`, { status: newStatus })
       onUpdate()
+      if (closeAfter) onClose()
     } catch (error) {
       console.error('Failed to update status:', error)
     } finally {
@@ -337,7 +338,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
         <div className="border-t border-gray-100 px-6 py-3 flex gap-2">
           {task.status !== 'DONE' && (
             <button
-              onClick={() => handleStatusChange('DONE')}
+              onClick={() => handleStatusChange('DONE', true)}
               disabled={isUpdating}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-50 text-green-700 rounded-xl text-sm font-medium hover:bg-green-100 transition border border-green-200"
             >
@@ -349,7 +350,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
           )}
           {task.status === 'TODO' && (
             <button
-              onClick={() => handleStatusChange('IN_PROGRESS')}
+              onClick={() => handleStatusChange('IN_PROGRESS', true)}
               disabled={isUpdating}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-50 text-orange-700 rounded-xl text-sm font-medium hover:bg-orange-100 transition border border-orange-200"
             >
@@ -361,7 +362,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
           )}
           {task.status === 'DONE' && (
             <button
-              onClick={() => handleStatusChange('TODO')}
+              onClick={() => handleStatusChange('TODO', true)}
               disabled={isUpdating}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium hover:bg-blue-100 transition border border-blue-200"
             >
