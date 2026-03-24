@@ -17,10 +17,16 @@ export default function LeadsPageV2({
   user,
   onLogout,
   onUpdateUser,
+  navigateToLeadId,
+  onClearNavigateToLead,
+  onNavigateToTask,
 }: {
   user: any
   onLogout: () => void
   onUpdateUser?: (token: string, user: any) => void
+  navigateToLeadId?: string | null
+  onClearNavigateToLead?: () => void
+  onNavigateToTask?: (taskId: string) => void
 }) {
   const [allLeads, setAllLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
@@ -166,6 +172,17 @@ export default function LeadsPageV2({
     setIsPanelOpen(false)
     setTimeout(() => setSelectedLead(null), 300)
   }
+
+  // Auto-open lead when navigated from another tab
+  useEffect(() => {
+    if (navigateToLeadId && allLeads.length > 0) {
+      const lead = allLeads.find(l => l.id === navigateToLeadId)
+      if (lead) {
+        openPanel(lead)
+      }
+      onClearNavigateToLead?.()
+    }
+  }, [navigateToLeadId, allLeads])
 
   // Bulk selection
   const toggleLeadSelection = (leadId: string) => {
@@ -502,6 +519,7 @@ export default function LeadsPageV2({
           clearSelection()
         }}
         currentUserRole={user?.role}
+        onNavigateToTask={onNavigateToTask}
       />
 
       {/* Add Lead Modal */}

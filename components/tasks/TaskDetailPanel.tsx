@@ -32,9 +32,10 @@ interface TaskDetailPanelProps {
   onClose: () => void
   onUpdate: () => void
   currentUser: any
+  onNavigateToLead?: (leadId: string) => void
 }
 
-export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, currentUser }: TaskDetailPanelProps) {
+export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, currentUser, onNavigateToLead }: TaskDetailPanelProps) {
   const [newComment, setNewComment] = useState('')
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -268,7 +269,19 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
               {task.leadName && (
                 <div>
                   <span className="text-xs font-semibold text-gray-500 uppercase">Lead lié</span>
-                  <p className="mt-0.5 font-medium text-[#00358E]">{task.leadName}</p>
+                  {task.leadId && onNavigateToLead ? (
+                    <button
+                      onClick={() => onNavigateToLead(task.leadId!)}
+                      className="mt-0.5 font-medium text-[#00358E] hover:underline flex items-center gap-1"
+                    >
+                      {task.leadName}
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <p className="mt-0.5 font-medium text-[#00358E]">{task.leadName}</p>
+                  )}
                 </div>
               )}
               <div>

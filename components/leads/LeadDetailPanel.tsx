@@ -13,6 +13,7 @@ interface LeadDetailPanelProps {
   onClose: () => void
   onActionComplete: () => void
   currentUserRole?: string
+  onNavigateToTask?: (taskId: string) => void
 }
 
 const productLabels: Record<ProductType, string> = {
@@ -83,7 +84,9 @@ export default function LeadDetailPanel({
   onClose,
   onActionComplete,
   currentUserRole,
+  onNavigateToTask,
 }: LeadDetailPanelProps) {
+  const [linkedTasks, setLinkedTasks] = useState<any[]>([])
   const [isCancelling, setIsCancelling] = useState(false)
   const [cancelError, setCancelError] = useState('')
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
@@ -110,6 +113,16 @@ export default function LeadDetailPanel({
       setAssignError('')
     }
   }, [isOpen, isResponsable])
+
+  // Fetch linked tasks for this lead
+  useEffect(() => {
+    if (isOpen && lead) {
+      api.get('/tasks').then((res) => {
+        const tasks = res.data.filter((t: any) => t.leadId === lead.id)
+        setLinkedTasks(tasks)
+      }).catch(() => setLinkedTasks([]))
+    }
+  }, [isOpen, lead?.id])
 
   if (!lead) return null
 
@@ -549,6 +562,47 @@ export default function LeadDetailPanel({
               </div>
             )
           })()}
+
+          {/* Linked Tasks */}
+          {linkedTasks.length > 0 && (
+            <div className="px-6 py-4 border-b border-gray-50">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                Tâches liées ({linkedTasks.length})
+              </h3>
+              <div className="space-y-2">
+                {linkedTasks.map((task: any) => {
+                  const statusMap: Record<string, { label: string; bg: string; color: string }> = {
+                    TODO: { label: 'À faire', bg: 'bg-blue-100', color: 'text-blue-700' },
+                    IN_PROGRESS: { label: 'En cours', bg: 'bg-orange-100', color: 'text-orange-700' },
+                    DONE: { label: 'Clôturée', bg: 'bg-green-100', color: 'text-green-700' },
+                    CANCELLED: { label: 'Annulée', bg: 'bg-gray-100', color: 'text-gray-500' },
+                  }
+                  const st = statusMap[task.status] || statusMap.TODO
+                  return (
+                    <button
+                      key={task.id}
+                      onClick={() => onNavigateToTask?.(task.id)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition text-left group"
+                    >
+                      <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{task.title}</p>
+                        <p className="text-xs text-gray-500">{task.assignedToName || 'Non attribuée'}</p>
+                      </div>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${st.bg} ${st.color}`}>
+                        {st.label}
+                      </span>
+                      <svg className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Action History */}
           <div className="px-6 py-4 border-b border-gray-50">

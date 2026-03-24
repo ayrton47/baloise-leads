@@ -15,6 +15,18 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<AppTab>('tasks')
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [navigateToLeadId, setNavigateToLeadId] = useState<string | null>(null)
+  const [navigateToTaskId, setNavigateToTaskId] = useState<string | null>(null)
+
+  const handleNavigateToLead = (leadId: string) => {
+    setNavigateToLeadId(leadId)
+    setActiveTab('leads')
+  }
+
+  const handleNavigateToTask = (taskId: string) => {
+    setNavigateToTaskId(taskId)
+    setActiveTab('tasks')
+  }
 
   useEffect(() => {
     // Load from localStorage
@@ -72,10 +84,22 @@ export default function Home() {
           />
 
           {activeTab === 'leads' && (
-            <LeadsPage user={user} onLogout={handleLogout} onUpdateUser={handleLogin} />
+            <LeadsPage
+              user={user}
+              onLogout={handleLogout}
+              onUpdateUser={handleLogin}
+              navigateToLeadId={navigateToLeadId}
+              onClearNavigateToLead={() => setNavigateToLeadId(null)}
+              onNavigateToTask={handleNavigateToTask}
+            />
           )}
           {activeTab === 'tasks' && (
-            <TasksPage user={user} />
+            <TasksPage
+              user={user}
+              navigateToTaskId={navigateToTaskId}
+              onClearNavigateToTask={() => setNavigateToTaskId(null)}
+              onNavigateToLead={handleNavigateToLead}
+            />
           )}
           {activeTab === 'clients' && (
             <ClientsPage user={user} />

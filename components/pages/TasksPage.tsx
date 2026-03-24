@@ -156,7 +156,14 @@ function TaskSection({
   )
 }
 
-export default function TasksPage({ user }: { user: any }) {
+interface TasksPageProps {
+  user: any
+  navigateToTaskId?: string | null
+  onClearNavigateToTask?: () => void
+  onNavigateToLead?: (leadId: string) => void
+}
+
+export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTask, onNavigateToLead }: TasksPageProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL')
@@ -189,6 +196,18 @@ export default function TasksPage({ user }: { user: any }) {
   }, [])
 
   useEffect(() => { fetchTasks() }, [])
+
+  // Auto-open task when navigated from another tab
+  useEffect(() => {
+    if (navigateToTaskId && tasks.length > 0) {
+      const task = tasks.find(t => t.id === navigateToTaskId)
+      if (task) {
+        setSelectedTask(task)
+        setIsPanelOpen(true)
+      }
+      onClearNavigateToTask?.()
+    }
+  }, [navigateToTaskId, tasks])
 
   // KPI stats (always from all tasks)
   const now = new Date()
@@ -550,6 +569,7 @@ export default function TasksPage({ user }: { user: any }) {
         }}
         onUpdate={fetchTasks}
         currentUser={user}
+        onNavigateToLead={onNavigateToLead}
       />
     </div>
   )
