@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api } from '@/lib/api'
 import { Agent, Lead, TaskPriority, TaskCategory } from '@/lib/types'
 
@@ -18,6 +18,9 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
   const [dueDate, setDueDate] = useState('')
   const [assignedTo, setAssignedTo] = useState<string>('')
   const [leadId, setLeadId] = useState<string>('')
+  const [leadSearch, setLeadSearch] = useState('')
+  const [showLeadDropdown, setShowLeadDropdown] = useState(false)
+  const leadSearchRef = useRef<HTMLDivElement>(null)
   const [agents, setAgents] = useState<Agent[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,6 +32,30 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
     // Fetch leads for linking
     api.get('/leads').then(res => setLeads(res.data)).catch(() => {})
   }, [])
+
+  // Close lead dropdown on click outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (leadSearchRef.current && !leadSearchRef.current.contains(e.target as Node)) {
+        setShowLeadDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const filteredLeads = leads.filter(lead => {
+    if (!leadSearch) return true
+    const q = leadSearch.toLowerCase()
+    return (
+      lead.firstName.toLowerCase().includes(q) ||
+      lead.lastName.toLowerCase().includes(q) ||
+      lead.email?.toLowerCase().includes(q) ||
+      lead.phone?.toLowerCase().includes(q)
+    )
+  })
+
+  const selectedLead = leads.find(l => l.id === leadId)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -170,20 +197,68 @@ export default function CreateTaskModal({ currentUser, onClose, onSuccess }: Cre
           </div>
 
           {/* Link to lead */}
-          <div>
+          <div ref={leadSearchRef} className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">Lier à un lead</label>
-            <select
-              value={leadId}
-              onChange={e => setLeadId(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00358E]/20 focus:border-[#00358E]"
-            >
-              <option value="">Aucun lead</option>
-              {leads.map(lead => (
-                <option key={lead.id} value={lead.id}>
-                  {lead.firstName} {lead.lastName} — {lead.status}
-                </option>
-              ))}
-            </select>
+            {selectedLead && !showLeadDropdown ? (
+              <div className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl border border-[#00358E]/30 bg-blue-50 text-sm">
+                <span className="font-medium text-gray-900">
+                  {selectedLead.firstName} {selectedLead.lastName}
+                  <span className="text-gray-500 font-normal ml-2">— {selectedLead.status}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { setLeadId(''); setLeadSearch(''); }}
+                  className="text-gray-400 hover:text-red-500 transition ml-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={leadSearch}
+                  onChange={e => { setLeadSearch(e.target.value); setShowLeadDropdown(true) }}
+                  onFocus={() => setShowLeadDropdown(true)}
+                  placeholder="Rechercher un lead par nom, email..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00358E]/20 focus:border-[#00358E]"
+                />
+              </div>
+            )}
+            {showLeadDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                <button
+                  type="button"
+                  onClick={() => { setLeadId(''); setLeadSearch(''); setShowLeadDropdown(false) }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-400 hover:bg-gray-50 transition"
+                >
+                  Aucun lead
+                </button>
+                {filteredLeads.length === 0 ? (
+                  <div className="px-4 py-3 text-sm text-gray-400 text-center">Aucun résultat</div>
+                ) : (
+                  filteredLeads.slice(0, 20).map(lead => (
+                    <button
+                      key={lead.id}
+                      type="button"
+                      onClick={() => { setLeadId(lead.id); setLeadSearch(''); setShowLeadDropdown(false) }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition flex items-center justify-between ${leadId === lead.id ? 'bg-blue-50' : ''}`}
+                    >
+                      <span>
+                        <span className="font-medium text-gray-900">{lead.firstName} {lead.lastName}</span>
+                        {lead.email && <span className="text-gray-400 ml-2 text-xs">{lead.email}</span>}
+                      </span>
+                      <span className="text-xs text-gray-500">{lead.status}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           {/* Actions */}
