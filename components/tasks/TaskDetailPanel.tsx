@@ -298,7 +298,7 @@ export default function TaskDetailPanel({ task, isOpen, onClose, onUpdate, curre
                 {(!task.comments || task.comments.length === 0) && (
                   <p className="text-sm text-gray-400 italic">Aucun commentaire</p>
                 )}
-                {task.comments?.map(comment => (
+                {[...(task.comments || [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(comment => (
                   <div key={comment.id} className="bg-gray-50 rounded-xl p-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-gray-700">{comment.agentName || 'Agent'}</span>
