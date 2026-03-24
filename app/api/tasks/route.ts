@@ -71,9 +71,11 @@ export async function GET(req: NextRequest) {
         }
       })
 
+      // Remove task_comments key, use comments instead
+      const { task_comments: _, ...taskWithoutComments } = task
       return {
-        ...task,
-        task_comments: comments,
+        ...taskWithoutComments,
+        comments,
         assigned_to_name: (assignedAgent as any)?.name || null,
         assigned_to_role: (assignedAgent as any)?.role || null,
         created_by_name: (createdAgent as any)?.name || 'Inconnu',
