@@ -5,7 +5,7 @@ import StatusBadge from './StatusBadge'
 import DriveIcon from '@/components/icons/DriveIcon'
 import HomeIcon from '@/components/icons/HomeIcon'
 import PensionIcon from '@/components/icons/PensionIcon'
-import { ReactNode } from 'react'
+import React, { ReactNode, useMemo } from 'react'
 
 interface EnhancedLeadRowProps {
   lead: Lead
@@ -85,7 +85,7 @@ const actionLabels: Record<string, string> = {
   CONVERTED: 'Converti',
 }
 
-export default function EnhancedLeadRow({
+function EnhancedLeadRow({
   lead,
   onClick,
   isSelected = false,
@@ -96,10 +96,11 @@ export default function EnhancedLeadRow({
   const quotes = lead.leadActions?.filter((a) => a.type === 'QUOTE_CREATED') ?? []
   const quoteCount = quotes.length
   // Find the most recent callback date for TO_CONTACT leads
-  const latestCallback = lead.status === 'TO_CONTACT'
-    ? [...(lead.leadActions ?? [])].filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-    : null
-  const avatarColor = getAvatarColor(lead.firstName + lead.lastName)
+  const latestCallback = useMemo(() => {
+    if (lead.status !== 'TO_CONTACT') return null
+    return [...(lead.leadActions ?? [])].filter((a) => a.type === 'CALLBACK_SCHEDULED' && a.callbackDate).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] ?? null
+  }, [lead.status, lead.leadActions])
+  const avatarColor = useMemo(() => getAvatarColor(lead.firstName + lead.lastName), [lead.firstName, lead.lastName])
   const initials = ((lead.firstName[0] ?? '') + (lead.lastName[0] ?? '')).toUpperCase()
   const products = lead.productInterest.split(',').map((p) => p.trim()).filter(Boolean)
   const product = productConfig[products[0]] ?? productConfig['OTHER']
@@ -382,3 +383,5 @@ export default function EnhancedLeadRow({
     </div>
   )
 }
+
+export default React.memo(EnhancedLeadRow)

@@ -47,20 +47,23 @@ export async function GET(req: NextRequest) {
 
     const agentMap = new Map(agencyAgents?.map((a: any) => [a.id, a]) || [])
 
+    // Batch-fetch all leads referenced by tasks (fixes N+1 query)
+    const leadIds = [...new Set((tasks || []).map((t: any) => t.lead_id).filter(Boolean))]
+    const leadMap = new Map<string, string>()
+    if (leadIds.length > 0) {
+      const { data: leads } = await supabase
+        .from('leads')
+        .select('id, first_name, last_name')
+        .in('id', leadIds)
+      for (const lead of leads || []) {
+        leadMap.set(lead.id, `${lead.first_name} ${lead.last_name}`)
+      }
+    }
+
     // Enrich tasks with agent names and lead info
-    const enrichedTasks = await Promise.all((tasks || []).map(async (task: any) => {
+    const enrichedTasks = (tasks || []).map((task: any) => {
       const assignedAgent = task.assigned_to ? agentMap.get(task.assigned_to) : null
       const createdAgent = agentMap.get(task.created_by)
-
-      let leadName = null
-      if (task.lead_id) {
-        const { data: lead } = await supabase
-          .from('leads')
-          .select('first_name, last_name')
-          .eq('id', task.lead_id)
-          .single()
-        if (lead) leadName = `${lead.first_name} ${lead.last_name}`
-      }
 
       // Enrich comments with agent names
       const comments = (task.task_comments || []).map((c: any) => {
@@ -79,9 +82,9 @@ export async function GET(req: NextRequest) {
         assigned_to_name: (assignedAgent as any)?.name || null,
         assigned_to_role: (assignedAgent as any)?.role || null,
         created_by_name: (createdAgent as any)?.name || 'Inconnu',
-        lead_name: leadName,
+        lead_name: task.lead_id ? leadMap.get(task.lead_id) || null : null,
       }
-    }))
+    })
 
     return NextResponse.json(snakeToCamel(enrichedTasks))
   } catch (error) {

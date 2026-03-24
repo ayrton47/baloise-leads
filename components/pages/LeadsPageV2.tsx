@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { Lead, LeadStatus, ProductType } from '@/lib/types'
 import LeadsHeroSection from '@/components/layout/LeadsHeroSection'
@@ -36,7 +36,7 @@ export default function LeadsPageV2({
   const [itemsPerPage, setItemsPerPage] = useState(20)
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
 
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     try {
       setIsLoading(true)
       // Always fetch ALL leads — filtering is done client-side
@@ -47,7 +47,7 @@ export default function LeadsPageV2({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   // Compute the cutoff date from dateRange
   const getDateCutoff = (range: DateRange): Date | null => {
@@ -118,7 +118,7 @@ export default function LeadsPageV2({
   }, [])
 
   // KPI stats from date-filtered leads (but not status/product/search filtered)
-  const dateFilteredLeads = (() => {
+  const dateFilteredLeads = useMemo(() => {
     const cutoff = getDateCutoff(dateRange)
     if (!cutoff) return allLeads
     return allLeads.filter((lead) => {
@@ -132,9 +132,9 @@ export default function LeadsPageV2({
       }
       return new Date(lead.createdAt) >= cutoff
     })
-  })()
+  }, [allLeads, dateRange])
 
-  const kpiStats = {
+  const kpiStats = useMemo(() => ({
     new: dateFilteredLeads.filter((l) => l.status === 'NEW').length,
     inProgress: dateFilteredLeads.filter((l) => l.status === 'IN_PROGRESS' || l.status === 'QUOTED').length,
     quoted: 0,
@@ -142,7 +142,7 @@ export default function LeadsPageV2({
     converted: dateFilteredLeads.filter((l) => l.status === 'CONVERTED').length,
     toContact: dateFilteredLeads.filter((l) => l.status === 'TO_CONTACT').length,
     total: dateFilteredLeads.length,
-  }
+  }), [dateFilteredLeads])
 
   const activeFiltersCount = [
     status !== 'ALL' ? 1 : 0,
@@ -205,20 +205,22 @@ export default function LeadsPageV2({
   const otherLeads = filteredLeads.filter((l) => l.agentId && l.agentId !== currentUserId)
 
   // Group other agents' leads by agent
-  const otherAgentIds = [...new Set(otherLeads.map(l => l.agentId))]
-  const otherAgentSections = otherAgentIds.map(agentId => {
-    const agentLeads = otherLeads.filter(l => l.agentId === agentId)
-    const agentName = agentLeads[0]?.assignedAgentName || 'Inconnu'
-    const agentRole = agentLeads[0]?.assignedAgentRole
-    return { agentId: agentId!, agentName, agentRole, leads: agentLeads }
-  })
+  const otherAgentSections = useMemo(() => {
+    const otherAgentIds = [...new Set(otherLeads.map(l => l.agentId))]
+    return otherAgentIds.map(agentId => {
+      const agentLeads = otherLeads.filter(l => l.agentId === agentId)
+      const agentName = agentLeads[0]?.assignedAgentName || 'Inconnu'
+      const agentRole = agentLeads[0]?.assignedAgentRole
+      return { agentId: agentId!, agentName, agentRole, leads: agentLeads }
+    })
+  }, [otherLeads])
 
   // Collapsed state for sections
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
   const toggleSection = (key: string) =>
     setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }))
 
-  const renderLeadRow = (lead: Lead, index: number) => (
+  const renderLeadRow = useCallback((lead: Lead, index: number) => (
     <EnhancedLeadRow
       key={lead.id}
       lead={lead}
@@ -231,9 +233,9 @@ export default function LeadsPageV2({
       isSelected={selectedLeads.has(lead.id)}
       onToggleSelection={toggleLeadSelection}
     />
-  )
+  ), [fetchLeads, selectedLeads, toggleLeadSelection])
 
-  const sections = [
+  const sections = useMemo(() => [
     {
       key: 'my',
       label: 'Mes leads',
@@ -277,7 +279,7 @@ export default function LeadsPageV2({
       badgeBg: 'bg-purple-500',
       leads: section.leads,
     })),
-  ]
+  ], [myLeads, unassignedLeads, otherAgentSections])
 
   return (
     <div className="bg-gray-50 transition-colors">

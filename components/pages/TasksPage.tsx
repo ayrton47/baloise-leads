@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { Task, TaskStatus, TaskPriority, TaskCategory } from '@/lib/types'
 import CreateTaskModal from '@/components/tasks/CreateTaskModal'
@@ -168,7 +168,7 @@ export default function TasksPage({ user }: { user: any }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await api.get('/tasks')
@@ -183,13 +183,13 @@ export default function TasksPage({ user }: { user: any }) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => { fetchTasks() }, [])
 
   // KPI stats (always from all tasks)
   const now = new Date()
-  const kpiStats = {
+  const kpiStats = useMemo(() => ({
     todo: tasks.filter(t => t.status === 'TODO').length,
     inProgress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
     done: tasks.filter(t => t.status === 'DONE').length,
@@ -198,7 +198,7 @@ export default function TasksPage({ user }: { user: any }) {
       if (!t.dueDate) return false
       return new Date(t.dueDate) < now
     }).length,
-  }
+  }), [tasks])
 
   // Filter tasks
   const filteredTasks = tasks.filter(task => {
@@ -231,7 +231,7 @@ export default function TasksPage({ user }: { user: any }) {
 
   // Sort: overdue first, then by priority, then by due date
   const priorityOrder: Record<string, number> = { URGENT: 0, HIGH: 1, NORMAL: 2, LOW: 3 }
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
+  const sortedTasks = useMemo(() => [...filteredTasks].sort((a, b) => {
     // Done/cancelled at bottom
     const aActive = a.status !== 'DONE' && a.status !== 'CANCELLED'
     const bActive = b.status !== 'DONE' && b.status !== 'CANCELLED'
@@ -253,23 +253,25 @@ export default function TasksPage({ user }: { user: any }) {
     if (b.dueDate) return 1
 
     return 0
-  })
+  }), [filteredTasks])
 
   // Group tasks by agent sections
   const myTasks = sortedTasks.filter(t => t.assignedTo === user?.id)
   const unassignedTasks = sortedTasks.filter(t => !t.assignedTo)
 
   // Group other agents' tasks by agent name
-  const otherAgentIds = [...new Set(sortedTasks
-    .filter(t => t.assignedTo && t.assignedTo !== user?.id)
-    .map(t => t.assignedTo))]
+  const otherAgentSections = useMemo(() => {
+    const otherAgentIds = [...new Set(sortedTasks
+      .filter(t => t.assignedTo && t.assignedTo !== user?.id)
+      .map(t => t.assignedTo))]
 
-  const otherAgentSections = otherAgentIds.map(agentId => {
-    const agentTasks = sortedTasks.filter(t => t.assignedTo === agentId)
-    const agentName = agentTasks[0]?.assignedToName || 'Inconnu'
-    const agentRole = agentTasks[0]?.assignedToRole
-    return { agentId: agentId!, agentName, agentRole, tasks: agentTasks }
-  })
+    return otherAgentIds.map(agentId => {
+      const agentTasks = sortedTasks.filter(t => t.assignedTo === agentId)
+      const agentName = agentTasks[0]?.assignedToName || 'Inconnu'
+      const agentRole = agentTasks[0]?.assignedToRole
+      return { agentId: agentId!, agentName, agentRole, tasks: agentTasks }
+    })
+  }, [sortedTasks, user?.id])
 
   const toggleSection = (key: string) => {
     setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }))
