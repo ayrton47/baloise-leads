@@ -310,15 +310,17 @@ export default function TasksPage({ user }: { user: any }) {
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Tâches</h2>
           <p className="text-sm text-gray-500 mt-0.5">Gérez les tâches de votre agence</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#00358E] text-white rounded-xl font-medium text-sm hover:bg-[#002a70] transition shadow-sm"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span className="hidden sm:inline">Nouvelle tâche</span>
-        </button>
+        {user?.role === 'RESPONSABLE' && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#00358E] text-white rounded-xl font-medium text-sm hover:bg-[#002a70] transition shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="hidden sm:inline">Nouvelle tâche</span>
+          </button>
+        )}
       </div>
 
       {/* KPI Cards */}

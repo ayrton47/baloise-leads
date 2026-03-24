@@ -124,6 +124,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
     }
 
+    // Only RESPONSABLE can create tasks
+    if (agent.role !== 'RESPONSABLE') {
+      return NextResponse.json({ error: 'Seuls les responsables peuvent créer des tâches' }, { status: 403 })
+    }
+
     // Only RESPONSABLE can assign to others
     if (assignedTo && assignedTo !== payload.id && agent.role !== 'RESPONSABLE') {
       return NextResponse.json({ error: 'Only managers can assign tasks to others' }, { status: 403 })
