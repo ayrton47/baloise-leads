@@ -30,6 +30,132 @@ const categoryConfig: Record<TaskCategory, { label: string; icon: string }> = {
 
 type FilterStatus = TaskStatus | 'ALL' | 'OVERDUE'
 
+// Reusable section component for task grouping
+function TaskSection({
+  sectionKey, icon, title, badge, count, isCollapsed, onToggle, bgColor, tasks, onOpenTask, isOverdue, formatRelative, priorityConfig, statusConfig, categoryConfig,
+}: {
+  sectionKey: string
+  icon: React.ReactNode
+  title: string
+  badge?: string
+  count: number
+  isCollapsed: boolean
+  onToggle: () => void
+  bgColor: string
+  tasks: Task[]
+  onOpenTask: (task: Task) => void
+  isOverdue: (task: Task) => boolean
+  formatRelative: (date: string) => string
+  priorityConfig: Record<TaskPriority, { label: string; color: string; bg: string; dot: string }>
+  statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }>
+  categoryConfig: Record<TaskCategory, { label: string; icon: string }>
+}) {
+  return (
+    <div className={`rounded-2xl ${bgColor} p-3 sm:p-4`}>
+      {/* Section header */}
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-2 w-full text-left mb-2 group"
+      >
+        <span className="text-gray-600">{icon}</span>
+        <h3 className="text-sm font-bold text-gray-800">{title}</h3>
+        {badge && (
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00358E]/10 text-[#00358E]">{badge}</span>
+        )}
+        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#00358E] text-white">{count}</span>
+        <div className="flex-1" />
+        <svg
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`}
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Tasks */}
+      {!isCollapsed && (
+        <div className="space-y-2">
+          {tasks.map(task => {
+            const priority = priorityConfig[task.priority]
+            const status = statusConfig[task.status]
+            const category = categoryConfig[task.category] || categoryConfig.OTHER
+            const overdue = isOverdue(task)
+            const isDone = task.status === 'DONE' || task.status === 'CANCELLED'
+
+            return (
+              <div
+                key={task.id}
+                onClick={() => onOpenTask(task)}
+                className={`group flex items-center gap-4 px-4 sm:px-5 py-3.5 border-2 rounded-2xl transition-all cursor-pointer hover:shadow-md ${
+                  overdue
+                    ? 'border-red-300 bg-red-50/50 hover:border-red-400'
+                    : isDone
+                    ? 'border-gray-200 bg-gray-50 opacity-60 hover:opacity-80'
+                    : 'border-gray-200 bg-white hover:border-[#00358E]/30'
+                }`}
+              >
+                {/* Priority dot */}
+                <div className={`w-3 h-3 rounded-full flex-shrink-0 ${priority.dot}`} title={priority.label} />
+
+                {/* Main content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className={`text-sm font-semibold truncate ${isDone ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                      {task.title}
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                    <span>{category.icon} {category.label}</span>
+                    {task.leadName && (
+                      <>
+                        <span className="text-gray-300">·</span>
+                        <span className="flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                          </svg>
+                          {task.leadName}
+                        </span>
+                      </>
+                    )}
+                    {task.comments && task.comments.length > 0 && (
+                      <>
+                        <span className="text-gray-300">·</span>
+                        <span className="flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                          </svg>
+                          {task.comments.length}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right side: status + due date */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {task.dueDate && (
+                    <span className={`text-xs font-medium ${overdue ? 'text-red-600' : 'text-gray-500'}`}>
+                      {overdue && (
+                        <svg className="w-3 h-3 inline mr-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" />
+                        </svg>
+                      )}
+                      {formatRelative(task.dueDate)}
+                    </span>
+                  )}
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.color}`}>
+                    {status.label}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TasksPage({ user }: { user: any }) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -40,6 +166,7 @@ export default function TasksPage({ user }: { user: any }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
   const fetchTasks = async () => {
     try {
@@ -122,6 +249,26 @@ export default function TasksPage({ user }: { user: any }) {
 
     return 0
   })
+
+  // Group tasks by agent sections
+  const myTasks = sortedTasks.filter(t => t.assignedTo === user?.id)
+  const unassignedTasks = sortedTasks.filter(t => !t.assignedTo)
+
+  // Group other agents' tasks by agent name
+  const otherAgentIds = [...new Set(sortedTasks
+    .filter(t => t.assignedTo && t.assignedTo !== user?.id)
+    .map(t => t.assignedTo))]
+
+  const otherAgentSections = otherAgentIds.map(agentId => {
+    const agentTasks = sortedTasks.filter(t => t.assignedTo === agentId)
+    const agentName = agentTasks[0]?.assignedToName || 'Inconnu'
+    const agentRole = agentTasks[0]?.assignedToRole
+    return { agentId: agentId!, agentName, agentRole, tasks: agentTasks }
+  })
+
+  const toggleSection = (key: string) => {
+    setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }))
+  }
 
   const openTask = (task: Task) => {
     setSelectedTask(task)
@@ -304,93 +451,68 @@ export default function TasksPage({ user }: { user: any }) {
           )}
         </div>
       ) : (
-        <div className="space-y-2">
-          {sortedTasks.map(task => {
-            const priority = priorityConfig[task.priority]
-            const status = statusConfig[task.status]
-            const category = categoryConfig[task.category] || categoryConfig.OTHER
-            const overdue = isOverdue(task)
-            const isDone = task.status === 'DONE' || task.status === 'CANCELLED'
+        <div className="space-y-6">
+          {/* Mes tâches */}
+          {myTasks.length > 0 && (
+            <TaskSection
+              sectionKey="my"
+              icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+              title="Mes tâches"
+              count={myTasks.length}
+              isCollapsed={collapsedSections['my'] ?? false}
+              onToggle={() => toggleSection('my')}
+              bgColor="bg-blue-50/50"
+              tasks={myTasks}
+              onOpenTask={openTask}
+              isOverdue={isOverdue}
+              formatRelative={formatRelative}
+              priorityConfig={priorityConfig}
+              statusConfig={statusConfig}
+              categoryConfig={categoryConfig}
+            />
+          )}
 
-            return (
-              <div
-                key={task.id}
-                onClick={() => openTask(task)}
-                className={`group flex items-center gap-4 px-4 sm:px-5 py-3.5 border-2 rounded-2xl transition-all cursor-pointer hover:shadow-md ${
-                  overdue
-                    ? 'border-red-300 bg-red-50/50 hover:border-red-400'
-                    : isDone
-                    ? 'border-gray-200 bg-gray-50 opacity-60 hover:opacity-80'
-                    : 'border-gray-200 bg-white hover:border-[#00358E]/30'
-                }`}
-              >
-                {/* Priority dot */}
-                <div className={`w-3 h-3 rounded-full flex-shrink-0 ${priority.dot}`} title={priority.label} />
+          {/* Non attribuées */}
+          {unassignedTasks.length > 0 && (
+            <TaskSection
+              sectionKey="unassigned"
+              icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>}
+              title="Non attribuées"
+              count={unassignedTasks.length}
+              isCollapsed={collapsedSections['unassigned'] ?? false}
+              onToggle={() => toggleSection('unassigned')}
+              bgColor="bg-amber-50/50"
+              tasks={unassignedTasks}
+              onOpenTask={openTask}
+              isOverdue={isOverdue}
+              formatRelative={formatRelative}
+              priorityConfig={priorityConfig}
+              statusConfig={statusConfig}
+              categoryConfig={categoryConfig}
+            />
+          )}
 
-                {/* Main content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className={`text-sm font-semibold truncate ${isDone ? 'line-through text-gray-400' : 'text-gray-900'}`}>
-                      {task.title}
-                    </h3>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                    <span>{category.icon} {category.label}</span>
-                    {task.assignedToName && (
-                      <>
-                        <span className="text-gray-300">·</span>
-                        <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                          {task.assignedToName}
-                        </span>
-                      </>
-                    )}
-                    {task.leadName && (
-                      <>
-                        <span className="text-gray-300">·</span>
-                        <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                          </svg>
-                          {task.leadName}
-                        </span>
-                      </>
-                    )}
-                    {task.comments && task.comments.length > 0 && (
-                      <>
-                        <span className="text-gray-300">·</span>
-                        <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                          </svg>
-                          {task.comments.length}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right side: status + due date */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  {task.dueDate && (
-                    <span className={`text-xs font-medium ${overdue ? 'text-red-600' : 'text-gray-500'}`}>
-                      {overdue && (
-                        <svg className="w-3 h-3 inline mr-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" />
-                        </svg>
-                      )}
-                      {formatRelative(task.dueDate)}
-                    </span>
-                  )}
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.color}`}>
-                    {status.label}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
+          {/* Other agents */}
+          {otherAgentSections.map(section => (
+            <TaskSection
+              key={section.agentId}
+              sectionKey={section.agentId}
+              icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+              title={section.agentName}
+              badge={section.agentRole === 'RESPONSABLE' ? 'R' : 'E'}
+              count={section.tasks.length}
+              isCollapsed={collapsedSections[section.agentId] ?? false}
+              onToggle={() => toggleSection(section.agentId)}
+              bgColor="bg-[#f9f3ff]"
+              tasks={section.tasks}
+              onOpenTask={openTask}
+              isOverdue={isOverdue}
+              formatRelative={formatRelative}
+              priorityConfig={priorityConfig}
+              statusConfig={statusConfig}
+              categoryConfig={categoryConfig}
+            />
+          ))}
         </div>
       )}
 
