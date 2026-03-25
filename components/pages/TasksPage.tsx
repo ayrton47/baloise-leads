@@ -218,7 +218,8 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
     overdue: tasks.filter(t => {
       if (t.status === 'DONE' || t.status === 'CANCELLED') return false
       if (!t.dueDate) return false
-      return new Date(t.dueDate) < now
+      const startOfDayFn = (d: Date) => { const r = new Date(d); r.setHours(0,0,0,0); return r }
+      return startOfDayFn(new Date(t.dueDate)) < startOfDayFn(now)
     }).length,
   }), [tasks])
 
@@ -227,7 +228,8 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
     // Status filter
     if (filterStatus === 'OVERDUE') {
       if (task.status === 'DONE' || task.status === 'CANCELLED') return false
-      if (!task.dueDate || new Date(task.dueDate) >= now) return false
+      const startOfDayFn = (d: Date) => { const r = new Date(d); r.setHours(0,0,0,0); return r }
+      if (!task.dueDate || startOfDayFn(new Date(task.dueDate)) >= startOfDayFn(now)) return false
     } else if (filterStatus !== 'ALL' && task.status !== filterStatus) {
       return false
     }
@@ -259,9 +261,11 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
     const bActive = b.status !== 'DONE' && b.status !== 'CANCELLED'
     if (aActive !== bActive) return aActive ? -1 : 1
 
-    // Overdue first
-    const aOverdue = a.dueDate && new Date(a.dueDate) < now && aActive
-    const bOverdue = b.dueDate && new Date(b.dueDate) < now && bActive
+    // Overdue first (date-only comparison)
+    const sod = (d: Date) => { const r = new Date(d); r.setHours(0,0,0,0); return r }
+    const todayStart = sod(now)
+    const aOverdue = a.dueDate && sod(new Date(a.dueDate)) < todayStart && aActive
+    const bOverdue = b.dueDate && sod(new Date(b.dueDate)) < todayStart && bActive
     if (aOverdue !== bOverdue) return aOverdue ? -1 : 1
 
     // Then by priority
@@ -304,10 +308,18 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
     setIsPanelOpen(true)
   }
 
+  // Compare dates without time (date-only comparison)
+  const startOfDay = (d: Date) => {
+    const r = new Date(d)
+    r.setHours(0, 0, 0, 0)
+    return r
+  }
+  const today = startOfDay(now)
+
   const isOverdue = (task: Task) => {
     if (task.status === 'DONE' || task.status === 'CANCELLED') return false
     if (!task.dueDate) return false
-    return new Date(task.dueDate) < now
+    return startOfDay(new Date(task.dueDate)) < today
   }
 
   const formatDate = (dateStr: string) => {
@@ -316,9 +328,9 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
   }
 
   const formatRelative = (dateStr: string) => {
-    const date = new Date(dateStr)
-    const diff = date.getTime() - now.getTime()
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    const dueDay = startOfDay(new Date(dateStr))
+    const diffMs = dueDay.getTime() - today.getTime()
+    const days = Math.round(diffMs / (1000 * 60 * 60 * 24))
     if (days < 0) return `${Math.abs(days)}j en retard`
     if (days === 0) return "Aujourd'hui"
     if (days === 1) return 'Demain'
