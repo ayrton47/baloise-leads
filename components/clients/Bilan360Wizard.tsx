@@ -40,7 +40,18 @@ export default function Bilan360Wizard({ clientName, onClose }: Bilan360WizardPr
   }
 
   return (
-    <div className="min-h-[60vh] flex flex-col">
+    <div className="min-h-[60vh] flex flex-col relative">
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-0 right-0 p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+        title="Fermer le bilan"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       {/* Progress bar (hidden on welcome) */}
       {currentStep !== 'welcome' && (
         <div className="mb-8">
