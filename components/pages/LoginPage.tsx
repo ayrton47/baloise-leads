@@ -103,7 +103,7 @@ export default function LoginPage({
           <div className="flex items-center justify-center gap-3 mb-2">
             <BaloiseLogoBlue />
             <h1 className="text-3xl font-extrabold text-[#00358E]">
-              Baloise Leads
+              Baloise Hub
             </h1>
           </div>
           <p className="text-center text-gray-500 mb-10 text-sm">
