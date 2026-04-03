@@ -86,6 +86,8 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
   })
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
+  const [bilanStatus, setBilanStatus] = useState<string | null>(null)
+  const [bilanUpdatedAt, setBilanUpdatedAt] = useState<string | null>(null)
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
 
@@ -96,6 +98,8 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
         if (res.data) {
           const ages = res.data.childrenAges || []
           const count = res.data.childrenCount || 0
+          setBilanStatus(res.data.status || 'IN_PROGRESS')
+          setBilanUpdatedAt(res.data.updatedAt || res.data.createdAt || null)
           setData(prev => ({
             ...prev,
             maritalStatus: res.data.maritalStatus || prev.maritalStatus || '',
@@ -113,6 +117,18 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
       }).catch(() => {})
     }
   }, [clientId])
+
+  // If finalized, show recap view directly
+  if (bilanStatus === 'FINALIZED') {
+    return (
+      <FinalizedRecapView
+        data={data}
+        clientName={clientName}
+        updatedAt={bilanUpdatedAt}
+        onClose={onClose}
+      />
+    )
+  }
 
   const updateData = (updates: Partial<Bilan360Data>) => {
     setData(prev => ({ ...prev, ...updates }))
@@ -597,6 +613,171 @@ function SituationStep({ data, onChange }: { data: Bilan360Data; onChange: (upda
           )}
         </div>
       </section>
+    </div>
+  )
+}
+
+
+// ─── Finalized Recap View ───
+const MARITAL_LABELS: Record<string, string> = {
+  SINGLE: 'Célibataire',
+  MARRIED: 'Marié(e)',
+  PACS: 'Pacsé(e)',
+  DIVORCED: 'Divorcé(e)',
+  WIDOWED: 'Veuf/Veuve',
+}
+
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  EMPLOYEE: 'Salarié(e)',
+  SELF_EMPLOYED: 'Indépendant(e)',
+  CIVIL_SERVANT: 'Fonctionnaire',
+  RETIRED: 'Retraité(e)',
+  UNEMPLOYED: 'Sans emploi',
+  OTHER: 'Autre',
+}
+
+function FinalizedRecapView({ data, clientName, updatedAt, onClose }: {
+  data: Bilan360Data
+  clientName?: string
+  updatedAt?: string | null
+  onClose?: () => void
+}) {
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+    })
+  }
+
+  return (
+    <div className="relative">
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-0 right-0 p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition z-10"
+        title="Fermer"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">
+            Bilan 360° — Finalisé
+          </h2>
+          <div className="flex items-center gap-3 mt-0.5">
+            {clientName && (
+              <span className="text-sm text-[#00358E] font-semibold">{clientName}</span>
+            )}
+            {updatedAt && (
+              <span className="text-xs text-gray-400">Mis à jour le {formatDate(updatedAt)}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* ── Situation personnelle ── */}
+        <section className="bg-gray-50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <svg className="w-4 h-4 text-[#00358E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Situation personnelle</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RecapField label="Statut marital" value={MARITAL_LABELS[data.maritalStatus] || data.maritalStatus || '—'} />
+            <RecapField label="Nombre d'enfants" value={String(data.childrenCount)} />
+            {data.childrenCount > 0 && data.childrenAges.some(a => a) && (
+              <RecapField
+                label="Âge des enfants"
+                value={data.childrenAges.filter(a => a).map((a, i) => `${a} ans`).join(', ')}
+              />
+            )}
+            <RecapField label="Personnes à charge" value={String(data.dependentsCount)} />
+            {data.dependentsCount > 0 && data.dependentsDetails && (
+              <RecapField label="Précisions" value={data.dependentsDetails} className="sm:col-span-2" />
+            )}
+          </div>
+        </section>
+
+        {/* ── Situation professionnelle ── */}
+        <section className="bg-gray-50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Situation professionnelle</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RecapField label="Profession" value={data.profession || '—'} />
+            <RecapField label="Statut d'emploi" value={EMPLOYMENT_LABELS[data.employmentStatus] || data.employmentStatus || '—'} />
+            <RecapField label="Années d'activité" value={data.yearsOfActivity ? `${data.yearsOfActivity} ans` : '—'} />
+            <RecapField label="Évolution de carrière" value={data.careerEvolution ? 'Oui' : 'Non'} />
+            {data.careerEvolution && data.careerEvolutionDetails && (
+              <RecapField label="Détails évolution" value={data.careerEvolutionDetails} className="sm:col-span-2" />
+            )}
+          </div>
+        </section>
+
+        {/* ── Analyse des risques (placeholder) ── */}
+        <section className="bg-gray-50 rounded-xl p-5 opacity-50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+              <span className="text-sm">⚠️</span>
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Analyse des risques</h3>
+          </div>
+          <p className="text-sm text-gray-400 italic">Section prochainement disponible</p>
+        </section>
+
+        {/* ── Couvertures (placeholder) ── */}
+        <section className="bg-gray-50 rounded-xl p-5 opacity-50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <span className="text-sm">🛡️</span>
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Couvertures recommandées</h3>
+          </div>
+          <p className="text-sm text-gray-400 italic">Section prochainement disponible</p>
+        </section>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-lg">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Bilan finalisé
+        </span>
+        <button
+          onClick={onClose}
+          className="px-5 py-2.5 bg-[#00358E] text-white text-sm font-medium rounded-xl hover:bg-[#002a70] transition"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function RecapField({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="text-xs text-gray-500 mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-gray-900">{value}</p>
     </div>
   )
 }
