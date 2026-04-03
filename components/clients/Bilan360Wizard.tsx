@@ -88,12 +88,14 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
   const [bilanStatus, setBilanStatus] = useState<string | null>(null)
   const [bilanUpdatedAt, setBilanUpdatedAt] = useState<string | null>(null)
+  const [isLoadingBilan, setIsLoadingBilan] = useState(!!clientId)
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
 
   // Load existing bilan data if clientId is provided
   useEffect(() => {
     if (clientId) {
+      setIsLoadingBilan(true)
       api.get(`/bilan360?clientId=${clientId}`).then(res => {
         if (res.data) {
           const ages = res.data.childrenAges || []
@@ -114,7 +116,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
             careerEvolutionDetails: res.data.careerEvolutionDetails || '',
           }))
         }
-      }).catch(() => {})
+      }).catch(() => {}).finally(() => setIsLoadingBilan(false))
     }
   }, [clientId])
 
@@ -140,6 +142,18 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
       setIsSaving(false)
     }
   }, [data, clientId])
+
+  // Show loading while fetching bilan data
+  if (isLoadingBilan) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-200 border-t-[#00358E] rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Chargement du bilan...</p>
+        </div>
+      </div>
+    )
+  }
 
   // If finalized, show recap view directly
   if (bilanStatus === 'FINALIZED') {
