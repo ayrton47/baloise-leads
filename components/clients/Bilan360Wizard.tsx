@@ -10,6 +10,7 @@ export interface Bilan360Data {
   // Situation personnelle
   maritalStatus: string
   childrenCount: number
+  childrenAges: string[]
   dependentsCount: number
   dependentsDetails: string
   // Situation professionnelle
@@ -23,6 +24,7 @@ export interface Bilan360Data {
 const INITIAL_DATA: Bilan360Data = {
   maritalStatus: '',
   childrenCount: 0,
+  childrenAges: [],
   dependentsCount: 0,
   dependentsDetails: '',
   profession: '',
@@ -32,9 +34,19 @@ const INITIAL_DATA: Bilan360Data = {
   careerEvolutionDetails: '',
 }
 
+// Client data that can be passed for pre-filling
+export interface ClientPrefillData {
+  firstName?: string
+  lastName?: string
+  familyStatus?: string
+  childrenCount?: number
+  dateOfBirth?: string
+}
+
 interface Bilan360WizardProps {
   clientName?: string
   clientId?: string
+  clientData?: ClientPrefillData
   onClose?: () => void
 }
 
@@ -48,9 +60,30 @@ const STEPS: { key: Bilan360Step; label: string }[] = [
 ]
 
 // ─── Main Wizard ───
-export default function Bilan360Wizard({ clientName, clientId, onClose }: Bilan360WizardProps) {
+// Map client familyStatus to bilan maritalStatus
+const FAMILY_STATUS_MAP: Record<string, string> = {
+  SINGLE: 'SINGLE',
+  MARRIED: 'MARRIED',
+  COHABITING: 'PACS',
+  DIVORCED: 'DIVORCED',
+  WIDOWED: 'WIDOWED',
+}
+
+export default function Bilan360Wizard({ clientName, clientId, clientData, onClose }: Bilan360WizardProps) {
   const [currentStep, setCurrentStep] = useState<Bilan360Step>('welcome')
-  const [data, setData] = useState<Bilan360Data>(INITIAL_DATA)
+  const [data, setData] = useState<Bilan360Data>(() => {
+    // Pre-fill from client data if available
+    if (clientData) {
+      const childrenCount = clientData.childrenCount || 0
+      return {
+        ...INITIAL_DATA,
+        maritalStatus: clientData.familyStatus ? (FAMILY_STATUS_MAP[clientData.familyStatus] || '') : '',
+        childrenCount,
+        childrenAges: Array(childrenCount).fill(''),
+      }
+    }
+    return INITIAL_DATA
+  })
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
@@ -61,10 +94,13 @@ export default function Bilan360Wizard({ clientName, clientId, onClose }: Bilan3
     if (clientId) {
       api.get(`/bilan360?clientId=${clientId}`).then(res => {
         if (res.data) {
+          const ages = res.data.childrenAges || []
+          const count = res.data.childrenCount || 0
           setData(prev => ({
             ...prev,
-            maritalStatus: res.data.maritalStatus || '',
-            childrenCount: res.data.childrenCount || 0,
+            maritalStatus: res.data.maritalStatus || prev.maritalStatus || '',
+            childrenCount: count,
+            childrenAges: ages.length >= count ? ages : [...ages, ...Array(Math.max(0, count - ages.length)).fill('')],
             dependentsCount: res.data.dependentsCount || 0,
             dependentsDetails: res.data.dependentsDetails || '',
             profession: res.data.profession || '',
@@ -374,10 +410,46 @@ function SituationStep({ data, onChange }: { data: Bilan360Data; onChange: (upda
               type="number"
               min={0}
               value={data.childrenCount}
-              onChange={(e) => onChange({ childrenCount: Math.max(0, parseInt(e.target.value) || 0) })}
+              onChange={(e) => {
+                const count = Math.max(0, parseInt(e.target.value) || 0)
+                const ages = [...data.childrenAges]
+                // Adjust ages array size
+                while (ages.length < count) ages.push('')
+                onChange({ childrenCount: count, childrenAges: ages.slice(0, count) })
+              }}
               className="w-full px-3.5 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 focus:border-[#00358E] focus:ring-0 outline-none transition"
             />
           </div>
+
+          {/* Âge des enfants */}
+          {data.childrenCount > 0 && (
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Âge des enfants
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {Array.from({ length: data.childrenCount }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-medium">Enfant {i + 1}</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={99}
+                      value={data.childrenAges[i] || ''}
+                      onChange={(e) => {
+                        const ages = [...data.childrenAges]
+                        ages[i] = e.target.value
+                        onChange({ childrenAges: ages })
+                      }}
+                      placeholder="Âge"
+                      className="w-20 px-3 py-2 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 text-center focus:border-[#00358E] focus:ring-0 outline-none transition"
+                    />
+                    <span className="text-xs text-gray-400">ans</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Personnes à charge */}
           <div>

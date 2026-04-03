@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Bilan360Wizard from '@/components/clients/Bilan360Wizard'
+import Bilan360Wizard, { ClientPrefillData } from '@/components/clients/Bilan360Wizard'
 import AddClientModal from '@/components/clients/AddClientModal'
 import { Client } from '@/lib/types'
 
@@ -16,6 +16,7 @@ const FAMILY_STATUS_LABELS: Record<string, string> = {
 export default function ClientsPage({ user }: { user: any }) {
   const [showBilan360, setShowBilan360] = useState(false)
   const [bilan360ClientId, setBilan360ClientId] = useState<string | undefined>()
+  const [bilan360ClientData, setBilan360ClientData] = useState<ClientPrefillData | undefined>()
   const [showAddClient, setShowAddClient] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,8 +48,20 @@ export default function ClientsPage({ user }: { user: any }) {
     fetchClients()
   }
 
-  const startBilan360 = (clientId?: string) => {
-    setBilan360ClientId(clientId)
+  const startBilan360 = (client?: Client) => {
+    if (client) {
+      setBilan360ClientId(client.id)
+      setBilan360ClientData({
+        firstName: client.firstName,
+        lastName: client.lastName,
+        familyStatus: client.familyStatus,
+        childrenCount: client.childrenCount,
+        dateOfBirth: client.dateOfBirth,
+      })
+    } else {
+      setBilan360ClientId(undefined)
+      setBilan360ClientData(undefined)
+    }
     setShowBilan360(true)
     setSelectedClient(null)
   }
@@ -133,9 +146,12 @@ export default function ClientsPage({ user }: { user: any }) {
         <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
           <Bilan360Wizard
             clientId={bilan360ClientId}
+            clientData={bilan360ClientData}
+            clientName={bilan360ClientData ? `${bilan360ClientData.firstName} ${bilan360ClientData.lastName}` : undefined}
             onClose={() => {
               setShowBilan360(false)
               setBilan360ClientId(undefined)
+              setBilan360ClientData(undefined)
             }}
           />
         </div>
@@ -163,7 +179,7 @@ export default function ClientsPage({ user }: { user: any }) {
               </div>
             </div>
             <button
-              onClick={() => startBilan360(selectedClient.id)}
+              onClick={() => startBilan360(selectedClient)}
               className="flex items-center gap-2 px-4 py-2 bg-[#00358E] text-white rounded-xl text-sm font-medium hover:bg-[#002a70] transition"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
