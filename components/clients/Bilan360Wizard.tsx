@@ -118,18 +118,6 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
     }
   }, [clientId])
 
-  // If finalized, show recap view directly
-  if (bilanStatus === 'FINALIZED') {
-    return (
-      <FinalizedRecapView
-        data={data}
-        clientName={clientName}
-        updatedAt={bilanUpdatedAt}
-        onClose={onClose}
-      />
-    )
-  }
-
   const updateData = (updates: Partial<Bilan360Data>) => {
     setData(prev => ({ ...prev, ...updates }))
     setSaveStatus('idle')
@@ -152,6 +140,18 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
       setIsSaving(false)
     }
   }, [data, clientId])
+
+  // If finalized, show recap view directly
+  if (bilanStatus === 'FINALIZED') {
+    return (
+      <FinalizedRecapView
+        data={data}
+        clientName={clientName}
+        updatedAt={bilanUpdatedAt}
+        onClose={onClose}
+      />
+    )
+  }
 
   const goNext = async () => {
     // Auto-save when leaving a form step
