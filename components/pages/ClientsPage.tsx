@@ -25,6 +25,8 @@ export default function ClientsPage({ user }: { user: any }) {
   const [clientBilans, setClientBilans] = useState<any[]>([])
   const [loadingBilans, setLoadingBilans] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const CLIENTS_PER_PAGE = 10
 
   // Fetch bilans when a client is selected
   useEffect(() => {
@@ -366,56 +368,118 @@ export default function ClientsPage({ user }: { user: any }) {
                     type="text"
                     placeholder="Rechercher un client..."
                     value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
+                    onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1) }}
                     className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              <div className="divide-y divide-gray-100">
-                {clients.filter(client => {
-                  if (!searchQuery.trim()) return true
-                  const q = searchQuery.toLowerCase()
-                  return (
-                    client.firstName.toLowerCase().includes(q) ||
-                    client.lastName.toLowerCase().includes(q) ||
-                    (client.email && client.email.toLowerCase().includes(q)) ||
-                    (client.phone && client.phone.includes(q)) ||
-                    (client.city && client.city.toLowerCase().includes(q))
-                  )
-                }).map(client => (
-                  <button
-                    key={client.id}
-                    onClick={() => setSelectedClient(client)}
-                    className="w-full px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition text-left"
-                  >
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-blue-700">
-                        {client.firstName[0]}{client.lastName[0]}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {client.firstName} {client.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {client.email || client.phone || 'Pas de contact'}
-                        {client.city && ` — ${client.city}`}
-                      </p>
-                    </div>
-                    <div className="hidden sm:block text-right flex-shrink-0">
-                      <p className="text-xs text-gray-400">{formatDate(client.createdAt)}</p>
-                      {client.familyStatus && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {FAMILY_STATUS_LABELS[client.familyStatus]}
-                        </p>
+              {(() => {
+                const filteredClients = clients
+                  .filter(client => {
+                    if (!searchQuery.trim()) return true
+                    const q = searchQuery.toLowerCase()
+                    return (
+                      client.firstName.toLowerCase().includes(q) ||
+                      client.lastName.toLowerCase().includes(q) ||
+                      (client.email && client.email.toLowerCase().includes(q)) ||
+                      (client.phone && client.phone.includes(q)) ||
+                      (client.city && client.city.toLowerCase().includes(q))
+                    )
+                  })
+                  .sort((a, b) => {
+                    const lastNameCmp = a.lastName.localeCompare(b.lastName, 'fr')
+                    if (lastNameCmp !== 0) return lastNameCmp
+                    return a.firstName.localeCompare(b.firstName, 'fr')
+                  })
+
+                const totalPages = Math.ceil(filteredClients.length / CLIENTS_PER_PAGE)
+                const safePage = Math.min(currentPage, totalPages || 1)
+                const paginatedClients = filteredClients.slice(
+                  (safePage - 1) * CLIENTS_PER_PAGE,
+                  safePage * CLIENTS_PER_PAGE
+                )
+
+                return (
+                  <>
+                    <div className="divide-y divide-gray-100">
+                      {paginatedClients.map(client => (
+                        <button
+                          key={client.id}
+                          onClick={() => setSelectedClient(client)}
+                          className="w-full px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition text-left"
+                        >
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-sm font-bold text-blue-700">
+                              {client.firstName[0]}{client.lastName[0]}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
+                              {client.lastName} {client.firstName}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {client.email || client.phone || 'Pas de contact'}
+                              {client.city && ` — ${client.city}`}
+                            </p>
+                          </div>
+                          <div className="hidden sm:block text-right flex-shrink-0">
+                            <p className="text-xs text-gray-400">{formatDate(client.createdAt)}</p>
+                            {client.familyStatus && (
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {FAMILY_STATUS_LABELS[client.familyStatus]}
+                              </p>
+                            )}
+                          </div>
+                          <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ))}
+                      {filteredClients.length === 0 && (
+                        <div className="px-6 py-8 text-center">
+                          <p className="text-sm text-gray-500">Aucun client trouvé pour &quot;{searchQuery}&quot;</p>
+                        </div>
                       )}
                     </div>
-                    <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
+                    {totalPages > 1 && (
+                      <div className="px-6 py-3 border-t border-gray-100 flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                          {filteredClients.length} client{filteredClients.length > 1 ? 's' : ''} — Page {safePage}/{totalPages}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={safePage <= 1}
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                          >
+                            ← Précédent
+                          </button>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-8 h-8 text-xs font-medium rounded-lg transition ${
+                                page === safePage
+                                  ? 'bg-[#00358E] text-white'
+                                  : 'border border-gray-200 hover:bg-gray-50 text-gray-700'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={safePage >= totalPages}
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                          >
+                            Suivant →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           )}
 
