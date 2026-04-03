@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Bilan360Wizard, { ClientPrefillData } from '@/components/clients/Bilan360Wizard'
 import AddClientModal from '@/components/clients/AddClientModal'
 import { Client } from '@/lib/types'
@@ -21,6 +21,28 @@ export default function ClientsPage({ user }: { user: any }) {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+  const [clientBilans, setClientBilans] = useState<any[]>([])
+  const [loadingBilans, setLoadingBilans] = useState(false)
+
+  // Fetch bilans when a client is selected
+  useEffect(() => {
+    if (!selectedClient) {
+      setClientBilans([])
+      return
+    }
+    setLoadingBilans(true)
+    const token = localStorage.getItem('token')
+    fetch(`/api/bilan360?clientId=${selectedClient.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        // API returns single bilan or null
+        setClientBilans(data ? [data] : [])
+      })
+      .catch(() => setClientBilans([]))
+      .finally(() => setLoadingBilans(false))
+  }, [selectedClient])
 
   const fetchClients = useCallback(async () => {
     try {
@@ -263,6 +285,63 @@ export default function ClientsPage({ user }: { user: any }) {
               <div className="sm:col-span-2">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Notes</p>
                 <p className="text-sm text-gray-700 bg-gray-50 rounded-xl p-4">{selectedClient.notes}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Bilans 360° section */}
+          <div className="px-6 pb-6">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Bilans 360°</p>
+            {loadingBilans ? (
+              <p className="text-sm text-gray-400">Chargement...</p>
+            ) : clientBilans.length > 0 ? (
+              <div className="space-y-2">
+                {clientBilans.map((bilan: any) => {
+                  const isFinalized = bilan.status === 'FINALIZED'
+                  const status = isFinalized ? 'Finalisé' : 'En cours'
+                  const statusColor = isFinalized ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                  const updatedAt = bilan.updatedAt || bilan.createdAt
+
+                  return (
+                    <div
+                      key={bilan.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                      onClick={() => startBilan360(selectedClient)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-[#00358E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Bilan 360°</p>
+                          <p className="text-xs text-gray-500">
+                            Dernière mise à jour : {formatDate(updatedAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${statusColor}`}>
+                          {status}
+                        </span>
+                        <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="p-4 bg-gray-50 rounded-xl text-center">
+                <p className="text-sm text-gray-500 mb-2">Aucun bilan 360° pour ce client</p>
+                <button
+                  onClick={() => startBilan360(selectedClient)}
+                  className="text-sm text-[#00358E] font-medium hover:underline"
+                >
+                  Lancer un Bilan 360°
+                </button>
               </div>
             )}
           </div>

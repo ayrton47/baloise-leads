@@ -119,12 +119,13 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
     setSaveStatus('idle')
   }
 
-  const saveData = useCallback(async () => {
+  const saveData = useCallback(async (status: 'IN_PROGRESS' | 'FINALIZED' = 'IN_PROGRESS') => {
     setIsSaving(true)
     setSaveStatus('idle')
     try {
       await api.post('/bilan360', {
         clientId: clientId || undefined,
+        status,
         ...data,
       })
       setSaveStatus('saved')
@@ -266,7 +267,10 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
             </button>
           ) : (
             <button
-              onClick={onClose}
+              onClick={async () => {
+                await saveData('FINALIZED')
+                onClose?.()
+              }}
               className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
