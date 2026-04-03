@@ -24,6 +24,7 @@ export default function ClientsPage({ user }: { user: any }) {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [clientBilans, setClientBilans] = useState<any[]>([])
   const [loadingBilans, setLoadingBilans] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Fetch bilans when a client is selected
   useEffect(() => {
@@ -353,13 +354,35 @@ export default function ClientsPage({ user }: { user: any }) {
           {/* Client list */}
           {clients.length > 0 && (
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-4">
-              <div className="px-6 py-4 border-b border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-900">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
+                <h3 className="text-sm font-semibold text-gray-900 flex-shrink-0">
                   Mes clients ({clients.length})
                 </h3>
+                <div className="relative max-w-xs w-full">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Rechercher un client..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
               <div className="divide-y divide-gray-100">
-                {clients.map(client => (
+                {clients.filter(client => {
+                  if (!searchQuery.trim()) return true
+                  const q = searchQuery.toLowerCase()
+                  return (
+                    client.firstName.toLowerCase().includes(q) ||
+                    client.lastName.toLowerCase().includes(q) ||
+                    (client.email && client.email.toLowerCase().includes(q)) ||
+                    (client.phone && client.phone.includes(q)) ||
+                    (client.city && client.city.toLowerCase().includes(q))
+                  )
+                }).map(client => (
                   <button
                     key={client.id}
                     onClick={() => setSelectedClient(client)}
