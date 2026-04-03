@@ -11,6 +11,7 @@ interface AddClientModalProps {
 const FAMILY_STATUS_OPTIONS: { value: FamilyStatus; label: string }[] = [
   { value: 'SINGLE', label: 'Célibataire' },
   { value: 'MARRIED', label: 'Marié(e)' },
+  { value: 'PACS', label: 'Pacsé(e)' },
   { value: 'COHABITING', label: 'En concubinage' },
   { value: 'DIVORCED', label: 'Divorcé(e)' },
   { value: 'WIDOWED', label: 'Veuf/Veuve' },

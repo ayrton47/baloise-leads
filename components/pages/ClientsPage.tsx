@@ -8,6 +8,7 @@ import { Client } from '@/lib/types'
 const FAMILY_STATUS_LABELS: Record<string, string> = {
   SINGLE: 'Célibataire',
   MARRIED: 'Marié(e)',
+  PACS: 'Pacsé(e)',
   COHABITING: 'En concubinage',
   DIVORCED: 'Divorcé(e)',
   WIDOWED: 'Veuf/Veuve',

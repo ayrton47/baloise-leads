@@ -49,7 +49,7 @@ export interface Agent {
 }
 
 // Clients module
-export type FamilyStatus = 'SINGLE' | 'MARRIED' | 'COHABITING' | 'DIVORCED' | 'WIDOWED'
+export type FamilyStatus = 'SINGLE' | 'MARRIED' | 'PACS' | 'COHABITING' | 'DIVORCED' | 'WIDOWED'
 
 export interface Client {
   id: string

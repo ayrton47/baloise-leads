@@ -64,7 +64,8 @@ const STEPS: { key: Bilan360Step; label: string }[] = [
 const FAMILY_STATUS_MAP: Record<string, string> = {
   SINGLE: 'SINGLE',
   MARRIED: 'MARRIED',
-  COHABITING: 'PACS',
+  PACS: 'PACS',
+  COHABITING: 'COHABITING',
   DIVORCED: 'DIVORCED',
   WIDOWED: 'WIDOWED',
 }
@@ -390,6 +391,7 @@ const MARITAL_OPTIONS = [
   { value: 'SINGLE', label: 'Célibataire' },
   { value: 'MARRIED', label: 'Marié(e)' },
   { value: 'PACS', label: 'Pacsé(e)' },
+  { value: 'COHABITING', label: 'En concubinage' },
   { value: 'DIVORCED', label: 'Divorcé(e)' },
   { value: 'WIDOWED', label: 'Veuf/Veuve' },
 ]
@@ -640,6 +642,7 @@ const MARITAL_LABELS: Record<string, string> = {
   SINGLE: 'Célibataire',
   MARRIED: 'Marié(e)',
   PACS: 'Pacsé(e)',
+  COHABITING: 'En concubinage',
   DIVORCED: 'Divorcé(e)',
   WIDOWED: 'Veuf/Veuve',
 }
