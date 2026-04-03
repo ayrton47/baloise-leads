@@ -48,6 +48,29 @@ export interface Agent {
   role: AgentRole
 }
 
+// Clients module
+export type FamilyStatus = 'SINGLE' | 'MARRIED' | 'COHABITING' | 'DIVORCED' | 'WIDOWED'
+
+export interface Client {
+  id: string
+  agencyNumber: string
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+  address?: string
+  city?: string
+  postalCode?: string
+  dateOfBirth?: string
+  familyStatus?: FamilyStatus
+  childrenCount: number
+  notes?: string
+  createdBy: string
+  createdByName?: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Tasks module
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
 export type TaskPriority = 'URGENT' | 'HIGH' | 'NORMAL' | 'LOW'
