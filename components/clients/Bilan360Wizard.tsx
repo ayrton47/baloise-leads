@@ -88,6 +88,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
   const [bilanStatus, setBilanStatus] = useState<string | null>(null)
   const [bilanUpdatedAt, setBilanUpdatedAt] = useState<string | null>(null)
+  const [bilanCreatedByName, setBilanCreatedByName] = useState<string | null>(null)
   const [isLoadingBilan, setIsLoadingBilan] = useState(!!clientId)
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
@@ -102,6 +103,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
           const count = res.data.childrenCount || 0
           setBilanStatus(res.data.status || 'IN_PROGRESS')
           setBilanUpdatedAt(res.data.updatedAt || res.data.createdAt || null)
+          setBilanCreatedByName(res.data.createdByName || null)
           setData(prev => ({
             ...prev,
             maritalStatus: res.data.maritalStatus || prev.maritalStatus || '',
@@ -162,6 +164,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
         data={data}
         clientName={clientName}
         updatedAt={bilanUpdatedAt}
+        createdByName={bilanCreatedByName}
         onClose={onClose}
       />
     )
@@ -650,10 +653,11 @@ const EMPLOYMENT_LABELS: Record<string, string> = {
   OTHER: 'Autre',
 }
 
-function FinalizedRecapView({ data, clientName, updatedAt, onClose }: {
+function FinalizedRecapView({ data, clientName, updatedAt, createdByName, onClose }: {
   data: Bilan360Data
   clientName?: string
   updatedAt?: string | null
+  createdByName?: string | null
   onClose?: () => void
 }) {
   const formatDate = (dateStr: string) => {
@@ -689,6 +693,9 @@ function FinalizedRecapView({ data, clientName, updatedAt, onClose }: {
           <div className="flex items-center gap-3 mt-0.5">
             {clientName && (
               <span className="text-sm text-[#00358E] font-semibold">{clientName}</span>
+            )}
+            {createdByName && (
+              <span className="text-xs text-gray-500">Réalisé par <span className="font-medium text-gray-700">{createdByName}</span></span>
             )}
             {updatedAt && (
               <span className="text-xs text-gray-400">Mis à jour le {formatDate(updatedAt)}</span>

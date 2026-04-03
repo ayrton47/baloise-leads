@@ -317,6 +317,7 @@ export default function ClientsPage({ user }: { user: any }) {
                         <div>
                           <p className="text-sm font-semibold text-gray-900">Bilan 360°</p>
                           <p className="text-xs text-gray-500">
+                            {bilan.createdByName && <span>Par {bilan.createdByName} — </span>}
                             Dernière mise à jour : {formatDate(updatedAt)}
                           </p>
                         </div>

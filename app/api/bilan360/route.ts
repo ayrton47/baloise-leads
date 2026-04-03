@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       // Load specific bilan for a client
       const { data, error } = await supabase
         .from('bilan360')
-        .select('*')
+        .select('*, agents:created_by(name)')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -29,7 +29,12 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch bilan' }, { status: 500 })
       }
 
-      return NextResponse.json(data ? snakeToCamel(data) : null)
+      if (data) {
+        const agentName = (data as any).agents?.name || null
+        const { agents: _, ...rest } = data as any
+        return NextResponse.json({ ...snakeToCamel(rest), createdByName: agentName })
+      }
+      return NextResponse.json(null)
     }
 
     // Load all bilans for the agency
