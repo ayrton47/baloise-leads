@@ -17,6 +17,7 @@ const FAMILY_STATUS_LABELS: Record<string, string> = {
 export default function ClientsPage({ user }: { user: any }) {
   const [showBilan360, setShowBilan360] = useState(false)
   const [bilan360ClientId, setBilan360ClientId] = useState<string | undefined>()
+  const [bilan360BilanId, setBilan360BilanId] = useState<string | undefined>()
   const [bilan360ClientData, setBilan360ClientData] = useState<ClientPrefillData | undefined>()
   const [showAddClient, setShowAddClient] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
@@ -41,8 +42,8 @@ export default function ClientsPage({ user }: { user: any }) {
     })
       .then(res => res.json())
       .then(data => {
-        // API returns single bilan or null
-        setClientBilans(data ? [data] : [])
+        // API now returns array of bilans
+        setClientBilans(Array.isArray(data) ? data : data ? [data] : [])
       })
       .catch(() => setClientBilans([]))
       .finally(() => setLoadingBilans(false))
@@ -74,7 +75,8 @@ export default function ClientsPage({ user }: { user: any }) {
     fetchClients()
   }
 
-  const startBilan360 = (client?: Client) => {
+  const startNewBilan360 = (client?: Client) => {
+    setBilan360BilanId(undefined) // Force new bilan
     if (client) {
       setBilan360ClientId(client.id)
       setBilan360ClientData({
@@ -88,6 +90,20 @@ export default function ClientsPage({ user }: { user: any }) {
       setBilan360ClientId(undefined)
       setBilan360ClientData(undefined)
     }
+    setShowBilan360(true)
+    setSelectedClient(null)
+  }
+
+  const openExistingBilan360 = (bilanId: string, client: Client) => {
+    setBilan360BilanId(bilanId)
+    setBilan360ClientId(client.id)
+    setBilan360ClientData({
+      firstName: client.firstName,
+      lastName: client.lastName,
+      familyStatus: client.familyStatus,
+      childrenCount: client.childrenCount,
+      dateOfBirth: client.dateOfBirth,
+    })
     setShowBilan360(true)
     setSelectedClient(null)
   }
@@ -172,11 +188,13 @@ export default function ClientsPage({ user }: { user: any }) {
         <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
           <Bilan360Wizard
             clientId={bilan360ClientId}
+            bilanId={bilan360BilanId}
             clientData={bilan360ClientData}
             clientName={bilan360ClientData ? `${bilan360ClientData.firstName} ${bilan360ClientData.lastName}` : undefined}
             onClose={() => {
               setShowBilan360(false)
               setBilan360ClientId(undefined)
+              setBilan360BilanId(undefined)
               setBilan360ClientData(undefined)
             }}
           />
@@ -205,7 +223,7 @@ export default function ClientsPage({ user }: { user: any }) {
               </div>
             </div>
             <button
-              onClick={() => startBilan360(selectedClient)}
+              onClick={() => startNewBilan360(selectedClient)}
               className="flex items-center gap-2 px-4 py-2 bg-[#00358E] text-white rounded-xl text-sm font-medium hover:bg-[#002a70] transition"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,7 +328,7 @@ export default function ClientsPage({ user }: { user: any }) {
                     <div
                       key={bilan.id}
                       className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition cursor-pointer"
-                      onClick={() => startBilan360(selectedClient)}
+                      onClick={() => openExistingBilan360(bilan.id, selectedClient)}
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -342,7 +360,7 @@ export default function ClientsPage({ user }: { user: any }) {
               <div className="p-4 bg-gray-50 rounded-xl text-center">
                 <p className="text-sm text-gray-500 mb-2">Aucun bilan 360° pour ce client</p>
                 <button
-                  onClick={() => startBilan360(selectedClient)}
+                  onClick={() => startNewBilan360(selectedClient)}
                   className="text-sm text-[#00358E] font-medium hover:underline"
                 >
                   Lancer un Bilan 360°

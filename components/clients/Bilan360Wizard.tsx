@@ -46,6 +46,7 @@ export interface ClientPrefillData {
 interface Bilan360WizardProps {
   clientName?: string
   clientId?: string
+  bilanId?: string
   clientData?: ClientPrefillData
   onClose?: () => void
 }
@@ -70,7 +71,7 @@ const FAMILY_STATUS_MAP: Record<string, string> = {
   WIDOWED: 'WIDOWED',
 }
 
-export default function Bilan360Wizard({ clientName, clientId, clientData, onClose }: Bilan360WizardProps) {
+export default function Bilan360Wizard({ clientName, clientId, bilanId, clientData, onClose }: Bilan360WizardProps) {
   const [currentStep, setCurrentStep] = useState<Bilan360Step>('welcome')
   const [data, setData] = useState<Bilan360Data>(() => {
     // Pre-fill from client data if available
@@ -90,15 +91,16 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
   const [bilanStatus, setBilanStatus] = useState<string | null>(null)
   const [bilanUpdatedAt, setBilanUpdatedAt] = useState<string | null>(null)
   const [bilanCreatedByName, setBilanCreatedByName] = useState<string | null>(null)
-  const [isLoadingBilan, setIsLoadingBilan] = useState(!!clientId)
+  const [isLoadingBilan, setIsLoadingBilan] = useState(!!bilanId)
+  const [activeBilanId, setActiveBilanId] = useState<string | undefined>(bilanId)
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
 
-  // Load existing bilan data if clientId is provided
+  // Load existing bilan data only if bilanId is provided (opening existing bilan)
   useEffect(() => {
-    if (clientId) {
+    if (bilanId) {
       setIsLoadingBilan(true)
-      api.get(`/bilan360?clientId=${clientId}`).then(res => {
+      api.get(`/bilan360?bilanId=${bilanId}`).then(res => {
         if (res.data) {
           const ages = res.data.childrenAges || []
           const count = res.data.childrenCount || 0
@@ -121,7 +123,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
         }
       }).catch(() => {}).finally(() => setIsLoadingBilan(false))
     }
-  }, [clientId])
+  }, [bilanId])
 
   const updateData = (updates: Partial<Bilan360Data>) => {
     setData(prev => ({ ...prev, ...updates }))
@@ -132,11 +134,16 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
     setIsSaving(true)
     setSaveStatus('idle')
     try {
-      await api.post('/bilan360', {
+      const res = await api.post('/bilan360', {
         clientId: clientId || undefined,
+        bilanId: activeBilanId || undefined,
         status,
         ...data,
       })
+      // Store the bilan ID after first save so subsequent saves update the same record
+      if (res.data?.id && !activeBilanId) {
+        setActiveBilanId(res.data.id)
+      }
       setSaveStatus('saved')
     } catch (err) {
       console.error('Save bilan error:', err)
@@ -144,7 +151,7 @@ export default function Bilan360Wizard({ clientName, clientId, clientData, onClo
     } finally {
       setIsSaving(false)
     }
-  }, [data, clientId])
+  }, [data, clientId, activeBilanId])
 
   // Show loading while fetching bilan data
   if (isLoadingBilan) {

@@ -14,14 +14,14 @@ export async function GET(req: NextRequest) {
 
     const clientId = req.nextUrl.searchParams.get('clientId')
 
-    if (clientId) {
-      // Load specific bilan for a client
+    const bilanId = req.nextUrl.searchParams.get('bilanId')
+
+    // Load a specific bilan by ID
+    if (bilanId) {
       const { data, error } = await supabase
         .from('bilan360')
         .select('*, agents:created_by(name)')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-        .limit(1)
+        .eq('id', bilanId)
         .single()
 
       if (error && error.code !== 'PGRST116') {
@@ -35,6 +35,27 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ ...snakeToCamel(rest), createdByName: agentName })
       }
       return NextResponse.json(null)
+    }
+
+    if (clientId) {
+      // Load ALL bilans for a client
+      const { data, error } = await supabase
+        .from('bilan360')
+        .select('*, agents:created_by(name)')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Bilan360 fetch error:', error)
+        return NextResponse.json({ error: 'Failed to fetch bilans' }, { status: 500 })
+      }
+
+      const bilans = (data || []).map((b: any) => {
+        const agentName = b.agents?.name || null
+        const { agents: _, ...rest } = b
+        return { ...snakeToCamel(rest), createdByName: agentName }
+      })
+      return NextResponse.json(bilans)
     }
 
     // Load all bilans for the agency
@@ -74,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { clientId, ...bilanData } = body
+    const { clientId, bilanId, ...bilanData } = body
 
     // Convert to snake_case for DB
     const dbData = camelToSnake(bilanData)
@@ -83,34 +104,26 @@ export async function POST(req: NextRequest) {
 
     if (clientId) {
       dbData.client_id = clientId
-
-      // Check if a bilan already exists for this client
-      const { data: existing } = await supabase
-        .from('bilan360')
-        .select('id')
-        .eq('client_id', clientId)
-        .limit(1)
-        .single()
-
-      if (existing) {
-        // Update existing bilan
-        const { data, error } = await supabase
-          .from('bilan360')
-          .update(dbData)
-          .eq('id', existing.id)
-          .select()
-          .single()
-
-        if (error) {
-          console.error('Bilan360 update error:', error)
-          return NextResponse.json({ error: 'Failed to update bilan' }, { status: 500 })
-        }
-
-        return NextResponse.json(snakeToCamel(data))
-      }
     }
 
-    // Create new bilan (without client association if no clientId)
+    // Update existing bilan if bilanId provided
+    if (bilanId) {
+      const { data, error } = await supabase
+        .from('bilan360')
+        .update(dbData)
+        .eq('id', bilanId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Bilan360 update error:', error)
+        return NextResponse.json({ error: 'Failed to update bilan' }, { status: 500 })
+      }
+
+      return NextResponse.json(snakeToCamel(data))
+    }
+
+    // Always create a new bilan
     const { data, error } = await supabase
       .from('bilan360')
       .insert(dbData)
