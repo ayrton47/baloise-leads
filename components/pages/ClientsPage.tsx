@@ -441,7 +441,7 @@ export default function ClientsPage({ user }: { user: any }) {
                             </p>
                           </div>
                           <div className="hidden sm:block text-right flex-shrink-0">
-                            <p className="text-xs text-gray-400">{formatDate(client.createdAt)}</p>
+                            <p className="text-xs text-gray-400">{client.dateOfBirth ? formatDate(client.dateOfBirth) : ''}</p>
                             {client.familyStatus && (
                               <p className="text-xs text-gray-500 mt-0.5">
                                 {FAMILY_STATUS_LABELS[client.familyStatus]}
