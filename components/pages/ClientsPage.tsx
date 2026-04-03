@@ -490,8 +490,7 @@ export default function ClientsPage({ user }: { user: any }) {
                         )}
                       </div>
                     )}
-                  </div>
-                </div>
+            </div>
           </div>
         </div>
       ) : (
