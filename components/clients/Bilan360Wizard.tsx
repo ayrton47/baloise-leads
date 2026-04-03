@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { api } from '@/lib/api'
 
 // ─── Types ───
 export type Bilan360Step = 'welcome' | 'situation' | 'risks' | 'coverage' | 'summary'
@@ -33,6 +34,7 @@ const INITIAL_DATA: Bilan360Data = {
 
 interface Bilan360WizardProps {
   clientName?: string
+  clientId?: string
   onClose?: () => void
 }
 
@@ -46,17 +48,63 @@ const STEPS: { key: Bilan360Step; label: string }[] = [
 ]
 
 // ─── Main Wizard ───
-export default function Bilan360Wizard({ clientName, onClose }: Bilan360WizardProps) {
+export default function Bilan360Wizard({ clientName, clientId, onClose }: Bilan360WizardProps) {
   const [currentStep, setCurrentStep] = useState<Bilan360Step>('welcome')
   const [data, setData] = useState<Bilan360Data>(INITIAL_DATA)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
 
+  // Load existing bilan data if clientId is provided
+  useEffect(() => {
+    if (clientId) {
+      api.get(`/bilan360?clientId=${clientId}`).then(res => {
+        if (res.data) {
+          setData(prev => ({
+            ...prev,
+            maritalStatus: res.data.maritalStatus || '',
+            childrenCount: res.data.childrenCount || 0,
+            dependentsCount: res.data.dependentsCount || 0,
+            dependentsDetails: res.data.dependentsDetails || '',
+            profession: res.data.profession || '',
+            employmentStatus: res.data.employmentStatus || '',
+            yearsOfActivity: res.data.yearsOfActivity || 0,
+            careerEvolution: res.data.careerEvolution || false,
+            careerEvolutionDetails: res.data.careerEvolutionDetails || '',
+          }))
+        }
+      }).catch(() => {})
+    }
+  }, [clientId])
+
   const updateData = (updates: Partial<Bilan360Data>) => {
     setData(prev => ({ ...prev, ...updates }))
+    setSaveStatus('idle')
   }
 
-  const goNext = () => {
+  const saveData = useCallback(async () => {
+    setIsSaving(true)
+    setSaveStatus('idle')
+    try {
+      await api.post('/bilan360', {
+        clientId: clientId || undefined,
+        ...data,
+      })
+      setSaveStatus('saved')
+    } catch (err) {
+      console.error('Save bilan error:', err)
+      setSaveStatus('error')
+    } finally {
+      setIsSaving(false)
+    }
+  }, [data, clientId])
+
+  const goNext = async () => {
+    // Auto-save when leaving a form step
+    if (currentStep === 'situation') {
+      await saveData()
+    }
     if (currentIndex < STEPS.length - 1) {
       setCurrentStep(STEPS[currentIndex + 1].key)
     }
@@ -163,8 +211,11 @@ export default function Bilan360Wizard({ clientName, onClose }: Bilan360WizardPr
             Retour
           </button>
 
-          <div className="text-xs text-gray-400">
-            Étape {currentIndex} sur {STEPS.length - 1}
+          <div className="text-xs text-gray-400 flex items-center gap-2">
+            <span>Étape {currentIndex} sur {STEPS.length - 1}</span>
+            {isSaving && <span className="text-blue-500">Sauvegarde...</span>}
+            {saveStatus === 'saved' && <span className="text-green-500">Sauvegardé</span>}
+            {saveStatus === 'error' && <span className="text-red-500">Erreur</span>}
           </div>
 
           {currentIndex < STEPS.length - 1 ? (
