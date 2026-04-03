@@ -102,6 +102,11 @@ export async function POST(req: NextRequest) {
     dbData.created_by = payload.id
     dbData.updated_at = new Date().toISOString()
 
+    // Ensure children_ages is a proper array of strings for PostgreSQL text[]
+    if (dbData.children_ages && Array.isArray(dbData.children_ages)) {
+      dbData.children_ages = dbData.children_ages.map((a: any) => String(a || ''))
+    }
+
     if (clientId) {
       dbData.client_id = clientId
     }

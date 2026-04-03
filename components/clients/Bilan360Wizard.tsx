@@ -91,39 +91,57 @@ export default function Bilan360Wizard({ clientName, clientId, bilanId, clientDa
   const [bilanStatus, setBilanStatus] = useState<string | null>(null)
   const [bilanUpdatedAt, setBilanUpdatedAt] = useState<string | null>(null)
   const [bilanCreatedByName, setBilanCreatedByName] = useState<string | null>(null)
-  const [isLoadingBilan, setIsLoadingBilan] = useState(!!bilanId)
+  const [isLoadingBilan, setIsLoadingBilan] = useState(!!bilanId || !!clientId)
   const [activeBilanId, setActiveBilanId] = useState<string | undefined>(bilanId)
 
   const currentIndex = STEPS.findIndex(s => s.key === currentStep)
 
-  // Load existing bilan data only if bilanId is provided (opening existing bilan)
+  const applyBilanData = (bilanData: any, prev: Bilan360Data): Bilan360Data => {
+    const ages = bilanData.childrenAges || []
+    const count = bilanData.childrenCount || 0
+    return {
+      ...prev,
+      maritalStatus: bilanData.maritalStatus || prev.maritalStatus || '',
+      childrenCount: count,
+      childrenAges: ages.length >= count ? ages : [...ages, ...Array(Math.max(0, count - ages.length)).fill('')],
+      dependentsCount: bilanData.dependentsCount || 0,
+      dependentsDetails: bilanData.dependentsDetails || '',
+      profession: bilanData.profession || '',
+      employmentStatus: bilanData.employmentStatus || '',
+      yearsOfActivity: bilanData.yearsOfActivity || 0,
+      careerEvolution: bilanData.careerEvolution || false,
+      careerEvolutionDetails: bilanData.careerEvolutionDetails || '',
+    }
+  }
+
+  // Load bilan data
   useEffect(() => {
     if (bilanId) {
+      // Opening an existing bilan
       setIsLoadingBilan(true)
       api.get(`/bilan360?bilanId=${bilanId}`).then(res => {
         if (res.data) {
-          const ages = res.data.childrenAges || []
-          const count = res.data.childrenCount || 0
           setBilanStatus(res.data.status || 'IN_PROGRESS')
           setBilanUpdatedAt(res.data.updatedAt || res.data.createdAt || null)
           setBilanCreatedByName(res.data.createdByName || null)
-          setData(prev => ({
-            ...prev,
-            maritalStatus: res.data.maritalStatus || prev.maritalStatus || '',
-            childrenCount: count,
-            childrenAges: ages.length >= count ? ages : [...ages, ...Array(Math.max(0, count - ages.length)).fill('')],
-            dependentsCount: res.data.dependentsCount || 0,
-            dependentsDetails: res.data.dependentsDetails || '',
-            profession: res.data.profession || '',
-            employmentStatus: res.data.employmentStatus || '',
-            yearsOfActivity: res.data.yearsOfActivity || 0,
-            careerEvolution: res.data.careerEvolution || false,
-            careerEvolutionDetails: res.data.careerEvolutionDetails || '',
-          }))
+          setData(prev => applyBilanData(res.data, prev))
         }
       }).catch(() => {}).finally(() => setIsLoadingBilan(false))
+    } else if (clientId) {
+      // New bilan — pre-fill from the latest existing bilan for this client
+      setIsLoadingBilan(true)
+      api.get(`/bilan360?clientId=${clientId}`).then(res => {
+        const bilans = Array.isArray(res.data) ? res.data : res.data ? [res.data] : []
+        if (bilans.length > 0) {
+          // Use the most recent bilan as prefill (already sorted by created_at desc)
+          setData(prev => applyBilanData(bilans[0], prev))
+        }
+        // Don't set bilanStatus/activeBilanId — this is a NEW bilan
+      }).catch(() => {}).finally(() => setIsLoadingBilan(false))
+    } else {
+      setIsLoadingBilan(false)
     }
-  }, [bilanId])
+  }, [bilanId, clientId])
 
   const updateData = (updates: Partial<Bilan360Data>) => {
     setData(prev => ({ ...prev, ...updates }))
