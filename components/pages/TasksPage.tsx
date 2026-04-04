@@ -230,7 +230,10 @@ export default function TasksPage({ user, navigateToTaskId, onClearNavigateToTas
       if (task.status === 'DONE' || task.status === 'CANCELLED') return false
       const startOfDayFn = (d: Date) => { const r = new Date(d); r.setHours(0,0,0,0); return r }
       if (!task.dueDate || startOfDayFn(new Date(task.dueDate)) >= startOfDayFn(now)) return false
-    } else if (filterStatus !== 'ALL' && task.status !== filterStatus) {
+    } else if (filterStatus === 'ALL') {
+      // By default, hide closed/cancelled tasks
+      if (task.status === 'DONE' || task.status === 'CANCELLED') return false
+    } else if (task.status !== filterStatus) {
       return false
     }
 
